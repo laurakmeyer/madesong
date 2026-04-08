@@ -16,11 +16,16 @@ export default function SongForm() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     recipientName: "",
+    age: "",
     occasion: "Geburtstag",
     language: "Deutsch",
     mood: "Fröhlich & mitreißend",
+    favoriteThing: "",
+    favoriteAnimal: "",
     details: "",
   });
+
+  const isChild = form.age !== "" && parseInt(form.age) <= 12;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,17 +45,58 @@ export default function SongForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Name */}
-          <div className="space-y-1.5">
-            <Label htmlFor="recipientName">Für wen ist dieser Song?</Label>
-            <Input
-              id="recipientName"
-              placeholder="z.B. Emma, Oma, Max..."
-              value={form.recipientName}
-              onChange={(e) => setForm({ ...form, recipientName: e.target.value })}
-              required
-            />
+          {/* Name + Alter */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="recipientName">Für wen ist dieser Song?</Label>
+              <Input
+                id="recipientName"
+                placeholder="z.B. Emma, Oma, Max..."
+                value={form.recipientName}
+                onChange={(e) => setForm({ ...form, recipientName: e.target.value })}
+                required
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="age">Alter</Label>
+              <Input
+                id="age"
+                type="number"
+                min="1"
+                max="99"
+                placeholder="z.B. 5"
+                value={form.age}
+                onChange={(e) => setForm({ ...form, age: e.target.value })}
+              />
+            </div>
           </div>
+
+          {/* Kindspezifische Felder - erscheinen nur wenn Alter ≤ 12 */}
+          {isChild && (
+            <div className="grid grid-cols-2 gap-3 p-4 bg-purple-50 rounded-xl border border-purple-100">
+              <div className="col-span-2 text-sm font-medium text-purple-700 mb-1">
+                🧒 Erzähl uns mehr über {form.recipientName || "das Kind"}!
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="favoriteAnimal">Lieblingstier</Label>
+                <Input
+                  id="favoriteAnimal"
+                  placeholder="z.B. Einhorn, Hund, Dino..."
+                  value={form.favoriteAnimal}
+                  onChange={(e) => setForm({ ...form, favoriteAnimal: e.target.value })}
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="favoriteThing">Lieblingsding</Label>
+                <Input
+                  id="favoriteThing"
+                  placeholder="z.B. Fußball, Malen, Lego..."
+                  value={form.favoriteThing}
+                  onChange={(e) => setForm({ ...form, favoriteThing: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
 
           {/* Anlass */}
           <div className="space-y-1.5">
@@ -117,10 +163,17 @@ export default function SongForm() {
 
           {/* Persönliche Details */}
           <div className="space-y-1.5">
-            <Label htmlFor="details">Persönliche Details <span className="text-gray-400 font-normal">(optional)</span></Label>
+            <Label htmlFor="details">
+              {isChild ? "Noch mehr über " + (form.recipientName || "das Kind") : "Persönliche Details"}
+              {" "}<span className="text-gray-400 font-normal">(optional)</span>
+            </Label>
             <Textarea
               id="details"
-              placeholder="z.B. Sie liebt Katzen, ihre Lieblingsfarbe ist Gelb, sie wird gerade 5..."
+              placeholder={
+                isChild
+                  ? `z.B. ${form.recipientName || "sie/er"} liebt Spaghetti, hat einen Bruder namens Luca, geht gerne in den Park...`
+                  : "z.B. wir kennen uns seit 10 Jahren, liebt Reisen, arbeitet als Lehrerin..."
+              }
               value={form.details}
               onChange={(e) => setForm({ ...form, details: e.target.value })}
               rows={3}
