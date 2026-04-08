@@ -8,53 +8,53 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sparkles, Loader2 } from "lucide-react";
 
-const OCCASIONS = ["Birthday", "Lullaby", "Anniversary", "Christmas", "Valentine's Day", "Father's Day", "Mother's Day", "Just Because"];
-const LANGUAGES = ["English", "Deutsch"];
-const MOODS = ["Happy & Upbeat", "Warm & Tender", "Funny & Playful", "Calm & Soothing"];
+const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Valentinstag", "Vatertag", "Muttertag", "Einfach so"];
+const LANGUAGES = ["Deutsch", "English"];
+const MOODS = ["Fröhlich & mitreißend", "Warm & zärtlich", "Lustig & verspielt", "Ruhig & sanft"];
 
 export default function SongForm() {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     recipientName: "",
-    occasion: "Birthday",
-    language: "English",
-    mood: "Happy & Upbeat",
+    occasion: "Geburtstag",
+    language: "Deutsch",
+    mood: "Fröhlich & mitreißend",
     details: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // API call will be added soon
+    // API call wird bald hinzugefügt
     await new Promise((r) => setTimeout(r, 2000));
     setLoading(false);
-    alert("Song generation coming soon! 🎵");
+    alert("Song-Generierung kommt bald! 🎵");
   };
 
   return (
     <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
       <CardHeader className="text-center pb-2">
-        <CardTitle className="text-2xl font-bold text-gray-900">Create your song</CardTitle>
-        <CardDescription>Fill in the details and we&apos;ll make the magic happen ✨</CardDescription>
+        <CardTitle className="text-2xl font-bold text-gray-900">Deinen Song erstellen</CardTitle>
+        <CardDescription>Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Recipient Name */}
+          {/* Name */}
           <div className="space-y-1.5">
-            <Label htmlFor="recipientName">Who is this song for?</Label>
+            <Label htmlFor="recipientName">Für wen ist dieser Song?</Label>
             <Input
               id="recipientName"
-              placeholder="e.g. Emma, Grandma, Max..."
+              placeholder="z.B. Emma, Oma, Max..."
               value={form.recipientName}
               onChange={(e) => setForm({ ...form, recipientName: e.target.value })}
               required
             />
           </div>
 
-          {/* Occasion */}
+          {/* Anlass */}
           <div className="space-y-1.5">
-            <Label>Occasion</Label>
+            <Label>Anlass</Label>
             <div className="flex flex-wrap gap-2">
               {OCCASIONS.map((o) => (
                 <button
@@ -73,9 +73,9 @@ export default function SongForm() {
             </div>
           </div>
 
-          {/* Language */}
+          {/* Sprache */}
           <div className="space-y-1.5">
-            <Label>Language</Label>
+            <Label>Sprache</Label>
             <div className="flex gap-2">
               {LANGUAGES.map((l) => (
                 <button
@@ -94,9 +94,9 @@ export default function SongForm() {
             </div>
           </div>
 
-          {/* Mood */}
+          {/* Stimmung */}
           <div className="space-y-1.5">
-            <Label>Mood</Label>
+            <Label>Stimmung</Label>
             <div className="flex flex-wrap gap-2">
               {MOODS.map((m) => (
                 <button
@@ -115,33 +115,33 @@ export default function SongForm() {
             </div>
           </div>
 
-          {/* Personal Details */}
+          {/* Persönliche Details */}
           <div className="space-y-1.5">
-            <Label htmlFor="details">Personal details <span className="text-gray-400 font-normal">(optional)</span></Label>
+            <Label htmlFor="details">Persönliche Details <span className="text-gray-400 font-normal">(optional)</span></Label>
             <Textarea
               id="details"
-              placeholder="e.g. She loves cats, her favorite color is yellow, she just turned 5..."
+              placeholder="z.B. Sie liebt Katzen, ihre Lieblingsfarbe ist Gelb, sie wird gerade 5..."
               value={form.details}
               onChange={(e) => setForm({ ...form, details: e.target.value })}
               rows={3}
             />
           </div>
 
-          {/* Submit */}
+          {/* Button */}
           <Button
             type="submit"
             disabled={loading || !form.recipientName}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 text-base rounded-xl"
           >
             {loading ? (
-              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Creating your song...</>
+              <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Song wird erstellt...</>
             ) : (
-              <><Sparkles className="mr-2 h-5 w-5" /> Create My Song</>
+              <><Sparkles className="mr-2 h-5 w-5" /> Meinen Song erstellen</>
             )}
           </Button>
 
           <p className="text-center text-xs text-gray-400">
-            3 free songs included — no credit card required
+            3 kostenlose Songs inklusive — keine Kreditkarte nötig
           </p>
         </form>
       </CardContent>
