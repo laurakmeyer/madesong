@@ -12,18 +12,23 @@ const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Vale
 const LANGUAGES = ["Deutsch", "English"];
 const MOODS = ["Fröhlich & mitreißend", "Warm & zärtlich", "Lustig & verspielt", "Ruhig & sanft"];
 
-export default function SongForm() {
+export default function SongForm({ preselectedOccasion }: { preselectedOccasion?: string }) {
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     recipientName: "",
     age: "",
-    occasion: "Geburtstag",
+    occasion: preselectedOccasion || "Geburtstag",
     language: "Deutsch",
     mood: "Fröhlich & mitreißend",
     favoriteThing: "",
     favoriteAnimal: "",
     details: "",
   });
+
+  // Wenn Hero-Chip geklickt wird, Anlass im Formular aktualisieren
+  if (preselectedOccasion && form.occasion !== preselectedOccasion) {
+    setForm((f) => ({ ...f, occasion: preselectedOccasion }));
+  }
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
 
