@@ -16,13 +16,12 @@ export async function GET(req: NextRequest) {
 
     const data = await res.json();
 
-    if (data.status === "succeeded" && data.songs?.length > 0) {
+    if (data.status === "succeeded" && data.choices?.length > 0) {
       return NextResponse.json({
         status: "succeeded",
-        songs: data.songs.map((s: { mp3_url: string; cover: string; title: string }) => ({
-          mp3_url: s.mp3_url,
-          cover: s.cover,
-          title: s.title,
+        songs: data.choices.map((s: { url: string; id: string }) => ({
+          mp3_url: s.url,
+          title: `Version ${s.id}`,
         })),
       });
     }
