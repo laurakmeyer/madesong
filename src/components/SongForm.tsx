@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download } from "lucide-react";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Valentinstag", "Vatertag", "Muttertag", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -20,6 +20,7 @@ export default function SongForm({ preselectedOccasion }: { preselectedOccasion?
   const [lyrics, setLyrics] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -58,6 +59,23 @@ export default function SongForm({ preselectedOccasion }: { preselectedOccasion?
   useEffect(() => {
     return () => { audioRef.current?.pause(); };
   }, []);
+
+  // Song teilen
+  const handleShare = async (song: Song, index: number) => {
+    const shareText = `🎵 Ich habe einen personalisierten Song für ${form.recipientName} erstellt!\n\n`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `Song für ${form.recipientName}`, text: shareText, url: song.mp3_url });
+      } catch {
+        // Abgebrochen vom User
+      }
+    } else {
+      // Fallback: Link in Zwischenablage kopieren
+      await navigator.clipboard.writeText(song.mp3_url);
+      setCopiedIndex(index);
+      setTimeout(() => setCopiedIndex(null), 2000);
+    }
+  };
 
   // Mureka polling
   const pollAudio = async (taskId: string) => {
@@ -293,10 +311,16 @@ export default function SongForm({ preselectedOccasion }: { preselectedOccasion?
                       </button>
                       <span className="text-sm font-medium text-gray-700">Version {i + 1}</span>
                     </div>
-                    <a href={song.mp3_url} download={`madesong-${i + 1}.mp3`} target="_blank" rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-medium">
-                      <Download className="h-3.5 w-3.5" /> MP3
-                    </a>
+                    <div className="flex items-center gap-3">
+                      <button onClick={() => handleShare(song, i)}
+                        className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-medium">
+                        {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Teilen</>}
+                      </button>
+                      <a href={song.mp3_url} download={`madesong-${i + 1}.mp3`} target="_blank" rel="noopener noreferrer"
+                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium">
+                        <Download className="h-3.5 w-3.5" /> MP3
+                      </a>
+                    </div>
                   </div>
                 ))}
               </div>
