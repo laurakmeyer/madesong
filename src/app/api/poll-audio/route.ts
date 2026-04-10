@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const occasion = req.nextUrl.searchParams.get("occasion");
   const language = req.nextUrl.searchParams.get("language");
   const mood = req.nextUrl.searchParams.get("mood");
+  const photoUrl = req.nextUrl.searchParams.get("photoUrl");
 
   if (!taskId) {
     return NextResponse.json({ error: "Keine taskId angegeben." }, { status: 400 });
@@ -41,6 +42,7 @@ export async function GET(req: NextRequest) {
         lyrics: lyrics || "",
         mp3_url: songs[0].mp3_url,
         share_slug: shareSlug,
+        photo_url: photoUrl || null,
       });
 
       return NextResponse.json({

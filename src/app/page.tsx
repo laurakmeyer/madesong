@@ -59,12 +59,12 @@ export default function Home() {
       <section id="preise" className="py-20 px-8">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-bold text-gray-900 mb-4">Einfache Preise</h2>
-          <p className="text-gray-500 mb-12">Kostenlos starten, upgraden wenn du es liebst.</p>
+          <p className="text-gray-500 mb-12">Bezahl nur was du brauchst — kein Abo-Zwang.</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: "Gratis", price: "€0", desc: "Einfach ausprobieren", features: ["3 Songs", "Standardqualität", "MP3-Download"] },
-              { name: "Paket", price: "€4,99", desc: "10 Songs", features: ["10 Songs", "Hohe Qualität", "MP3 & Teilen-Link"], highlight: true },
-              { name: "Unlimited", price: "€9,99/Monat", desc: "Für alle Anlässe", features: ["Unbegrenzte Songs", "Höchste Qualität", "Prioritätsgenerierung"] },
+              { name: "Single", price: "€3,99", desc: "1 Song", features: ["1 personalisierter Song", "Text + Musik", "MP3-Download", "Teilen-Link"] },
+              { name: "Paket", price: "€14,99", desc: "5 Songs", features: ["5 personalisierte Songs", "Text + Musik", "MP3-Download", "Teilen-Link", "Foto-Hintergrund"], highlight: true },
+              { name: "Flat", price: "€34,99/Monat", desc: "Bis zu 20 Songs", features: ["20 Songs pro Monat", "Text + Musik", "MP3-Download", "Teilen-Link", "Foto-Hintergrund"] },
             ].map(({ name, price, desc, features, highlight }) => (
               <div key={name} className={`rounded-2xl p-6 border ${highlight ? "border-purple-400 bg-purple-50 shadow-md" : "border-gray-200 bg-white"}`}>
                 {highlight && <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">Beliebteste Wahl</span>}

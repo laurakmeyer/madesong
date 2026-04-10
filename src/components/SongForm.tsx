@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2 } from "lucide-react";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Valentinstag", "Vatertag", "Muttertag", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -26,7 +26,10 @@ export default function SongForm() {
   const [refineInput, setRefineInput] = useState("");
   const [refining, setRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     recipientName: "",
@@ -40,6 +43,13 @@ export default function SongForm() {
   });
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoFile(file);
+    setPhotoPreview(URL.createObjectURL(file));
+  };
 
   // Lyrics verfeinern
   const handleRefine = async () => {
@@ -102,7 +112,7 @@ export default function SongForm() {
   };
 
   // Mureka polling
-  const pollAudio = async (taskId: string, lyricsText: string) => {
+  const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null) => {
     const maxAttempts = 30;
     const params = new URLSearchParams({
       taskId,
@@ -112,6 +122,7 @@ export default function SongForm() {
       occasion: form.occasion,
       language: form.language,
       mood: form.mood,
+      ...(photoUrl ? { photoUrl } : {}),
     });
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((r) => setTimeout(r, 5000));
@@ -146,7 +157,17 @@ export default function SongForm() {
       setLyrics(lyricsData.lyrics);
       setLoading(false);
 
-      // 2. Audio generieren
+      // 2. Foto hochladen (falls vorhanden)
+      let photoUrl = null;
+      if (photoFile) {
+        const formData = new FormData();
+        formData.append("file", photoFile);
+        const photoRes = await fetch("/api/upload-photo", { method: "POST", body: formData });
+        const photoData = await photoRes.json();
+        if (photoData.url) photoUrl = photoData.url;
+      }
+
+      // 3. Audio generieren
       setAudioLoading(true);
       const audioRes = await fetch("/api/generate-audio", {
         method: "POST",
@@ -161,8 +182,8 @@ export default function SongForm() {
       const audioData = await audioRes.json();
       if (audioData.error) throw new Error(audioData.error);
 
-      // 3. Auf Fertigstellung warten
-      const generatedSongs = await pollAudio(audioData.taskId, lyricsData.lyrics);
+      // 4. Auf Fertigstellung warten (mit Foto URL)
+      const generatedSongs = await pollAudio(audioData.taskId, lyricsData.lyrics, photoUrl);
       setSongs(generatedSongs);
     } catch (err) {
       setError("Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.");
@@ -228,6 +249,27 @@ export default function SongForm() {
                 </div>
               </div>
             )}
+
+            {/* Foto Upload */}
+            <div className="space-y-1.5">
+              <Label>Foto <span className="text-gray-400 font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
+              <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
+              {photoPreview ? (
+                <div className="relative inline-block">
+                  <img src={photoPreview} alt="Vorschau" className="h-20 w-20 rounded-xl object-cover border border-purple-200" />
+                  <button type="button" onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
+                    className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => fileInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-gray-300 text-sm text-gray-500 hover:border-purple-400 hover:text-purple-600 transition-all">
+                  <ImagePlus className="h-4 w-4" />
+                  Foto hochladen
+                </button>
+              )}
+            </div>
 
             {/* Anlass */}
             <div className="space-y-1.5">
