@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check } from "lucide-react";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2 } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Valentinstag", "Vatertag", "Muttertag", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -22,6 +22,9 @@ export default function SongForm() {
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
+  const [editingLyrics, setEditingLyrics] = useState(false);
+  const [refineInput, setRefineInput] = useState("");
+  const [refining, setRefining] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -37,6 +40,30 @@ export default function SongForm() {
   });
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
+
+  // Lyrics verfeinern
+  const handleRefine = async () => {
+    if (!refineInput.trim() || !lyrics) return;
+    setRefining(true);
+    try {
+      const res = await fetch("/api/generate-lyrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, refinement: refineInput, existingLyrics: lyrics }),
+      });
+      const data = await res.json();
+      if (data.lyrics) {
+        setLyrics(data.lyrics);
+        setRefineInput("");
+        setSongs([]);
+        setShareSlug(null);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRefining(false);
+    }
+  };
 
   // Audio abspielen / pausieren
   const togglePlay = (index: number, mp3_url: string) => {
@@ -296,9 +323,48 @@ export default function SongForm() {
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="bg-purple-50 rounded-xl p-6 space-y-1">
-              {formatLyrics(lyrics)}
-            </div>
+            {/* Lyrics - editierbar oder anzeige */}
+            {editingLyrics ? (
+              <div className="space-y-2">
+                <textarea
+                  className="w-full bg-purple-50 rounded-xl p-6 text-gray-800 text-sm leading-relaxed border border-purple-200 focus:outline-none focus:border-purple-400 min-h-64 resize-none"
+                  value={lyrics}
+                  onChange={(e) => setLyrics(e.target.value)}
+                />
+                <Button size="sm" onClick={() => setEditingLyrics(false)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs">
+                  ✓ Fertig
+                </Button>
+              </div>
+            ) : (
+              <div className="relative group">
+                <div className="bg-purple-50 rounded-xl p-6 space-y-1">
+                  {formatLyrics(lyrics)}
+                </div>
+                <button onClick={() => setEditingLyrics(true)}
+                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg p-1.5 shadow-sm border border-gray-200 text-gray-500 hover:text-purple-600">
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
+            {/* KI Verfeinern */}
+            {!audioLoading && songs.length === 0 && (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder='z.B. "Mach es kindgerechter" oder "Kein Schwerenöter"'
+                  value={refineInput}
+                  onChange={(e) => setRefineInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleRefine()}
+                  className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-400"
+                />
+                <Button size="sm" onClick={handleRefine} disabled={refining || !refineInput.trim()}
+                  className="bg-purple-600 hover:bg-purple-700 text-white shrink-0">
+                  {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                </Button>
+              </div>
+            )}
 
             {/* Audio Player */}
             {audioLoading && (

@@ -4,7 +4,23 @@ import { NextRequest, NextResponse } from "next/server";
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 export async function POST(req: NextRequest) {
-  const { recipientName, age, occasion, language, mood, favoriteAnimal, favoriteThing, details } = await req.json();
+  const { recipientName, age, occasion, language, mood, favoriteAnimal, favoriteThing, details, refinement, existingLyrics } = await req.json();
+
+  // Verfeinern-Modus: bestehende Lyrics anpassen
+  if (refinement && existingLyrics) {
+    try {
+      const message = await client.messages.create({
+        model: "claude-opus-4-5",
+        max_tokens: 1024,
+        messages: [{ role: "user", content: `Hier ist ein Songtext:\n\n${existingLyrics}\n\nBitte passe ihn an: ${refinement}\n\nBehalte das gleiche Format bei. Gib nur den überarbeiteten Songtext zurück, nichts anderes.` }],
+      });
+      const lyrics = message.content[0].type === "text" ? message.content[0].text : "";
+      return NextResponse.json({ lyrics });
+    } catch (error) {
+      console.error("Claude API Error:", error);
+      return NextResponse.json({ error: "Song konnte nicht angepasst werden." }, { status: 500 });
+    }
+  }
 
   const ageNum = age ? parseInt(age) : null;
 
