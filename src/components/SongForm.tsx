@@ -14,7 +14,7 @@ const MOODS = ["Fröhlich & mitreißend", "Warm & zärtlich", "Lustig & verspiel
 
 type Song = { mp3_url: string; cover: string; title: string };
 
-export default function SongForm({ preselectedOccasion }: { preselectedOccasion?: string }) {
+export default function SongForm() {
   const [loading, setLoading] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
@@ -27,17 +27,13 @@ export default function SongForm({ preselectedOccasion }: { preselectedOccasion?
   const [form, setForm] = useState({
     recipientName: "",
     age: "",
-    occasion: preselectedOccasion || "Geburtstag",
+    occasion: "Geburtstag",
     language: "Deutsch",
     mood: "Fröhlich & mitreißend",
     favoriteThing: "",
     favoriteAnimal: "",
     details: "",
   });
-
-  if (preselectedOccasion && form.occasion !== preselectedOccasion) {
-    setForm((f) => ({ ...f, occasion: preselectedOccasion }));
-  }
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
 

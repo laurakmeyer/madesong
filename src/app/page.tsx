@@ -1,27 +1,7 @@
-"use client";
-
 import SongForm from "@/components/SongForm";
 import { Music } from "lucide-react";
-import { useState, useRef } from "react";
-
-const HERO_OCCASIONS = [
-  { label: "🎂 Geburtstag", value: "Geburtstag" },
-  { label: "🌙 Schlaflied", value: "Schlaflied" },
-  { label: "💍 Jahrestag", value: "Jahrestag" },
-  { label: "🎄 Weihnachten", value: "Weihnachten" },
-  { label: "💝 Einfach so", value: "Einfach so" },
-  { label: "👨 Vatertag", value: "Vatertag" },
-];
 
 export default function Home() {
-  const [selectedOccasion, setSelectedOccasion] = useState("Geburtstag");
-  const formRef = useRef<HTMLDivElement>(null);
-
-  const handleOccasionClick = (value: string) => {
-    setSelectedOccasion(value);
-    formRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
-
   return (
     <main className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50">
       {/* Header */}
@@ -37,38 +17,20 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="max-w-4xl mx-auto px-8 pt-16 pb-12 text-center">
+      <section className="max-w-4xl mx-auto px-8 pt-16 pb-10 text-center">
         <h1 className="text-5xl font-extrabold text-gray-900 mb-4 leading-tight">
           Ein persönlicher Song,<br />
           <span className="text-purple-600">gemacht nur für sie oder ihn.</span>
         </h1>
-        <p className="text-xl text-gray-500 mb-10 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-500 mb-4 max-w-2xl mx-auto">
           Mach jeden Anlass unvergesslich — Geburtstag, Jahrestag, Gute Nacht oder einfach so.
           Erstelle in Sekunden einen einzigartigen KI-Song.
         </p>
-
-        {/* Klickbare Anlass-Chips */}
-        <p className="text-sm text-gray-400 mb-3">Wähle einen Anlass und leg direkt los:</p>
-        <div className="flex flex-wrap justify-center gap-3 mb-12">
-          {HERO_OCCASIONS.map((o) => (
-            <button
-              key={o.value}
-              onClick={() => handleOccasionClick(o.value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium border transition-all cursor-pointer hover:scale-105 active:scale-95 ${
-                selectedOccasion === o.value
-                  ? "bg-purple-600 text-white border-purple-600 shadow-md"
-                  : "bg-white text-gray-700 border-gray-200 hover:border-purple-400 hover:text-purple-600 shadow-sm"
-              }`}
-            >
-              {o.label}
-            </button>
-          ))}
-        </div>
       </section>
 
       {/* Form */}
-      <section ref={formRef} className="max-w-2xl mx-auto px-8 pb-24">
-        <SongForm preselectedOccasion={selectedOccasion} />
+      <section className="max-w-2xl mx-auto px-8 pb-24">
+        <SongForm />
       </section>
 
       {/* So funktioniert's */}
