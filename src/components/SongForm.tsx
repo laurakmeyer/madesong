@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X } from "lucide-react";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X, Video } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Jahrestag", "Weihnachten", "Valentinstag", "Vatertag", "Muttertag", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -28,6 +28,8 @@ export default function SongForm() {
   const [error, setError] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [videoLoading, setVideoLoading] = useState<number | null>(null);
+  const [videoProgress, setVideoProgress] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -72,6 +74,228 @@ export default function SongForm() {
       console.error(err);
     } finally {
       setRefining(false);
+    }
+  };
+
+  // Video für Stories/WhatsApp generieren
+  const generateVideo = async (song: Song, index: number) => {
+    if (typeof window === "undefined") return;
+    const canvas = document.createElement("canvas");
+    if (!("captureStream" in canvas)) {
+      alert("Dein Browser unterstützt diese Funktion nicht. Bitte Chrome oder Firefox nutzen.");
+      return;
+    }
+    setVideoLoading(index);
+    setVideoProgress(0);
+
+    try {
+      canvas.width = 1080;
+      canvas.height = 1920;
+      const ctx = canvas.getContext("2d")!;
+
+      // Foto laden falls vorhanden
+      let photoImg: HTMLImageElement | null = null;
+      if (photoPreview) {
+        photoImg = await new Promise<HTMLImageElement>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.src = photoPreview;
+        });
+      }
+
+      // Audio via Proxy laden (CORS)
+      const audioEl = new Audio(`/api/proxy-audio?url=${encodeURIComponent(song.mp3_url)}`);
+      audioEl.crossOrigin = "anonymous";
+      await new Promise<void>((resolve) => {
+        const done = () => resolve();
+        audioEl.addEventListener("canplaythrough", done, { once: true });
+        setTimeout(done, 8000);
+        audioEl.load();
+      });
+
+      const audioContext = new AudioContext();
+      const source = audioContext.createMediaElementSource(audioEl);
+      const destination = audioContext.createMediaStreamDestination();
+      source.connect(destination);
+      source.connect(audioContext.destination);
+
+      const lyricsLines = (lyrics || "").split("\n").filter((l) => l.trim());
+      const MAX_SECONDS = 60;
+      let startTime = 0;
+      let animFrame: number;
+
+      const wrapText = (text: string, maxWidth: number, fontSize: number) => {
+        ctx.font = `${fontSize}px system-ui, sans-serif`;
+        if (ctx.measureText(text).width <= maxWidth) return [text];
+        const words = text.split(" ");
+        const lines: string[] = [];
+        let current = "";
+        for (const word of words) {
+          const test = current ? `${current} ${word}` : word;
+          if (ctx.measureText(test).width > maxWidth) {
+            if (current) lines.push(current);
+            current = word;
+          } else {
+            current = test;
+          }
+        }
+        if (current) lines.push(current);
+        return lines;
+      };
+
+      const drawFrame = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const elapsed = (timestamp - startTime) / 1000;
+        const progress = Math.min(elapsed / MAX_SECONDS, 1);
+        setVideoProgress(Math.round(progress * 100));
+
+        ctx.clearRect(0, 0, 1080, 1920);
+
+        // Hintergrund
+        if (photoImg) {
+          ctx.save();
+          ctx.filter = "blur(40px)";
+          const scale = Math.max(1080 / photoImg.width, 1920 / photoImg.height) * 1.15;
+          const w = photoImg.width * scale;
+          const h = photoImg.height * scale;
+          ctx.drawImage(photoImg, (1080 - w) / 2, (1920 - h) / 2, w, h);
+          ctx.restore();
+          ctx.fillStyle = "rgba(20, 5, 60, 0.58)";
+          ctx.fillRect(0, 0, 1080, 1920);
+        } else {
+          const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
+          grad.addColorStop(0, "#1e0a4a");
+          grad.addColorStop(0.5, "#6d28d9");
+          grad.addColorStop(1, "#3b0764");
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, 1080, 1920);
+        }
+
+        // Pulsierende Ringe
+        const pulse = 1 + Math.sin(elapsed * 2.5) * 0.06;
+        for (let r = 0; r < 5; r++) {
+          ctx.beginPath();
+          ctx.arc(540, 430, (100 + r * 65) * pulse, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(255,255,255,${0.12 - r * 0.02})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+
+        // Musik-Note pulsiert
+        const noteSize = 130 + Math.sin(elapsed * 2.5) * 8;
+        ctx.font = `${noteSize}px serif`;
+        ctx.textAlign = "center";
+        ctx.fillText("🎵", 540, 470);
+
+        // Name
+        ctx.shadowColor = "rgba(0,0,0,0.6)";
+        ctx.shadowBlur = 24;
+        ctx.font = "bold 108px system-ui, sans-serif";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(form.recipientName, 540, 660);
+        ctx.shadowBlur = 0;
+
+        // Anlass
+        ctx.font = "52px system-ui, sans-serif";
+        ctx.fillStyle = "rgba(220,200,255,0.85)";
+        ctx.fillText(form.occasion, 540, 740);
+
+        // Trennlinie
+        ctx.strokeStyle = "rgba(255,255,255,0.2)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(180, 790);
+        ctx.lineTo(900, 790);
+        ctx.stroke();
+
+        // Lyrics (scrollend)
+        const lineH = 64;
+        const visibleLines = 14;
+        const totalScroll = Math.max(0, lyricsLines.length - visibleLines);
+        const scrollOffset = Math.floor(progress * totalScroll);
+
+        let y = 870;
+        for (let i = 0; i < visibleLines; i++) {
+          const lineIdx = scrollOffset + i;
+          if (lineIdx >= lyricsLines.length) break;
+          const line = lyricsLines[lineIdx];
+
+          if (line.startsWith("**") && line.endsWith("**")) {
+            ctx.font = "bold 50px system-ui, sans-serif";
+            ctx.fillStyle = "rgba(255,255,255,0.98)";
+            ctx.fillText(line.replace(/\*\*/g, ""), 540, y);
+            y += lineH + 6;
+          } else if (line.startsWith("[") && line.endsWith("]")) {
+            ctx.font = "bold 36px system-ui, sans-serif";
+            ctx.fillStyle = "rgba(180,150,255,0.85)";
+            ctx.fillText(line, 540, y);
+            y += lineH - 8;
+          } else {
+            ctx.font = "44px system-ui, sans-serif";
+            ctx.fillStyle = "rgba(255,255,255,0.88)";
+            const wrapped = wrapText(line, 900, 44);
+            for (const wl of wrapped) {
+              ctx.fillText(wl, 540, y);
+              y += lineH;
+            }
+          }
+        }
+
+        // Branding unten
+        ctx.font = "40px system-ui, sans-serif";
+        ctx.fillStyle = "rgba(255,255,255,0.45)";
+        ctx.fillText("🎶 madesong.com", 540, 1860);
+
+        if (elapsed < MAX_SECONDS) {
+          animFrame = requestAnimationFrame(drawFrame);
+        }
+      };
+
+      // Recording starten
+      const canvasStream = (canvas as HTMLCanvasElement & { captureStream(fps?: number): MediaStream }).captureStream(30);
+      const combined = new MediaStream([
+        ...canvasStream.getVideoTracks(),
+        ...destination.stream.getAudioTracks(),
+      ]);
+
+      const mimeType = MediaRecorder.isTypeSupported("video/mp4")
+        ? "video/mp4"
+        : MediaRecorder.isTypeSupported("video/webm;codecs=vp9,opus")
+        ? "video/webm;codecs=vp9,opus"
+        : "video/webm";
+
+      const chunks: BlobPart[] = [];
+      const recorder = new MediaRecorder(combined, { mimeType });
+      recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+      recorder.onstop = () => {
+        cancelAnimationFrame(animFrame);
+        const ext = mimeType.includes("mp4") ? "mp4" : "webm";
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `madesong-${form.recipientName}.${ext}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        setVideoLoading(null);
+        setVideoProgress(0);
+      };
+
+      audioEl.onended = () => recorder.stop();
+      setTimeout(() => { if (recorder.state === "recording") recorder.stop(); }, (MAX_SECONDS + 2) * 1000);
+
+      requestAnimationFrame(drawFrame);
+      recorder.start(100);
+      audioEl.play();
+
+    } catch (err) {
+      console.error("Video error:", err);
+      setVideoLoading(null);
+      setVideoProgress(0);
+      setError("Video konnte nicht erstellt werden. Bitte versuche es nochmal.");
     }
   };
 
@@ -441,6 +665,17 @@ export default function SongForm() {
                       <button onClick={() => handleShare(song, i)}
                         className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-medium">
                         {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Link</>}
+                      </button>
+                      {/* Video für Stories */}
+                      <button
+                        onClick={() => generateVideo(song, i)}
+                        disabled={videoLoading !== null}
+                        className="flex items-center gap-1.5 text-xs text-pink-600 hover:text-pink-700 font-medium disabled:opacity-40"
+                        title="Als Video für Instagram/WhatsApp Stories"
+                      >
+                        {videoLoading === i
+                          ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {videoProgress}%</>
+                          : <><Video className="h-3.5 w-3.5" /> Video</>}
                       </button>
                       {/* Download */}
                       <a href={song.mp3_url} download={`madesong-${i + 1}.mp3`} target="_blank" rel="noopener noreferrer"
