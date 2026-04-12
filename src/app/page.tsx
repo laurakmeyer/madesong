@@ -1,5 +1,6 @@
 import SongForm from "@/components/SongForm";
 import Link from "next/link";
+import Image from "next/image";
 
 const WAVE_DELAYS = [0, 0.1, 0.2, 0.15, 0.3, 0.05, 0.25, 0.35, 0.1, 0.2, 0.3, 0.05, 0.15, 0.25, 0.4, 0.08, 0.18, 0.28, 0.12, 0.22];
 
@@ -77,6 +78,26 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Emotional image strip */}
+      <section className="grid grid-cols-2 md:grid-cols-4 h-64 md:h-96">
+        <div className="relative overflow-hidden">
+          <Image src="/hero-oma.png" alt="Oma hört personalisierten Song" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+        <div className="relative overflow-hidden">
+          <Image src="/hero-paar.png" alt="Paar teilt Musik" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+        <div className="relative overflow-hidden">
+          <Image src="/hero-baby.png" alt="Mutter singt Schlaflied" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+        <div className="relative overflow-hidden">
+          <Image src="/hero-geburtstag.png" alt="Geburtstagssong" fill className="object-cover hover:scale-105 transition-transform duration-700" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+      </section>
+
       {/* Form */}
       <section id="erstellen" className="bg-[#0c0c18] py-20 px-6 border-t border-white/5">
         <div className="max-w-2xl mx-auto">
@@ -130,6 +151,24 @@ export default function Home() {
                 <div className="text-sm text-zinc-500">{label}</div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Big emotional image section */}
+      <section className="relative h-[70vh] overflow-hidden">
+        <Image src="/hero-paar.png" alt="Ein Song der bewegt" fill className="object-cover object-center" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/40 to-transparent" />
+        <div className="absolute inset-0 flex items-center px-8 md:px-20">
+          <div className="max-w-xl">
+            <p className="text-xs font-medium tracking-[0.2em] uppercase text-purple-300 mb-4">Für jeden Moment</p>
+            <h2 className="font-display text-5xl md:text-7xl text-white leading-tight mb-6">
+              Musik die<br />für immer<br />bleibt.
+            </h2>
+            <a href="#erstellen"
+              className="inline-flex items-center gap-2 bg-white text-black font-bold px-7 py-3.5 rounded-full hover:bg-zinc-100 transition-all hover:scale-105">
+              Song erstellen →
+            </a>
           </div>
         </div>
       </section>
