@@ -421,22 +421,22 @@ export default function SongForm() {
   const formatLyrics = (text: string) => {
     return text.split("\n").map((line, i) => {
       if (line.startsWith("**") && line.endsWith("**")) {
-        return <h3 key={i} className="text-lg font-bold text-purple-700 mt-2 mb-3">{line.replace(/\*\*/g, "")}</h3>;
+        return <h3 key={i} className="text-lg font-bold text-purple-300 mt-2 mb-3">{line.replace(/\*\*/g, "")}</h3>;
       }
       if (line.startsWith("[") && line.endsWith("]")) {
-        return <p key={i} className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-4 mb-1">{line}</p>;
+        return <p key={i} className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mt-4 mb-1">{line}</p>;
       }
       if (line === "") return <br key={i} />;
-      return <p key={i} className="text-gray-800 leading-relaxed">{line}</p>;
+      return <p key={i} className="text-zinc-200 leading-relaxed">{line}</p>;
     });
   };
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+      <Card className="shadow-2xl border border-white/8 bg-[#12121e]">
         <CardHeader className="text-center pb-2">
-          <CardTitle className="text-2xl font-bold text-gray-900">Deinen Song erstellen</CardTitle>
-          <CardDescription>Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
+          <CardTitle className="text-2xl font-bold text-white">Deinen Song erstellen</CardTitle>
+          <CardDescription className="text-zinc-400">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -444,31 +444,35 @@ export default function SongForm() {
             {/* Name + Alter */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="recipientName">Für wen ist dieser Song?</Label>
+                <Label htmlFor="recipientName" className="text-zinc-300">Für wen ist dieser Song?</Label>
                 <Input id="recipientName" placeholder="z.B. Emma, Oma, Max..."
+                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
                   value={form.recipientName} onChange={(e) => setForm({ ...form, recipientName: e.target.value })} required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="age">Alter</Label>
+                <Label htmlFor="age" className="text-zinc-300">Alter</Label>
                 <Input id="age" type="number" min="1" max="99" placeholder="z.B. 5"
+                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
                   value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} />
               </div>
             </div>
 
             {/* Kindspezifische Felder */}
             {isChild && (
-              <div className="grid grid-cols-2 gap-3 p-4 bg-purple-50 rounded-xl border border-purple-100">
-                <div className="col-span-2 text-sm font-medium text-purple-700 mb-1">
+              <div className="grid grid-cols-2 gap-3 p-4 bg-purple-950/40 rounded-xl border border-purple-500/20">
+                <div className="col-span-2 text-sm font-medium text-purple-300 mb-1">
                   🧒 Erzähl uns mehr über {form.recipientName || "das Kind"}!
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="favoriteAnimal">Lieblingstier</Label>
+                  <Label htmlFor="favoriteAnimal" className="text-zinc-300">Lieblingstier</Label>
                   <Input id="favoriteAnimal" placeholder="z.B. Einhorn, Hund, Dino..."
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
                     value={form.favoriteAnimal} onChange={(e) => setForm({ ...form, favoriteAnimal: e.target.value })} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="favoriteThing">Lieblingsding</Label>
+                  <Label htmlFor="favoriteThing" className="text-zinc-300">Lieblingsding</Label>
                   <Input id="favoriteThing" placeholder="z.B. Fußball, Malen, Lego..."
+                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
                     value={form.favoriteThing} onChange={(e) => setForm({ ...form, favoriteThing: e.target.value })} />
                 </div>
               </div>
@@ -476,7 +480,7 @@ export default function SongForm() {
 
             {/* Foto Upload */}
             <div className="space-y-1.5">
-              <Label>Foto <span className="text-gray-400 font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
+              <Label className="text-zinc-300">Foto <span className="text-zinc-600 font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
               {photoPreview ? (
                 <div className="relative inline-block">
@@ -488,7 +492,7 @@ export default function SongForm() {
                 </div>
               ) : (
                 <button type="button" onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-gray-300 text-sm text-gray-500 hover:border-purple-400 hover:text-purple-600 transition-all">
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-white/15 text-sm text-zinc-500 hover:border-purple-500 hover:text-purple-400 transition-all">
                   <ImagePlus className="h-4 w-4" />
                   Foto hochladen
                 </button>
@@ -497,11 +501,11 @@ export default function SongForm() {
 
             {/* Anlass */}
             <div className="space-y-1.5">
-              <Label>Anlass</Label>
+              <Label className="text-zinc-300">Anlass</Label>
               <div className="flex flex-wrap gap-2">
                 {OCCASIONS.map((o) => (
                   <button key={o} type="button" onClick={() => setForm({ ...form, occasion: o })}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.occasion === o ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-200 hover:border-purple-400"}`}>
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.occasion === o ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
                     {o}
                   </button>
                 ))}
@@ -510,11 +514,11 @@ export default function SongForm() {
 
             {/* Sprache */}
             <div className="space-y-1.5">
-              <Label>Sprache</Label>
+              <Label className="text-zinc-300">Sprache</Label>
               <div className="flex gap-2">
                 {LANGUAGES.map((l) => (
                   <button key={l} type="button" onClick={() => setForm({ ...form, language: l })}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${form.language === l ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-200 hover:border-purple-400"}`}>
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${form.language === l ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
                     {l}
                   </button>
                 ))}
@@ -523,11 +527,11 @@ export default function SongForm() {
 
             {/* Stimmung */}
             <div className="space-y-1.5">
-              <Label>Stimmung</Label>
+              <Label className="text-zinc-300">Stimmung</Label>
               <div className="flex flex-wrap gap-2">
                 {MOODS.map((m) => (
                   <button key={m} type="button" onClick={() => setForm({ ...form, mood: m })}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.mood === m ? "bg-purple-600 text-white border-purple-600" : "bg-white text-gray-600 border-gray-200 hover:border-purple-400"}`}>
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.mood === m ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
                     {m}
                   </button>
                 ))}
@@ -536,11 +540,12 @@ export default function SongForm() {
 
             {/* Persönliche Details */}
             <div className="space-y-1.5">
-              <Label htmlFor="details">
+              <Label htmlFor="details" className="text-zinc-300">
                 {isChild ? `Noch mehr über ${form.recipientName || "das Kind"}` : "Persönliche Details"}
-                {" "}<span className="text-gray-400 font-normal">(optional)</span>
+                {" "}<span className="text-zinc-600 font-normal">(optional)</span>
               </Label>
               <Textarea id="details"
+                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500 resize-none"
                 placeholder={isChild
                   ? `z.B. ${form.recipientName || "sie/er"} liebt Spaghetti, hat einen Bruder namens Luca, geht gerne in den Park...`
                   : "z.B. wir kennen uns seit 10 Jahren, liebt Reisen, arbeitet als Lehrerin..."}
@@ -571,12 +576,12 @@ export default function SongForm() {
 
       {/* Songtext */}
       {lyrics && (
-        <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm">
+        <Card className="shadow-2xl border border-white/8 bg-[#12121e]">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Music2 className="h-5 w-5 text-purple-600" />
-                <CardTitle className="text-lg font-bold text-gray-900">
+                <Music2 className="h-5 w-5 text-purple-400" />
+                <CardTitle className="text-lg font-bold text-white">
                   {audioLoading ? "Songtext fertig — Musik wird erstellt... 🎼" : "Dein Song ist fertig! 🎉"}
                 </CardTitle>
               </div>
@@ -593,7 +598,7 @@ export default function SongForm() {
             {editingLyrics ? (
               <div className="space-y-2">
                 <textarea
-                  className="w-full bg-purple-50 rounded-xl p-6 text-gray-800 text-sm leading-relaxed border border-purple-200 focus:outline-none focus:border-purple-400 min-h-64 resize-none"
+                  className="w-full bg-white/5 rounded-xl p-6 text-white text-sm leading-relaxed border border-white/10 focus:outline-none focus:border-purple-500 min-h-64 resize-none"
                   value={lyrics}
                   onChange={(e) => setLyrics(e.target.value)}
                 />
@@ -604,7 +609,7 @@ export default function SongForm() {
               </div>
             ) : (
               <div className="relative group">
-                <div className="bg-purple-50 rounded-xl p-6 space-y-1">
+                <div className="bg-white/4 rounded-xl p-6 space-y-1 border border-white/6">
                   {formatLyrics(lyrics)}
                 </div>
                 <button onClick={() => setEditingLyrics(true)}
@@ -644,13 +649,13 @@ export default function SongForm() {
               <div className="space-y-3">
                 <p className="text-sm font-medium text-gray-700">🎵 {songs.length} Version{songs.length > 1 ? "en" : ""} für dich:</p>
                 {songs.map((song, i) => (
-                  <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-purple-50 border-purple-300" : "bg-gray-50 border-gray-200"}`}>
+                  <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-purple-950/50 border-purple-500/40" : "bg-white/4 border-white/8"}`}>
                     <div className="flex items-center gap-3">
                       <button onClick={() => togglePlay(i, song.mp3_url)}
                         className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white transition-colors">
                         {playingIndex === i ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
                       </button>
-                      <span className="text-sm font-medium text-gray-700">Version {i + 1}</span>
+                      <span className="text-sm font-medium text-zinc-300">Version {i + 1}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {/* WhatsApp */}
