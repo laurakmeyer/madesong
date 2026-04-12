@@ -433,10 +433,10 @@ export default function SongForm() {
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-2xl border border-white/8 bg-[#12121e]">
+      <Card className="shadow-2xl border border-black/8 bg-white">
         <CardHeader className="text-center pb-2">
           <CardTitle className="text-2xl font-bold text-white">Deinen Song erstellen</CardTitle>
-          <CardDescription className="text-zinc-400">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
+          <CardDescription className="text-zinc-500">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -576,7 +576,7 @@ export default function SongForm() {
 
       {/* Songtext */}
       {lyrics && (
-        <Card className="shadow-2xl border border-white/8 bg-[#12121e]">
+        <Card className="shadow-2xl border border-black/8 bg-white">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
