@@ -117,6 +117,15 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* ─── MadeSong CI ─────────────────────────────────────────
+   Primary:    #7c3aed  (Lila — Kreativität & Vertrauen)
+   Accent:     #f43f5e  (Rose — Emotion & Wärme)
+   Background: #fdf8f2  (Creme — einladend, warm)
+   Dark:       #18120e  (Warmschwarz — Premium)
+   Text:       #1c1917  (Warm-Dunkel)
+   Muted:      #78716c  (Warm-Grau)
+──────────────────────────────────────────────────────── */
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -124,10 +133,22 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-inter), system-ui, sans-serif;
+    color: #1c1917;
   }
   html {
     @apply font-sans;
   }
+}
+
+/* Hims-style mesh gradient background */
+.mesh-bg {
+  background-color: #fdf8f2;
+  background-image:
+    radial-gradient(ellipse at 12% 18%, rgba(251, 191, 80, 0.28) 0%, transparent 48%),
+    radial-gradient(ellipse at 88% 80%, rgba(196, 120, 240, 0.22) 0%, transparent 48%),
+    radial-gradient(ellipse at 72% 8%,  rgba(252, 150, 120, 0.18) 0%, transparent 38%),
+    radial-gradient(ellipse at 28% 92%, rgba(160, 130, 255, 0.18) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 50%, rgba(253, 230, 200, 0.15) 0%, transparent 60%);
 }
 
 .font-display {
