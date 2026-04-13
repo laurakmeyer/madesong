@@ -88,21 +88,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Marquee Ticker */}
-      <div className="overflow-hidden border-y border-black/8 py-4 my-6">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...Array(2)].map((_, rep) => (
-            <span key={rep} className="flex items-center">
-              {["Ein Song bleibt für immer.", "Kein Song klingt wie der andere.", "Fertig in 2 Minuten.", "Ab €3,99.", "Kein Account.", "Echter Gesang.", "Einzigartig wie die Person."].map((text) => (
-                <span key={text} className="mx-8 text-sm font-medium text-[#78716c]">
-                  <span className="text-[#d97706] mr-3">✦</span>{text}
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* Form — amber Hintergrund */}
       <section id="erstellen" className="py-20 px-6 hero-bg">
         <div className="max-w-2xl mx-auto">
@@ -142,6 +127,21 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Marquee Ticker — nach Schlaflied */}
+      <div className="overflow-hidden py-5 hero-bg border-t border-white/10">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(2)].map((_, rep) => (
+            <span key={rep} className="flex items-center">
+              {["Ein Song bleibt für immer.", "Kein Song klingt wie der andere.", "Fertig in 2 Minuten.", "Ab €3,99.", "Kein Account.", "Echter Gesang.", "Einzigartig wie die Person."].map((text) => (
+                <span key={text} className="mx-8 text-sm font-semibold text-white/70">
+                  <span className="text-amber-300 mr-3">✦</span>{text}
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
 
       {/* Feature 2: Mutter/Geburtstag */}
       <section className="py-20 px-6 md:px-20">
@@ -209,7 +209,7 @@ export default function Home() {
       </section>
 
       {/* Instagram Video Section */}
-      <section className="py-20 px-6 border-y border-black/8">
+      <section className="py-20 px-6" style={{background: "linear-gradient(180deg, #fdf8f2 0%, #f5ede0 100%)"}}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-5">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#f43f5e]">Neu · Story-Video Export</p>
@@ -282,7 +282,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="so-funktionierts" className="py-20 px-6">
+      <section id="so-funktionierts" className="py-20 px-6" style={{background: "linear-gradient(180deg, #f5ede0 0%, #fdf8f2 100%)"}}>
         <div className="max-w-5xl mx-auto">
           <div className="mb-14 text-center">
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Von Idee zu Song — in unter 2 Minuten.</h2>
@@ -363,16 +363,21 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section className="py-20 px-6 text-center border-t border-black/8">
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-display text-5xl md:text-6xl leading-tight mb-4 text-[#18120e]">
-            Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#f43f5e]">überrascht?</em>
-          </h2>
-          <p className="text-[#78716c] mb-8">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
-          <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#b45309] transition-all hover:scale-105 active:scale-95">
-            Meinen ersten Song erstellen →
-          </a>
+      {/* Final CTA — warme Gradient + Foto */}
+      <section className="py-20 px-6 md:px-12 overflow-hidden" style={{background: "linear-gradient(135deg, #fdf0e0 0%, #f5d9a8 40%, #e8b872 100%)"}}>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="font-display text-5xl md:text-6xl leading-tight mb-4 text-[#18120e]">
+              Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#c2410c]">überrascht?</em>
+            </h2>
+            <p className="text-[#78716c] mb-8 text-lg">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
+            <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#18120e] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#3a2c18] transition-all hover:scale-105 active:scale-95">
+              Meinen ersten Song erstellen →
+            </a>
+          </div>
+          <div className="relative h-80 md:h-[480px] rounded-3xl overflow-hidden shadow-2xl">
+            <Image src="/hero-mutter.png" alt="Frau tanzt vor Freude" fill className="object-cover object-top" />
+          </div>
         </div>
       </section>
 
