@@ -7,7 +7,7 @@ const WAVE_DELAYS = [0, 0.1, 0.2, 0.15, 0.3, 0.05, 0.25, 0.35, 0.1, 0.2];
 const CARDS = [
   { anlass: "Geburtstag",  name: "Maria, 60 Jahre",    preview: "Sechzig Jahre voller Glanz, heut' ist dein ganz besondrer Tanz...", icon: "🎂", tag: null },
   { anlass: "Schlaflied",  name: "Für kleine Emma",    preview: "Schlaf, mein kleines Sternenkind, träum von allem was du bist...",   icon: "🍼", tag: null },
-  { anlass: "Liebeslied",  name: "Laura & Tom",        preview: "Seit dem ersten Augenblick wusst ich, du bist mein Glück...",        icon: "💑", tag: "Beliebt" },
+  { anlass: "Liebeslied",  name: "Laura & Frank",        preview: "Seit dem ersten Augenblick wusst ich, du bist mein Glück...",        icon: "💑", tag: "Beliebt" },
   { anlass: "Muttertag",   name: "Für Mama",           preview: "Mama, du bist mein Anker, mein Licht und mein Zuhause...",          icon: "🌸", tag: null },
   { anlass: "Vatertag",    name: "Für Papa",           preview: "Papa, kein Tag verging, wo ich nicht dankbar für dich bin...",      icon: "👨‍👧", tag: null },
   { anlass: "Weihnachten", name: "Familie Meyer",      preview: "An Weihnachten, wenn Kerzen glüh'n, denk ich an euch, die ich lieb...", icon: "🎄", tag: null },
