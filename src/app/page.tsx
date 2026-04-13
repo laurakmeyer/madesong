@@ -196,12 +196,12 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-[#18120e]/85 via-[#18120e]/30 to-transparent" />
         <div className="absolute inset-0 flex items-center px-8 md:px-24">
           <div className="max-w-lg">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#f43f5e] mb-3">Jahrestag · Valentinstag · Hochzeit</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-3">Jahrestag · Valentinstag · Hochzeit</p>
             <h2 className="font-display text-5xl md:text-6xl text-white leading-tight mb-4">
               &ldquo;Unser Song&rdquo; —<br />aber wirklich<br />eurer.
             </h2>
             <p className="text-[#d6d3d1] mb-6">Kein generischer Liebessong. Sondern einer, der eure Geschichte erzählt — eure erste Begegnung, euren Insider, euren Moment.</p>
-            <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#f43f5e] text-white font-bold px-7 py-3.5 rounded-full hover:bg-[#e11d48] transition-all">
+            <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold px-7 py-3.5 rounded-full hover:bg-[#b45309] transition-all">
               Liebeslied erstellen →
             </a>
           </div>
@@ -235,7 +235,7 @@ export default function Home() {
       <section className="py-20 px-6" style={{background: "linear-gradient(180deg, #fdf8f2 0%, #f5ede0 100%)"}}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-5">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#f43f5e]">Neu · Story-Video Export</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Neu · Story-Video Export</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
               Erstellt in 2 Minuten.<br />Viral in Sekunden.
             </h2>
@@ -243,12 +243,12 @@ export default function Home() {
               MadeSong generiert automatisch ein 60-Sekunden Story-Video — mit deinem Foto als Hintergrund, scrollenden Lyrics und deiner Musik. Fertig zum Posten auf Instagram oder WhatsApp Status.
             </p>
             <ul className="space-y-2 text-sm text-[#78716c]">
-              <li className="flex gap-3"><span className="text-[#f43f5e] font-bold">✓</span>9:16 Format — perfekt für Stories</li>
-              <li className="flex gap-3"><span className="text-[#f43f5e] font-bold">✓</span>Dein Foto als Blur-Hintergrund</li>
-              <li className="flex gap-3"><span className="text-[#f43f5e] font-bold">✓</span>Lyrics scrollen mit der Musik</li>
-              <li className="flex gap-3"><span className="text-[#f43f5e] font-bold">✓</span>MadeSong-Branding — kostenlose Werbung für dich</li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold">✓</span>9:16 Format — perfekt für Stories</li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold">✓</span>Dein Foto als Blur-Hintergrund</li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold">✓</span>Lyrics scrollen mit der Musik</li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold">✓</span>MadeSong-Branding — kostenlose Werbung für dich</li>
             </ul>
-            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#f43f5e] text-white px-6 py-3 rounded-full hover:bg-[#e11d48] transition-all">
+            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
               Song + Video erstellen →
             </a>
           </div>
