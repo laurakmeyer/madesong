@@ -394,7 +394,7 @@ export default function Home() {
               Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#c2410c]">überrascht?</em>
             </h2>
             <p className="text-[#78716c] mb-8 text-lg">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
-            <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#18120e] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#3a2c18] transition-all hover:scale-105 active:scale-95">
+            <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#b45309] transition-all hover:scale-105 active:scale-95">
               Meinen ersten Song erstellen →
             </a>
           </div>
