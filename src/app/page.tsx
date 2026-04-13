@@ -21,7 +21,7 @@ export default function Home() {
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 backdrop-blur-md border-b border-black/5" style={{ backgroundColor: "rgba(253,248,242,0.92)" }}>
-        <span className="font-display text-xl font-bold tracking-tight text-[#1c1917]">MadeSong</span>
+        <span className="font-display text-2xl font-bold tracking-tight text-[#18120e]">Made<span className="text-[#7c3aed]">Song</span></span>
         <nav className="hidden md:flex items-center gap-8 text-sm text-[#78716c]">
           <a href="#so-funktionierts" className="hover:text-[#1c1917] transition-colors">So funktioniert&apos;s</a>
           <a href="#preise" className="hover:text-[#1c1917] transition-colors">Preise</a>
@@ -347,7 +347,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-black/8 py-10 px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-display font-bold text-[#18120e]">MadeSong</span>
+          <span className="font-display font-bold text-[#18120e]">Made<span className="text-[#7c3aed]">Song</span></span>
           <p className="text-sm text-[#a8a29e]">© 2026 MadeSong — Ein persönlicher Song für jeden Moment.</p>
           <div className="flex gap-6 text-sm text-[#a8a29e]">
             <Link href="#" className="hover:text-[#1c1917] transition-colors">Impressum</Link>
