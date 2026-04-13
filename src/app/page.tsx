@@ -314,8 +314,8 @@ export default function Home() {
       <section id="preise" className="py-24 px-6 border-t border-black/8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-12 text-center">
-            <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Weniger als ein Blumenstrauß.</h2>
-            <p className="text-[#78716c] mt-3">Und unvergesslicher.</p>
+            <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Ein Geschenk für die Ewigkeit.</h2>
+            <p className="text-[#78716c] mt-3">Ab €3,99. Einmalig. Unvergesslich.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
