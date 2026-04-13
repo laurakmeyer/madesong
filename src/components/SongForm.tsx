@@ -421,7 +421,7 @@ export default function SongForm() {
   const formatLyrics = (text: string) => {
     return text.split("\n").map((line, i) => {
       if (line.startsWith("**") && line.endsWith("**")) {
-        return <h3 key={i} className="text-lg font-bold text-purple-300 mt-2 mb-3">{line.replace(/\*\*/g, "")}</h3>;
+        return <h3 key={i} className="text-lg font-bold text-[#fbbf24] mt-2 mb-3">{line.replace(/\*\*/g, "")}</h3>;
       }
       if (line.startsWith("[") && line.endsWith("]")) {
         return <p key={i} className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mt-4 mb-1">{line}</p>;
@@ -433,10 +433,10 @@ export default function SongForm() {
 
   return (
     <div className="space-y-6">
-      <Card className="shadow-2xl border border-black/8 bg-white">
+      <Card className="shadow-2xl border border-[#d97706]/20 bg-[#fdf8f0]">
         <CardHeader className="text-center pb-2">
-          <CardTitle className="text-2xl font-bold text-white">Deinen Song erstellen</CardTitle>
-          <CardDescription className="text-zinc-500">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
+          <CardTitle className="text-2xl font-bold text-[#18120e]">Deinen Song erstellen</CardTitle>
+          <CardDescription className="text-[#78716c]">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -444,35 +444,35 @@ export default function SongForm() {
             {/* Name + Alter */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="recipientName" className="text-zinc-300">Für wen ist dieser Song?</Label>
+                <Label htmlFor="recipientName" className="text-[#78716c]">Für wen ist dieser Song?</Label>
                 <Input id="recipientName" placeholder="z.B. Emma, Oma, Max..."
-                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
+                  className="bg-white border-[#d97706]/20 text-[#18120e] placeholder:text-[#a8a29e] focus:border-[#d97706]"
                   value={form.recipientName} onChange={(e) => setForm({ ...form, recipientName: e.target.value })} required />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="age" className="text-zinc-300">Alter</Label>
+                <Label htmlFor="age" className="text-[#78716c]">Alter</Label>
                 <Input id="age" type="number" min="1" max="99" placeholder="z.B. 5"
-                  className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
+                  className="bg-white border-[#d97706]/20 text-[#18120e] placeholder:text-[#a8a29e] focus:border-[#d97706]"
                   value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} />
               </div>
             </div>
 
             {/* Kindspezifische Felder */}
             {isChild && (
-              <div className="grid grid-cols-2 gap-3 p-4 bg-purple-950/40 rounded-xl border border-purple-500/20">
-                <div className="col-span-2 text-sm font-medium text-purple-300 mb-1">
+              <div className="grid grid-cols-2 gap-3 p-4 bg-[#d97706]/10 rounded-xl border border-[#d97706]/20">
+                <div className="col-span-2 text-sm font-medium text-[#fbbf24] mb-1">
                   🧒 Erzähl uns mehr über {form.recipientName || "das Kind"}!
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="favoriteAnimal" className="text-zinc-300">Lieblingstier</Label>
+                  <Label htmlFor="favoriteAnimal" className="text-[#78716c]">Lieblingstier</Label>
                   <Input id="favoriteAnimal" placeholder="z.B. Einhorn, Hund, Dino..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
+                    className="bg-white border-[#d97706]/20 text-[#18120e] placeholder:text-[#a8a29e] focus:border-[#d97706]"
                     value={form.favoriteAnimal} onChange={(e) => setForm({ ...form, favoriteAnimal: e.target.value })} />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="favoriteThing" className="text-zinc-300">Lieblingsding</Label>
+                  <Label htmlFor="favoriteThing" className="text-[#78716c]">Lieblingsding</Label>
                   <Input id="favoriteThing" placeholder="z.B. Fußball, Malen, Lego..."
-                    className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500"
+                    className="bg-white border-[#d97706]/20 text-[#18120e] placeholder:text-[#a8a29e] focus:border-[#d97706]"
                     value={form.favoriteThing} onChange={(e) => setForm({ ...form, favoriteThing: e.target.value })} />
                 </div>
               </div>
@@ -480,11 +480,11 @@ export default function SongForm() {
 
             {/* Foto Upload */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Foto <span className="text-zinc-600 font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
+              <Label className="text-zinc-300">Foto <span className="text-[#a8a29e] font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
               {photoPreview ? (
                 <div className="relative inline-block">
-                  <img src={photoPreview} alt="Vorschau" className="h-20 w-20 rounded-xl object-cover border border-purple-200" />
+                  <img src={photoPreview} alt="Vorschau" className="h-20 w-20 rounded-xl object-cover border border-[#d97706]/30" />
                   <button type="button" onClick={() => { setPhotoFile(null); setPhotoPreview(null); }}
                     className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
                     <X className="h-3.5 w-3.5" />
@@ -492,7 +492,7 @@ export default function SongForm() {
                 </div>
               ) : (
                 <button type="button" onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-white/15 text-sm text-zinc-500 hover:border-purple-500 hover:text-purple-400 transition-all">
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/30 text-sm text-[#78716c] hover:border-[#d97706] hover:text-[#d97706] transition-all">
                   <ImagePlus className="h-4 w-4" />
                   Foto hochladen
                 </button>
@@ -501,11 +501,11 @@ export default function SongForm() {
 
             {/* Anlass */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Anlass</Label>
+              <Label className="text-[#78716c]">Anlass</Label>
               <div className="flex flex-wrap gap-2">
                 {OCCASIONS.map((o) => (
                   <button key={o} type="button" onClick={() => setForm({ ...form, occasion: o })}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.occasion === o ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.occasion === o ? "bg-[#d97706] text-white border-[#d97706]" : "border-[#78716c]/20 text-[#78716c] hover:border-[#d97706] hover:text-white"}`}>
                     {o}
                   </button>
                 ))}
@@ -514,11 +514,11 @@ export default function SongForm() {
 
             {/* Sprache */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Sprache</Label>
+              <Label className="text-[#78716c]">Sprache</Label>
               <div className="flex gap-2">
                 {LANGUAGES.map((l) => (
                   <button key={l} type="button" onClick={() => setForm({ ...form, language: l })}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${form.language === l ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
+                    className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-all ${form.language === l ? "bg-[#d97706] text-white border-[#d97706]" : "border-[#78716c]/20 text-[#78716c] hover:border-[#d97706] hover:text-white"}`}>
                     {l}
                   </button>
                 ))}
@@ -527,11 +527,11 @@ export default function SongForm() {
 
             {/* Stimmung */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Stimmung</Label>
+              <Label className="text-[#78716c]">Stimmung</Label>
               <div className="flex flex-wrap gap-2">
                 {MOODS.map((m) => (
                   <button key={m} type="button" onClick={() => setForm({ ...form, mood: m })}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.mood === m ? "bg-purple-600 text-white border-purple-600" : "border-white/10 text-zinc-400 hover:border-purple-500 hover:text-white"}`}>
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${form.mood === m ? "bg-[#d97706] text-white border-[#d97706]" : "border-[#78716c]/20 text-[#78716c] hover:border-[#d97706] hover:text-white"}`}>
                     {m}
                   </button>
                 ))}
@@ -542,10 +542,10 @@ export default function SongForm() {
             <div className="space-y-1.5">
               <Label htmlFor="details" className="text-zinc-300">
                 {isChild ? `Noch mehr über ${form.recipientName || "das Kind"}` : "Persönliche Details"}
-                {" "}<span className="text-zinc-600 font-normal">(optional)</span>
+                {" "}<span className="text-[#a8a29e] font-normal">(optional)</span>
               </Label>
               <Textarea id="details"
-                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus:border-purple-500 resize-none"
+                className="bg-white border-[#d97706]/20 text-[#18120e] placeholder:text-[#a8a29e] focus:border-[#d97706] resize-none"
                 placeholder={isChild
                   ? `z.B. ${form.recipientName || "sie/er"} liebt Spaghetti, hat einen Bruder namens Luca, geht gerne in den Park...`
                   : "z.B. wir kennen uns seit 10 Jahren, liebt Reisen, arbeitet als Lehrerin..."}
@@ -554,7 +554,7 @@ export default function SongForm() {
 
             {/* Button */}
             <Button type="submit" disabled={loading || audioLoading || !form.recipientName}
-              className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-6 text-base rounded-xl">
+              className="w-full bg-[#d97706] hover:bg-[#b45309] text-white font-semibold py-6 text-base rounded-xl">
               {loading
                 ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Songtext wird geschrieben...</>
                 : audioLoading
@@ -563,7 +563,7 @@ export default function SongForm() {
             </Button>
 
             <p className="text-center text-xs text-gray-400">
-              3 kostenlose Songs inklusive — keine Kreditkarte nötig
+              Erste 10 Sekunden kostenlos hören — keine Kreditkarte
             </p>
           </form>
         </CardContent>
@@ -576,18 +576,18 @@ export default function SongForm() {
 
       {/* Songtext */}
       {lyrics && (
-        <Card className="shadow-2xl border border-black/8 bg-white">
+        <Card className="shadow-2xl border border-[#d97706]/20 bg-[#fdf8f0]">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Music2 className="h-5 w-5 text-purple-400" />
-                <CardTitle className="text-lg font-bold text-white">
+                <Music2 className="h-5 w-5 text-[#d97706]" />
+                <CardTitle className="text-lg font-bold text-[#18120e]">
                   {audioLoading ? "Songtext fertig — Musik wird erstellt... 🎼" : "Dein Song ist fertig! 🎉"}
                 </CardTitle>
               </div>
               {!audioLoading && (
                 <Button variant="ghost" size="sm" onClick={() => handleSubmit({ preventDefault: () => {} } as React.FormEvent)}
-                  className="text-purple-600 hover:text-purple-700 text-xs">
+                  className="text-[#d97706] hover:text-[#b45309] text-xs">
                   <RefreshCw className="h-3 w-3 mr-1" /> Neu
                 </Button>
               )}
@@ -598,22 +598,22 @@ export default function SongForm() {
             {editingLyrics ? (
               <div className="space-y-2">
                 <textarea
-                  className="w-full bg-white/5 rounded-xl p-6 text-white text-sm leading-relaxed border border-white/10 focus:outline-none focus:border-purple-500 min-h-64 resize-none"
+                  className="w-full bg-white rounded-xl p-6 text-[#18120e] text-sm leading-relaxed border border-[#d97706]/20 focus:outline-none focus:border-[#d97706] min-h-64 resize-none"
                   value={lyrics}
                   onChange={(e) => setLyrics(e.target.value)}
                 />
                 <Button size="sm" onClick={() => setEditingLyrics(false)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white text-xs">
+                  className="bg-[#d97706] hover:bg-[#b45309] text-white text-xs">
                   ✓ Fertig
                 </Button>
               </div>
             ) : (
               <div className="relative group">
-                <div className="bg-white/4 rounded-xl p-6 space-y-1 border border-white/6">
+                <div className="bg-white/80 rounded-xl p-6 space-y-1 border border-[#d97706]/10">
                   {formatLyrics(lyrics)}
                 </div>
                 <button onClick={() => setEditingLyrics(true)}
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg p-1.5 shadow-sm border border-gray-200 text-gray-500 hover:text-purple-600">
+                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg p-1.5 shadow-sm border border-gray-200 text-gray-500 hover:text-[#d97706]">
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -631,7 +631,7 @@ export default function SongForm() {
                   className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-400"
                 />
                 <Button size="sm" onClick={handleRefine} disabled={refining || !refineInput.trim()}
-                  className="bg-purple-600 hover:bg-purple-700 text-white shrink-0">
+                  className="bg-[#d97706] hover:bg-[#b45309] text-white shrink-0">
                   {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
                 </Button>
               </div>
@@ -639,7 +639,7 @@ export default function SongForm() {
 
             {/* Audio Player */}
             {audioLoading && (
-              <div className="flex items-center justify-center gap-3 py-4 text-purple-600">
+              <div className="flex items-center justify-center gap-3 py-4 text-[#d97706]">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 <span className="text-sm">Musik wird komponiert, das dauert ~1 Minute...</span>
               </div>
@@ -649,13 +649,13 @@ export default function SongForm() {
               <div className="space-y-3">
                 <p className="text-sm font-medium text-gray-700">🎵 {songs.length} Version{songs.length > 1 ? "en" : ""} für dich:</p>
                 {songs.map((song, i) => (
-                  <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-purple-950/50 border-purple-500/40" : "bg-white/4 border-white/8"}`}>
+                  <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-[#fef3c7] border-[#d97706]/40" : "bg-white/4 border-white/8"}`}>
                     <div className="flex items-center gap-3">
                       <button onClick={() => togglePlay(i, song.mp3_url)}
-                        className="w-10 h-10 rounded-full bg-purple-600 hover:bg-purple-700 flex items-center justify-center text-white transition-colors">
+                        className="w-10 h-10 rounded-full bg-[#d97706] hover:bg-[#b45309] flex items-center justify-center text-white transition-colors">
                         {playingIndex === i ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
                       </button>
-                      <span className="text-sm font-medium text-zinc-300">Version {i + 1}</span>
+                      <span className="text-sm font-medium text-[#78716c]">Version {i + 1}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {/* WhatsApp */}
@@ -668,7 +668,7 @@ export default function SongForm() {
                       </a>
                       {/* Link kopieren */}
                       <button onClick={() => handleShare(song, i)}
-                        className="flex items-center gap-1.5 text-xs text-purple-600 hover:text-purple-700 font-medium">
+                        className="flex items-center gap-1.5 text-xs text-[#d97706] hover:text-[#b45309] font-medium">
                         {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Link</>}
                       </button>
                       {/* Video für Stories */}
