@@ -33,63 +33,68 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — Hims-Style: Headline links, Foto rechts */}
-      <section className="pt-28 pb-0 px-6 md:px-12 overflow-hidden">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
+      {/* Hero — weiß oben, Hims-Style */}
+      <section className="pt-32 pb-6 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          {/* Headline */}
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight mb-8 text-[#18120e] max-w-3xl">
+            Das Geschenk,<br />
+            das <em className="not-italic text-[#d97706]">wirklich</em><br />
+            bewegt.
+          </h1>
 
-          {/* Links: Headline + Cards */}
-          <div className="pb-8">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-8 text-[#18120e]">
-              Das Geschenk,<br />
-              das <em className="not-italic text-[#d97706]">wirklich</em><br />
-              bewegt.
-            </h1>
-
-            {/* Amber-Card */}
-            <div className="relative rounded-3xl overflow-hidden hero-bg flex flex-col justify-between p-7 mb-4">
-              <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
-              <h2 className="font-display text-2xl md:text-3xl text-white leading-tight mb-4">
-                Ein Song, den es nur einmal gibt.
-              </h2>
-              <div className="flex items-center justify-between">
-                <div className="flex items-end gap-1 h-7">
-                  {WAVE_DELAYS.slice(0, 10).map((delay, i) => (
+          {/* Feature Cards — eingerahmt wie Hims */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Card 1: Hauptkarte */}
+            <div className="relative rounded-3xl overflow-hidden h-72 md:h-96 hero-bg flex flex-col justify-between p-8">
+              <div>
+                <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
+                <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">
+                  Ein Song, den es<br />nur einmal gibt.
+                </h2>
+              </div>
+              <div>
+                <div className="flex items-end gap-1 h-8 mb-4">
+                  {WAVE_DELAYS.slice(0, 12).map((delay, i) => (
                     <div key={i} className="wave-bar w-1.5 rounded-full bg-white/60"
                       style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
                   ))}
                 </div>
-                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-5 py-2.5 rounded-full hover:bg-amber-50 transition-all">
-                  Kostenlos ausprobieren →
+                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
+                  Jetzt kostenlos ausprobieren →
                 </a>
               </div>
             </div>
 
-            {/* Anlass-Kacheln */}
-            <div className="grid grid-cols-4 gap-2">
-              {[
-                { icon: "🎂", label: "Geburtstag" },
-                { icon: "🍼", label: "Schlaflied" },
-                { icon: "💑", label: "Liebeslied" },
-                { icon: "🌸", label: "Muttertag" },
-              ].map(({ icon, label }) => (
-                <a key={label} href={`/?anlass=${label}#erstellen`} className="flex flex-col items-center gap-1.5 bg-[#fdf8f2] rounded-2xl px-3 py-3 text-xs font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5 text-center">
-                  <span className="text-xl">{icon}</span> {label}
-                </a>
-              ))}
+            {/* Card 2: Anlässe */}
+            <div className="rounded-3xl bg-[#fdf8f2] border border-black/6 h-72 md:h-96 flex flex-col justify-between p-8">
+              <div>
+                <p className="text-[#78716c] text-sm font-medium mb-2">Perfekt für</p>
+                <h2 className="font-display text-3xl md:text-4xl text-[#18120e] leading-tight">
+                  Jeden Anlass.<br />Jede Person.
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { icon: "🎂", label: "Geburtstag" },
+                  { icon: "🍼", label: "Schlaflied" },
+                  { icon: "💑", label: "Liebeslied" },
+                  { icon: "🌸", label: "Muttertag" },
+                ].map(({ icon, label }) => (
+                  <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                    <span>{icon}</span> {label} <span className="ml-auto text-[#78716c]">›</span>
+                  </a>
+                ))}
+              </div>
             </div>
-            <p className="text-xs text-[#a8a29e] mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
           </div>
-
-          {/* Rechts: Foto */}
-          <div className="relative h-[600px] md:h-[720px] rounded-tl-3xl rounded-tr-3xl overflow-hidden">
-            <Image src="/hero-mutter.png" alt="Frau freut sich über persönlichen Song" fill className="object-cover object-top" />
-          </div>
+          <p className="text-xs text-[#a8a29e] text-center">Erste 10 Sekunden kostenlos hören · Kein Account · Keine Kreditkarte</p>
         </div>
       </section>
 
       {/* Form — direkt nach Hero */}
-      <section id="erstellen" className="py-16 px-6 bg-[#fdf8f2]">
+      <section id="erstellen" className="py-16 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Erstelle deinen Song. Jetzt.</h2>
