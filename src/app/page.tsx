@@ -33,19 +33,19 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — weiß, Headline links, zwei Cards + Foto */}
-      <section className="pt-32 pb-6 px-6 md:px-12">
-        <div className="max-w-6xl mx-auto">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight mb-8 text-[#18120e] max-w-3xl">
-            Das Geschenk,<br />
-            das <em className="not-italic text-[#d97706]">wirklich</em><br />
-            bewegt.
-          </h1>
+      {/* Hero — Foto rechts von ganz oben */}
+      <section className="pt-24 pb-0 px-6 md:px-12 overflow-hidden">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Card 1: Amber */}
-            <div className="relative rounded-3xl overflow-hidden h-72 md:h-96 hero-bg flex flex-col justify-between p-8">
+          {/* Links: Label + Headline + Amber Card */}
+          <div className="flex flex-col pt-8 pb-4">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
+              Das Geschenk,<br />
+              das <em className="not-italic text-[#d97706]">wirklich</em><br />
+              bewegt.
+            </h1>
+            <div className="relative rounded-3xl overflow-hidden flex-1 hero-bg flex flex-col justify-between p-8 min-h-64">
               <div>
                 <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
                 <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">
@@ -64,27 +64,33 @@ export default function Home() {
                 </a>
               </div>
             </div>
+            <p className="text-xs text-[#a8a29e] text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
+          </div>
 
-            {/* Card 2: Foto oben + Anlass-Tiles unten */}
-            <div className="rounded-3xl overflow-hidden h-72 md:h-96 bg-[#fdf8f2] border border-black/6 flex flex-col">
-              <div className="relative flex-1 overflow-hidden">
-                <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
-              </div>
-              <div className="grid grid-cols-2 gap-2 p-3">
-                {[
-                  { icon: "🎂", label: "Geburtstag" },
-                  { icon: "🍼", label: "Schlaflied" },
-                  { icon: "💑", label: "Liebeslied" },
-                  { icon: "🌸", label: "Muttertag" },
-                ].map(({ icon, label }) => (
-                  <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
-                    <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
-                  </a>
-                ))}
+          {/* Rechts: Foto von ganz oben + Tiles unten */}
+          <div className="rounded-3xl overflow-hidden flex flex-col" style={{minHeight: "600px"}}>
+            <div className="relative flex-1 overflow-hidden">
+              <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#18120e]/30" />
+              <div className="absolute top-6 left-6">
+                <p className="text-white/70 text-sm font-medium">Perfekt für</p>
+                <p className="font-display text-2xl md:text-3xl text-white leading-tight">Jeden Anlass.<br />Jede Person.</p>
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-2 p-3 bg-[#fdf8f2]">
+              {[
+                { icon: "🎂", label: "Geburtstag" },
+                { icon: "🍼", label: "Schlaflied" },
+                { icon: "💑", label: "Liebeslied" },
+                { icon: "🌸", label: "Muttertag" },
+              ].map(({ icon, label }) => (
+                <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                  <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
+                </a>
+              ))}
+            </div>
           </div>
-          <p className="text-xs text-[#a8a29e] text-center">Erste 10 Sekunden kostenlos hören · Kein Account · Keine Kreditkarte</p>
+
         </div>
       </section>
 
