@@ -435,7 +435,6 @@ export default function SongForm() {
     <div className="space-y-6">
       <Card className="shadow-2xl border border-[#d97706]/20 bg-[#fdf8f0]">
         <CardHeader className="text-center pb-2">
-          <CardTitle className="text-2xl font-bold text-[#18120e]">Deinen Song erstellen</CardTitle>
           <CardDescription className="text-[#78716c]">Füll die Details aus und wir zaubern etwas Besonderes ✨</CardDescription>
         </CardHeader>
         <CardContent>

@@ -96,7 +96,7 @@ export default function Home() {
       <section id="erstellen" className="py-16 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Dein Song. Jetzt.</h2>
+            <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Erstelle deinen Song. Jetzt.</h2>
             <p className="text-[#78716c] mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
           </div>
           <SongForm />
