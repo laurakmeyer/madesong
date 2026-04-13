@@ -121,7 +121,7 @@ export default function Home() {
       </section>
 
       {/* Feature 1: Baby/Schlaflied */}
-      <section className="py-20 md:py-32 px-6 md:px-20">
+      <section className="py-14 md:py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-5 order-2 md:order-1">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Schlaflied · Taufe · Geburt</p>
@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       {/* Feature 2: Mutter/Geburtstag */}
-      <section className="py-20 md:py-32 px-6 md:px-20">
+      <section className="py-14 md:py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
             <Image src="/hero-mutter.png" alt="Mutter bekommt persönlichen Song" fill className="object-cover" />
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* Feature 3: Geburtstag */}
-      <section className="py-20 md:py-32 px-6 md:px-20">
+      <section className="py-14 md:py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
             <Image src="/hero-geburtstag.png" alt="Geburtstagssong" fill className="object-cover" />
