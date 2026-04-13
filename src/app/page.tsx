@@ -48,7 +48,7 @@ export default function Home() {
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
           {/* Links: Label + Headline + Amber Card */}
-          <div className="flex flex-col pt-8 pb-4">
+          <div className="flex flex-col pt-8">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
             <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
               Das Geschenk,<br />
@@ -72,9 +72,9 @@ export default function Home() {
                 <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
                   Jetzt kostenlos ausprobieren →
                 </a>
+                <p className="text-xs text-white/40 text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
               </div>
             </div>
-            <p className="text-xs text-[#a8a29e] text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
           </div>
 
           {/* Rechts: Foto mit Tiles als Overlay */}
