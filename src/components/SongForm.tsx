@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +16,7 @@ const MOODS = ["Fröhlich & mitreißend", "Warm & zärtlich", "Lustig & verspiel
 type Song = { mp3_url: string; cover: string; title: string };
 
 export default function SongForm() {
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
@@ -33,10 +35,11 @@ export default function SongForm() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const initialOccasion = searchParams.get("anlass") ?? "Geburtstag";
   const [form, setForm] = useState({
     recipientName: "",
     age: "",
-    occasion: "Geburtstag",
+    occasion: OCCASIONS.includes(initialOccasion) ? initialOccasion : "Geburtstag",
     language: "Deutsch",
     mood: "Fröhlich & mitreißend",
     favoriteThing: "",

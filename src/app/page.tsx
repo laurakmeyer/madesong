@@ -1,4 +1,5 @@
 import SongForm from "@/components/SongForm";
+import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -81,7 +82,7 @@ export default function Home() {
                   { icon: "💑", label: "Liebeslied" },
                   { icon: "🌸", label: "Muttertag" },
                 ].map(({ icon, label }) => (
-                  <a key={label} href="#erstellen" className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                  <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
                     <span>{icon}</span> {label} <span className="ml-auto text-[#78716c]">›</span>
                   </a>
                 ))}
@@ -99,7 +100,7 @@ export default function Home() {
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Erstelle deinen Song. Jetzt.</h2>
             <p className="text-[#78716c] mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
           </div>
-          <SongForm />
+          <Suspense fallback={null}><SongForm /></Suspense>
         </div>
       </section>
 
