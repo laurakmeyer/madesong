@@ -95,6 +95,29 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Karussell — amber Pill-Boxen */}
+      <div className="overflow-hidden py-5 border-y border-black/6 bg-white">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(3)].map((_, rep) => (
+            <span key={rep} className="flex items-center gap-4">
+              {[
+                "Ein Song bleibt für immer.",
+                "Kein Song klingt wie der andere.",
+                "Fertig in unter 2 Minuten.",
+                "Ab €3,99 — einmalig.",
+                "Echter Gesang, keine KI-Stimme.",
+                "Kein Account nötig.",
+                "Einzigartig wie die Person.",
+              ].map((text) => (
+                <span key={text} className="inline-flex items-center bg-[#d97706] text-white text-sm font-semibold px-5 py-2.5 rounded-full mx-2 whitespace-nowrap">
+                  {text}
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* Form — amber Hintergrund */}
       <section id="erstellen" className="py-20 px-6 hero-bg">
         <div className="max-w-2xl mx-auto">
