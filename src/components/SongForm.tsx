@@ -116,6 +116,8 @@ export default function SongForm() {
         audioEl.load();
       });
 
+      const songDuration = audioEl.duration && isFinite(audioEl.duration) ? audioEl.duration : 60;
+
       const audioContext = new AudioContext();
       const source = audioContext.createMediaElementSource(audioEl);
       const destination = audioContext.createMediaStreamDestination();
@@ -123,8 +125,6 @@ export default function SongForm() {
       source.connect(audioContext.destination);
 
       const lyricsLines = (lyrics || "").split("\n").filter((l) => l.trim());
-      const MAX_SECONDS = 60;
-      let startTime = 0;
       let animFrame: number;
 
       const wrapText = (text: string, maxWidth: number, fontSize: number) => {
@@ -146,24 +146,23 @@ export default function SongForm() {
         return lines;
       };
 
-      const drawFrame = (timestamp: number) => {
-        if (!startTime) startTime = timestamp;
-        const elapsed = (timestamp - startTime) / 1000;
-        const progress = Math.min(elapsed / MAX_SECONDS, 1);
+      const drawFrame = () => {
+        // Sync zu tatsächlicher Audio-Position
+        const elapsed = audioEl.currentTime;
+        const duration = audioEl.duration && isFinite(audioEl.duration) ? audioEl.duration : songDuration;
+        const progress = Math.min(elapsed / duration, 1);
         setVideoProgress(Math.round(progress * 100));
 
         ctx.clearRect(0, 0, 1080, 1920);
 
-        // Hintergrund
+        // Hintergrund — ohne canvas filter (nicht überall unterstützt)
         if (photoImg) {
-          ctx.save();
-          ctx.filter = "blur(40px)";
-          const scale = Math.max(1080 / photoImg.width, 1920 / photoImg.height) * 1.15;
+          const scale = Math.max(1080 / photoImg.width, 1920 / photoImg.height) * 1.1;
           const w = photoImg.width * scale;
           const h = photoImg.height * scale;
           ctx.drawImage(photoImg, (1080 - w) / 2, (1920 - h) / 2, w, h);
-          ctx.restore();
-          ctx.fillStyle = "rgba(20, 8, 0, 0.58)";
+          // Dunkles Overlay für Lesbarkeit
+          ctx.fillStyle = "rgba(15, 5, 0, 0.62)";
           ctx.fillRect(0, 0, 1080, 1920);
         } else {
           const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
@@ -250,7 +249,7 @@ export default function SongForm() {
         ctx.fillStyle = "rgba(255,255,255,0.45)";
         ctx.fillText("🎶 madesong.com", 540, 1860);
 
-        if (elapsed < MAX_SECONDS) {
+        if (!audioEl.ended && audioEl.currentTime < (audioEl.duration || songDuration)) {
           animFrame = requestAnimationFrame(drawFrame);
         }
       };
@@ -287,8 +286,8 @@ export default function SongForm() {
         setVideoProgress(0);
       };
 
-      audioEl.onended = () => recorder.stop();
-      setTimeout(() => { if (recorder.state === "recording") recorder.stop(); }, (MAX_SECONDS + 2) * 1000);
+      audioEl.onended = () => { cancelAnimationFrame(animFrame); recorder.stop(); };
+      setTimeout(() => { if (recorder.state === "recording") recorder.stop(); }, (songDuration + 5) * 1000);
 
       requestAnimationFrame(drawFrame);
       recorder.start(100);
