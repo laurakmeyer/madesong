@@ -21,7 +21,7 @@ export default function Home() {
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 backdrop-blur-md border-b border-black/5" style={{ backgroundColor: "rgba(253,248,242,0.92)" }}>
-        <span className="font-display text-2xl font-bold tracking-tight text-[#18120e]">Made<span className="text-[#7c3aed]">Song</span></span>
+        <span className="font-display text-2xl font-bold tracking-tight text-[#18120e]">MadeSong</span>
         <nav className="hidden md:flex items-center gap-8 text-sm text-[#78716c]">
           <a href="#so-funktionierts" className="hover:text-[#1c1917] transition-colors">So funktioniert&apos;s</a>
           <a href="#preise" className="hover:text-[#1c1917] transition-colors">Preise</a>
