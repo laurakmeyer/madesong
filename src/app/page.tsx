@@ -32,85 +32,63 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — weiß, Vinyl-Animation rechts */}
-      <section className="pt-32 pb-10 px-6 md:px-12">
+      {/* Hero — weiß oben, Hims-Style */}
+      <section className="pt-32 pb-6 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center min-h-[75vh]">
+          {/* Headline */}
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight mb-8 text-[#18120e] max-w-3xl">
+            Das Geschenk,<br />
+            das <em className="not-italic text-[#d97706]">wirklich</em><br />
+            bewegt.
+          </h1>
 
-            {/* Links: Headline + CTA */}
-            <div>
-              <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-5">Personalisierte KI-Musik · Ab €3,99</p>
-              <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
-                Das Geschenk,<br />
-                das <em className="not-italic text-[#d97706]">wirklich</em><br />
-                bewegt.
-              </h1>
-              <p className="text-[#78716c] text-lg leading-relaxed mb-8 max-w-md">
-                Ein Song mit ihrem Namen, ihrer Geschichte — in unter 2 Minuten. Kein anderer Mensch auf der Welt hat diesen Song.
-              </p>
-              <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#18120e] text-white font-bold text-base px-8 py-4 rounded-full hover:bg-[#3a2c18] transition-all hover:scale-105 active:scale-95">
-                Jetzt kostenlos ausprobieren →
-              </a>
-              <p className="text-xs text-[#a8a29e] mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
+          {/* Feature Cards — eingerahmt wie Hims */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* Card 1: Hauptkarte */}
+            <div className="relative rounded-3xl overflow-hidden h-72 md:h-96 hero-bg flex flex-col justify-between p-8">
+              <div>
+                <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
+                <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">
+                  Ein Song, den es<br />nur einmal gibt.
+                </h2>
+              </div>
+              <div>
+                <div className="flex items-end gap-1 h-8 mb-4">
+                  {WAVE_DELAYS.slice(0, 12).map((delay, i) => (
+                    <div key={i} className="wave-bar w-1.5 rounded-full bg-white/60"
+                      style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
+                  ))}
+                </div>
+                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
+                  Jetzt kostenlos ausprobieren →
+                </a>
+              </div>
+            </div>
 
-              {/* Anlass-Kacheln */}
-              <div className="grid grid-cols-2 gap-2 mt-8 max-w-sm">
+            {/* Card 2: Anlässe */}
+            <div className="rounded-3xl bg-[#fdf8f2] border border-black/6 h-72 md:h-96 flex flex-col justify-between p-8">
+              <div>
+                <p className="text-[#78716c] text-sm font-medium mb-2">Perfekt für</p>
+                <h2 className="font-display text-3xl md:text-4xl text-[#18120e] leading-tight">
+                  Jeden Anlass.<br />Jede Person.
+                </h2>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
                 {[
                   { icon: "🎂", label: "Geburtstag" },
                   { icon: "🍼", label: "Schlaflied" },
                   { icon: "💑", label: "Liebeslied" },
                   { icon: "🌸", label: "Muttertag" },
                 ].map(({ icon, label }) => (
-                  <a key={label} href="#erstellen" className="flex items-center gap-2 bg-[#fdf8f2] rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
-                    <span>{icon}</span> {label} <span className="ml-auto text-[#a8a29e]">›</span>
+                  <a key={label} href="#erstellen" className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                    <span>{icon}</span> {label} <span className="ml-auto text-[#78716c]">›</span>
                   </a>
                 ))}
               </div>
             </div>
-
-            {/* Rechts: Rotierende Vinyl */}
-            <div className="flex justify-center items-center">
-              <div className="relative" style={{ width: 340, height: 340 }}>
-
-                {/* Äußerer Textring — dreht sich langsam */}
-                <div className="absolute inset-0 animate-text-ring">
-                  <svg viewBox="0 0 340 340" className="w-full h-full">
-                    <defs>
-                      <path id="text-circle" d="M 170,170 m -145,0 a 145,145 0 1,1 290,0 a 145,145 0 1,1 -290,0" />
-                    </defs>
-                    <text style={{ fontSize: "11px", fill: "#a8a29e", fontWeight: 700, letterSpacing: "0.18em" }}>
-                      <textPath href="#text-circle">
-                        PERSONALISIERT · EINZIGARTIG · IN 2 MINUTEN · FÜR IMMER ·
-                      </textPath>
-                    </text>
-                  </svg>
-                </div>
-
-                {/* Vinyl-Scheibe — dreht sich schneller */}
-                <div className="absolute animate-vinyl rounded-full shadow-2xl"
-                  style={{
-                    inset: 36,
-                    background: "conic-gradient(from 0deg, #0f0f0f 0deg, #1c1c1c 20deg, #0f0f0f 40deg, #202020 70deg, #0f0f0f 100deg, #1a1a1a 130deg, #0f0f0f 160deg, #1c1c1c 200deg, #0f0f0f 230deg, #181818 260deg, #0f0f0f 300deg, #1c1c1c 340deg, #0f0f0f 360deg)"
-                  }}>
-                  {/* Rillen */}
-                  {[22, 36, 50, 62, 72, 80].map((inset) => (
-                    <div key={inset} className="absolute rounded-full border border-white/[0.04]"
-                      style={{ inset: `${inset}px` }} />
-                  ))}
-                  {/* Mittellabel */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-28 h-28 rounded-full flex flex-col items-center justify-center shadow-xl"
-                      style={{ background: "linear-gradient(135deg, #e8b06a 0%, #d97706 50%, #b45309 100%)" }}>
-                      <span className="text-white text-3xl leading-none">♪</span>
-                      <span className="text-white/80 text-[9px] font-bold tracking-[0.2em] mt-1">MADE</span>
-                      <div className="w-3 h-3 rounded-full bg-[#1a1a1a] mt-1" />
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
           </div>
+          <p className="text-xs text-[#a8a29e] text-center">Erste 10 Sekunden kostenlos hören · Kein Account · Keine Kreditkarte</p>
         </div>
       </section>
 

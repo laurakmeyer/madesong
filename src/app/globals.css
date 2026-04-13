@@ -160,17 +160,6 @@
   font-family: var(--font-display), Georgia, serif;
 }
 
-@keyframes spin-vinyl {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-@keyframes spin-text {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-vinyl { animation: spin-vinyl 5s linear infinite; }
-.animate-text-ring { animation: spin-text 22s linear infinite; }
-
 @keyframes wave-bar {
   0%, 100% { transform: scaleY(0.15); }
   50% { transform: scaleY(1); }
