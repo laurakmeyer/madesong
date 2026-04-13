@@ -42,40 +42,78 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — Hims-Style 3D Karten-Fan */}
-      <section className="hero-bg overflow-hidden pb-16" style={{minHeight: "100vh"}}>
-        {/* Spacer für fixed Header */}
-        <div className="h-24" />
+      {/* Hero — Foto rechts von ganz oben */}
+      <section className="pt-24 pb-0 px-6 md:px-12 overflow-hidden">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
 
-        {/* Headline */}
-        <div className="text-center px-6 pt-8 pb-12">
-          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-white/50 mb-5">
-            Personalisierte KI-Songs · Ab €3,99
-          </p>
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight text-white">
-            Das Geschenk,<br />
-            das <em className="not-italic" style={{color: "#fcd34d"}}>wirklich</em> bewegt.
-          </h1>
+          {/* Links: Label + Headline + Amber Card */}
+          <div className="flex flex-col pt-8 pb-4">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
+              Das Geschenk,<br />
+              das <em className="not-italic text-[#d97706]">wirklich</em><br />
+              bewegt.
+            </h1>
+            <div className="relative rounded-3xl overflow-hidden flex-1 hero-bg flex flex-col justify-between p-8 min-h-64">
+              <div>
+                <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
+                <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">
+                  Ein Song, den es<br />nur einmal gibt.
+                </h2>
+              </div>
+              <div>
+                <div className="flex items-end gap-1 h-8 mb-4">
+                  {WAVE_DELAYS.slice(0, 12).map((delay, i) => (
+                    <div key={i} className="wave-bar w-1.5 rounded-full bg-white/60"
+                      style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
+                  ))}
+                </div>
+                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
+                  Jetzt kostenlos ausprobieren →
+                </a>
+              </div>
+            </div>
+            <p className="text-xs text-[#a8a29e] text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
+          </div>
+
+          {/* Rechts: Foto mit Tiles als Overlay */}
+          <div className="relative rounded-3xl overflow-hidden" style={{minHeight: "600px"}}>
+            <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/50" />
+            <div className="absolute top-6 left-6">
+              <p className="text-white/70 text-sm font-medium">Perfekt für</p>
+              <p className="font-display text-2xl md:text-3xl text-white leading-tight">Jeden Anlass.<br />Jede Person.</p>
+            </div>
+            <div className="absolute bottom-4 left-4 right-4 grid grid-cols-2 gap-2">
+              {[
+                { icon: "🎂", label: "Geburtstag" },
+                { icon: "🍼", label: "Schlaflied" },
+                { icon: "💑", label: "Liebeslied" },
+                { icon: "🌸", label: "Muttertag" },
+              ].map(({ icon, label }) => (
+                <a key={label} href={`/?anlass=${label}#erstellen`}
+                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-white transition-colors">
+                  <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
+                </a>
+              ))}
+            </div>
+          </div>
+
         </div>
-
-        {/* Draggable Karousel — Desktop & Mobile */}
-        <HeroCarousel />
-
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row justify-center gap-4 px-6 pt-10">
-          <a href="#erstellen" className="inline-flex items-center justify-center gap-2 bg-white text-[#18120e] font-bold text-base px-10 py-4 rounded-full hover:bg-amber-50 transition-all shadow-lg">
-            Jetzt Song erstellen →
-          </a>
-          <a href="#so-funktionierts" className="inline-flex items-center justify-center gap-2 border-2 border-white/40 text-white font-semibold text-base px-10 py-4 rounded-full hover:bg-white/10 transition-all">
-            Mehr erfahren
-          </a>
-        </div>
-        <p className="text-center text-xs text-white/40 mt-5">
-          Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte
-        </p>
       </section>
 
-      {/* Karussell — amber Pill-Boxen */}
+      {/* Form — amber Hintergrund */}
+      <section id="erstellen" className="py-20 px-6 hero-bg">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="font-display text-4xl md:text-5xl text-white">Erstelle deinen Song. Jetzt.</h2>
+            <p className="text-white/60 mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
+          </div>
+          <Suspense fallback={null}><SongForm /></Suspense>
+        </div>
+      </section>
+
+      {/* Karussell 1 — amber Pill-Ticker */}
       <div className="overflow-hidden py-5 border-y border-black/6 bg-white">
         <div className="flex animate-marquee whitespace-nowrap">
           {[...Array(3)].map((_, rep) => (
@@ -98,16 +136,14 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Form — amber Hintergrund */}
-      <section id="erstellen" className="py-20 px-6 hero-bg">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="font-display text-4xl md:text-5xl text-white">Erstelle deinen Song. Jetzt.</h2>
-            <p className="text-white/60 mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
-          </div>
-          <Suspense fallback={null}><SongForm /></Suspense>
+      {/* Karussell 2 — Drag-scrollbare Anlass-Karten */}
+      <div className="bg-white py-12">
+        <div className="text-center mb-8 px-6">
+          <h2 className="font-display text-3xl md:text-4xl text-[#18120e]">Für jeden Anlass den perfekten Song.</h2>
+          <p className="text-[#78716c] mt-2 text-sm">Einfach klicken und direkt loslegen.</p>
         </div>
-      </section>
+        <HeroCarousel />
+      </div>
 
       {/* Feature 1: Baby/Schlaflied — amber Hintergrund */}
       <section className="py-20 px-6 md:px-20 hero-bg">
