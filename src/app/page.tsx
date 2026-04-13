@@ -128,10 +128,10 @@ export default function Home() {
       </div>
 
       {/* Karussell 2 — Drag-scrollbare Anlass-Karten */}
-      <div className="bg-white py-12">
+      <div className="hero-bg py-12">
         <div className="text-center mb-8 px-6">
-          <h2 className="font-display text-3xl md:text-4xl text-[#18120e]">Für jeden Anlass den perfekten Song.</h2>
-          <p className="text-[#78716c] mt-2 text-sm">Einfach klicken und direkt loslegen.</p>
+          <h2 className="font-display text-3xl md:text-4xl text-white">Für jeden Anlass den perfekten Song.</h2>
+          <p className="text-white/60 mt-2 text-sm">Einfach klicken und direkt loslegen.</p>
         </div>
         <HeroCarousel />
       </div>
