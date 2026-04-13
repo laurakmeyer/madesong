@@ -160,6 +160,12 @@
   font-family: var(--font-display), Georgia, serif;
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 25s linear infinite; }
+
 @keyframes wave-bar {
   0%, 100% { transform: scaleY(0.15); }
   50% { transform: scaleY(1); }

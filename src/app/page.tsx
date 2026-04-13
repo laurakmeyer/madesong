@@ -33,10 +33,9 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — weiß oben, Hims-Style */}
+      {/* Hero — weiß, Headline links, zwei Cards + Foto */}
       <section className="pt-32 pb-6 px-6 md:px-12">
         <div className="max-w-6xl mx-auto">
-          {/* Headline */}
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
           <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight mb-8 text-[#18120e] max-w-3xl">
             Das Geschenk,<br />
@@ -44,9 +43,8 @@ export default function Home() {
             bewegt.
           </h1>
 
-          {/* Feature Cards — eingerahmt wie Hims */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            {/* Card 1: Hauptkarte */}
+            {/* Card 1: Amber */}
             <div className="relative rounded-3xl overflow-hidden h-72 md:h-96 hero-bg flex flex-col justify-between p-8">
               <div>
                 <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
@@ -67,23 +65,20 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Card 2: Anlässe */}
-            <div className="rounded-3xl bg-[#fdf8f2] border border-black/6 h-72 md:h-96 flex flex-col justify-between p-8">
-              <div>
-                <p className="text-[#78716c] text-sm font-medium mb-2">Perfekt für</p>
-                <h2 className="font-display text-3xl md:text-4xl text-[#18120e] leading-tight">
-                  Jeden Anlass.<br />Jede Person.
-                </h2>
+            {/* Card 2: Foto oben + Anlass-Tiles unten */}
+            <div className="rounded-3xl overflow-hidden h-72 md:h-96 bg-[#fdf8f2] border border-black/6 flex flex-col">
+              <div className="relative flex-1 overflow-hidden">
+                <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
               </div>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 p-3">
                 {[
                   { icon: "🎂", label: "Geburtstag" },
                   { icon: "🍼", label: "Schlaflied" },
                   { icon: "💑", label: "Liebeslied" },
                   { icon: "🌸", label: "Muttertag" },
                 ].map(({ icon, label }) => (
-                  <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-2xl px-4 py-3 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
-                    <span>{icon}</span> {label} <span className="ml-auto text-[#78716c]">›</span>
+                  <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                    <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
                   </a>
                 ))}
               </div>
@@ -93,58 +88,57 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Form — direkt nach Hero */}
-      <section id="erstellen" className="py-20 px-6">
+      {/* Marquee Ticker */}
+      <div className="overflow-hidden border-y border-black/8 py-4 my-6">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...Array(2)].map((_, rep) => (
+            <span key={rep} className="flex items-center">
+              {["Ein Song bleibt für immer.", "Kein Song klingt wie der andere.", "Fertig in 2 Minuten.", "Ab €3,99.", "Kein Account.", "Echter Gesang.", "Einzigartig wie die Person."].map((text) => (
+                <span key={text} className="mx-8 text-sm font-medium text-[#78716c]">
+                  <span className="text-[#d97706] mr-3">✦</span>{text}
+                </span>
+              ))}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Form — amber Hintergrund */}
+      <section id="erstellen" className="py-20 px-6 hero-bg">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Erstelle deinen Song. Jetzt.</h2>
-            <p className="text-[#78716c] mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
+            <h2 className="font-display text-4xl md:text-5xl text-white">Erstelle deinen Song. Jetzt.</h2>
+            <p className="text-white/60 mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
           </div>
           <Suspense fallback={null}><SongForm /></Suspense>
         </div>
       </section>
 
-      {/* Problem vs. MadeSong */}
-      <section className="py-20 px-6 border-y border-black/8">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-          {[
-            { pain: "Blumen welken.", solution: "Ein Song bleibt für immer." },
-            { pain: "Gutscheine sind unpersönlich.", solution: "Kein Song klingt wie der andere." },
-            { pain: "Tage warten, viel bezahlen.", solution: "Fertig in 2 Minuten. Ab €3,99." },
-          ].map(({ pain, solution }) => (
-            <div key={pain} className="space-y-2">
-              <p className="text-[#a8a29e] line-through text-sm">{pain}</p>
-              <p className="text-[#18120e] font-semibold">{solution}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Feature 1: Baby/Schlaflied */}
-      <section className="py-20 px-6 md:px-20">
+      {/* Feature 1: Baby/Schlaflied — amber Hintergrund */}
+      <section className="py-20 px-6 md:px-20 hero-bg">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-5 order-2 md:order-1">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Schlaflied · Taufe · Geburt</p>
-            <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-300">Schlaflied · Taufe · Geburt</p>
+            <h2 className="font-display text-4xl md:text-5xl leading-tight text-white">
               Kein Kind schläft besser als mit seinem eigenen Lied.
             </h2>
-            <p className="text-[#78716c] leading-relaxed">
+            <p className="text-white/70 leading-relaxed">
               Du gibst an: Name, Lieblingstier, Lieblingsding. Die KI schreibt einen altersgerechten Text — liebevoll, persönlich, einzigartig.
             </p>
             <div className="grid grid-cols-2 gap-3">
               {[["<2 Min", "Fertig"],["€3,99", "Ab dem 1. Song"],["100%", "Persönlich"],["∞", "Für immer"]].map(([num, label]) => (
-                <div key={label} className="bg-white/70 rounded-2xl p-4 text-center border border-black/5 backdrop-blur">
-                  <div className="font-display text-2xl text-[#18120e]">{num}</div>
-                  <div className="text-xs text-[#78716c] mt-1">{label}</div>
+                <div key={label} className="bg-white/10 backdrop-blur rounded-2xl p-4 text-center border border-white/10">
+                  <div className="font-display text-2xl text-white">{num}</div>
+                  <div className="text-xs text-white/60 mt-1">{label}</div>
                 </div>
               ))}
             </div>
-            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
+            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-white text-[#18120e] px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
               Schlaflied erstellen →
             </a>
           </div>
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl order-1 md:order-2">
-            <Image src="/hero-baby.png" alt="Mutter mit Baby" fill className="object-cover" />
+            <Image src="/hero-baby.png" alt="Mutter mit Kind" fill className="object-cover" />
           </div>
         </div>
       </section>
