@@ -1,5 +1,6 @@
 import SongForm from "@/components/SongForm";
 import HeroCarousel from "@/components/HeroCarousel";
+import DragTicker from "@/components/DragTicker";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -113,27 +114,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Karussell 1 — amber Pill-Ticker */}
-      <div className="overflow-hidden py-5 border-y border-black/6 bg-white">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...Array(3)].map((_, rep) => (
-            <span key={rep} className="flex items-center gap-4">
-              {[
-                "Ein Song bleibt für immer.",
-                "Kein Song klingt wie der andere.",
-                "Fertig in unter 2 Minuten.",
-                "Ab €3,99 — einmalig.",
-                "Echter Gesang, keine KI-Stimme.",
-                "Kein Account nötig.",
-                "Einzigartig wie die Person.",
-              ].map((text) => (
-                <span key={text} className="inline-flex items-center bg-[#d97706] text-white text-sm font-semibold px-5 py-2.5 rounded-full mx-2 whitespace-nowrap">
-                  {text}
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
+      {/* Karussell 1 — amber Pills, manuell schiebbar */}
+      <div className="py-5 border-y border-black/6 bg-white">
+        <DragTicker variant="pills" items={[
+          "Ein Song bleibt für immer.",
+          "Kein Song klingt wie der andere.",
+          "Fertig in unter 2 Minuten.",
+          "Ab €3,99 — einmalig.",
+          "Echter Gesang, keine KI-Stimme.",
+          "Kein Account nötig.",
+          "Einzigartig wie die Person.",
+        ]} />
       </div>
 
       {/* Karussell 2 — Drag-scrollbare Anlass-Karten */}
@@ -174,19 +165,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Marquee Ticker — nach Schlaflied */}
-      <div className="overflow-hidden py-5 hero-bg border-t border-white/10">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...Array(2)].map((_, rep) => (
-            <span key={rep} className="flex items-center">
-              {["Ein Song bleibt für immer.", "Kein Song klingt wie der andere.", "Fertig in 2 Minuten.", "Ab €3,99.", "Kein Account.", "Echter Gesang.", "Einzigartig wie die Person."].map((text) => (
-                <span key={text} className="mx-8 text-sm font-semibold text-white/70">
-                  <span className="text-amber-300 mr-3">✦</span>{text}
-                </span>
-              ))}
-            </span>
-          ))}
-        </div>
+      {/* Ticker — nach Schlaflied, manuell schiebbar */}
+      <div className="py-5 hero-bg border-t border-white/10">
+        <DragTicker variant="text" items={[
+          "Ein Song bleibt für immer.",
+          "Kein Song klingt wie der andere.",
+          "Fertig in 2 Minuten.",
+          "Ab €3,99.",
+          "Kein Account.",
+          "Echter Gesang.",
+          "Einzigartig wie die Person.",
+        ]} />
       </div>
 
       {/* Feature 2: Mutter/Geburtstag */}
