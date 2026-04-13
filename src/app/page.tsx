@@ -1,4 +1,5 @@
 import SongForm from "@/components/SongForm";
+import HeroCarousel from "@/components/HeroCarousel";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -57,80 +58,8 @@ export default function Home() {
           </h1>
         </div>
 
-        {/* 3D Karten-Stage — Desktop */}
-        <div
-          className="relative hidden md:block mx-auto"
-          style={{
-            height: "400px",
-            perspective: "1400px",
-            perspectiveOrigin: "50% 40%",
-            maxWidth: "1200px",
-          }}
-        >
-          {HERO_CARDS.map((card, i) => {
-            const offsets    = [-500, -252, 0, 252, 500];
-            const rotations  = [-32, -16, 0, 16, 32];
-            const zDepths    = [-180, -80, 0, -80, -180];
-            const opacities  = [0.5, 0.78, 1, 0.78, 0.5];
-            const scales     = [0.80, 0.91, 1, 0.91, 0.80];
-            const zIndexes   = [1, 2, 10, 2, 1];
-            return (
-              <a
-                key={i}
-                href={`/?anlass=${card.anlass}#erstellen`}
-                className="absolute top-0 left-1/2 bg-white rounded-3xl shadow-2xl p-6 flex flex-col hover:opacity-100 transition-all duration-300"
-                style={{
-                  width: "220px",
-                  height: "360px",
-                  transform: `translateX(calc(-50% + ${offsets[i]}px)) rotateY(${rotations[i]}deg) translateZ(${zDepths[i]}px) scale(${scales[i]})`,
-                  opacity: opacities[i],
-                  zIndex: zIndexes[i],
-                  transformStyle: "preserve-3d",
-                }}
-              >
-                <div className="text-3xl mb-3">{card.icon}</div>
-                <p className="text-xs font-bold tracking-wider uppercase text-[#d97706] mb-1">{card.anlass}</p>
-                <p className="font-display text-xl text-[#18120e] leading-snug mb-3">{card.name}</p>
-                <p className="text-xs text-[#78716c] leading-relaxed italic flex-1">
-                  &ldquo;{card.preview}&rdquo;
-                </p>
-                {i === 2 && (
-                  <div className="flex items-end gap-0.5 h-6 mt-3">
-                    {WAVE_DELAYS.slice(0, 10).map((delay, j) => (
-                      <div
-                        key={j}
-                        className="wave-bar w-1.5 rounded-full bg-[#d97706]"
-                        style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (j % 4) * 0.15}s` }}
-                      />
-                    ))}
-                  </div>
-                )}
-                {card.tag && (
-                  <span className="absolute top-5 right-5 text-xs font-bold bg-[#d97706] text-white px-2.5 py-1 rounded-full">
-                    {card.tag}
-                  </span>
-                )}
-              </a>
-            );
-          })}
-        </div>
-
-        {/* Mobile: horizontaler Scroll */}
-        <div className="md:hidden px-4 pb-4">
-          <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory">
-            {HERO_CARDS.map((card, i) => (
-              <a
-                key={i}
-                href={`/?anlass=${card.anlass}#erstellen`}
-                className="flex-shrink-0 w-48 bg-white rounded-2xl p-5 shadow-lg snap-start"
-              >
-                <div className="text-2xl mb-2">{card.icon}</div>
-                <p className="text-xs font-bold text-[#d97706] uppercase tracking-wide mb-1">{card.anlass}</p>
-                <p className="font-display text-base text-[#18120e] leading-snug">{card.name}</p>
-              </a>
-            ))}
-          </div>
-        </div>
+        {/* Draggable Karousel — Desktop & Mobile */}
+        <HeroCarousel />
 
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row justify-center gap-4 px-6 pt-10">
