@@ -192,8 +192,9 @@ export default function Home() {
       {/* Feature 2: Mutter/Geburtstag */}
       <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          {/* TODO: ersetzen mit hero-mann.png (junger Mann, 18. Geburtstag) */}
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
-            <Image src="/hero-mutter.png" alt="Mutter bekommt persönlichen Song" fill className="object-cover" />
+            <Image src="/hero-geburtstag.png" alt="Junger Mann bekommt Song zum 18. Geburtstag" fill className="object-cover" />
           </div>
           <div className="space-y-5">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
@@ -421,8 +422,9 @@ export default function Home() {
               Meinen ersten Song erstellen →
             </a>
           </div>
+          {/* TODO: ersetzen mit hero-papa.png (Mann ~50, emotional, Sofa) */}
           <div className="relative h-80 md:h-[480px] rounded-3xl overflow-hidden shadow-2xl">
-            <Image src="/hero-mutter.png" alt="Frau tanzt vor Freude" fill className="object-cover object-top" />
+            <Image src="/hero-paar.png" alt="Papa bekommt emotionalen Song" fill className="object-cover object-center" />
           </div>
         </div>
       </section>
