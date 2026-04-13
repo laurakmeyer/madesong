@@ -114,19 +114,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Karussell 1 — Sterne-Ticker, manuell schiebbar */}
-      <div className="py-5 hero-bg">
-        <DragTicker variant="text" items={[
-          "Ein Song bleibt für immer.",
-          "Kein Song klingt wie der andere.",
-          "Fertig in unter 2 Minuten.",
-          "Ab €3,99 — einmalig.",
-          "Echter Gesang, keine KI-Stimme.",
-          "Kein Account nötig.",
-          "Einzigartig wie die Person.",
-        ]} />
-      </div>
-
       {/* Karussell 2 — Drag-scrollbare Anlass-Karten */}
       <div className="hero-bg py-12">
         <div className="text-center mb-8 px-6">
@@ -165,6 +152,19 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* Sterne-Ticker — zwischen Schlaflied und Feature 2 */}
+      <div className="py-5 hero-bg">
+        <DragTicker variant="text" items={[
+          "Ein Song bleibt für immer.",
+          "Kein Song klingt wie der andere.",
+          "Fertig in unter 2 Minuten.",
+          "Ab €3,99 — einmalig.",
+          "Echter Gesang, keine KI-Stimme.",
+          "Kein Account nötig.",
+          "Einzigartig wie die Person.",
+        ]} />
+      </div>
 
       {/* Feature 2: Mutter/Geburtstag */}
       <section className="py-20 px-6 md:px-20">
