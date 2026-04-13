@@ -90,17 +90,17 @@ export default function Home() {
             <Image src="/hero-oma.png" alt="Oma hört personalisierten Song" fill className="object-cover" />
           </div>
           <div className="space-y-5">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#7c3aed]">Geburtstag · Muttertag · Einfach so</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
               Das erste Mal, dass ein Geschenk ihren Namen singt.
             </h2>
             <ul className="space-y-3 text-[#78716c]">
-              <li className="flex gap-3"><span className="text-[#7c3aed] font-bold mt-0.5">✓</span><span>Echter Song mit Gesang — keine Computerstimme</span></li>
-              <li className="flex gap-3"><span className="text-[#7c3aed] font-bold mt-0.5">✓</span><span>Fertig in unter 2 Minuten — nicht in 3 Tagen</span></li>
-              <li className="flex gap-3"><span className="text-[#7c3aed] font-bold mt-0.5">✓</span><span>Per WhatsApp teilen, als MP3 laden oder als Video auf Instagram posten</span></li>
-              <li className="flex gap-3"><span className="text-[#7c3aed] font-bold mt-0.5">✓</span><span>Text direkt bearbeiten oder per KI verfeinern</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Echter Song mit Gesang — keine Computerstimme</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Fertig in unter 2 Minuten — nicht in 3 Tagen</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Per WhatsApp teilen, als MP3 laden oder als Video auf Instagram posten</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Text direkt bearbeiten oder per KI verfeinern</span></li>
             </ul>
-            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#7c3aed] text-white px-6 py-3 rounded-full hover:bg-[#6d28d9] transition-all">
+            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
               Song erstellen →
             </a>
           </div>
@@ -111,7 +111,7 @@ export default function Home() {
       <section className="py-20 md:py-32 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-5 order-2 md:order-1">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#7c3aed]">Schlaflied · Taufe · Geburt</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Schlaflied · Taufe · Geburt</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
               Kein Kind schläft besser als mit seinem eigenen Lied.
             </h2>
@@ -126,7 +126,7 @@ export default function Home() {
                 </div>
               ))}
             </div>
-            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#7c3aed] text-white px-6 py-3 rounded-full hover:bg-[#6d28d9] transition-all">
+            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
               Schlaflied erstellen →
             </a>
           </div>
@@ -161,17 +161,17 @@ export default function Home() {
             <Image src="/hero-geburtstag.png" alt="Geburtstagssong" fill className="object-cover" />
           </div>
           <div className="space-y-5">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#7c3aed]">Warum MadeSong?</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Warum MadeSong?</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
               Weil &ldquo;Happy Birthday&rdquo; es nicht mehr tut.
             </h2>
             <p className="text-[#78716c] leading-relaxed">Alle singen dasselbe Lied. Du schenkst etwas, das es genau einmal auf der Welt gibt.</p>
             <div className="space-y-3 text-sm text-[#78716c] border-t border-black/8 pt-4">
-              <p className="flex gap-3"><span className="text-[#7c3aed]">✓</span>Wettbewerber: €29–€50 und Tage Wartezeit</p>
-              <p className="flex gap-3"><span className="text-[#7c3aed]">✓</span>MadeSong: €3,99 — fertig bevor du den Tab schließt</p>
-              <p className="flex gap-3"><span className="text-[#7c3aed]">✓</span>Text bearbeiten, verfeinern, neu generieren — unlimitiert</p>
-              <p className="flex gap-3"><span className="text-[#7c3aed]">✓</span>Foto hochladen → erscheint als Hintergrund auf der Teilen-Seite</p>
-              <p className="flex gap-3"><span className="text-[#7c3aed]">✓</span>Story-Video als MP4 für Instagram & WhatsApp Status</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Wettbewerber: €29–€50 und Tage Wartezeit</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>MadeSong: €3,99 — fertig bevor du den Tab schließt</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Text bearbeiten, verfeinern, neu generieren — unlimitiert</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Foto hochladen → erscheint als Hintergrund auf der Teilen-Seite</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Story-Video als MP4 für Instagram & WhatsApp Status</p>
             </div>
           </div>
         </div>
@@ -212,7 +212,7 @@ export default function Home() {
                     <div className="h-full w-1/3 bg-white rounded-full" />
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-[#7c3aed] flex items-center justify-center text-xs font-bold text-white">M</div>
+                    <div className="w-7 h-7 rounded-full bg-[#d97706] flex items-center justify-center text-xs font-bold text-white">M</div>
                     <span className="text-white text-xs font-semibold">MadeSong</span>
                   </div>
                 </div>
@@ -287,8 +287,8 @@ export default function Home() {
               { name: "Paket", price: "€14,99", sub: "einmalig · spart €5", desc: "5 Songs", features: ["5 personalisierte Songs", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: true, note: "★ Beliebteste Wahl" },
               { name: "Flat", price: "€34,99", sub: "pro Monat", desc: "max. 20 Songs", features: ["20 Songs/Monat", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Ideal für Familien & Kreative" },
             ].map(({ name, price, sub, desc, features, highlight, note }) => (
-              <div key={name} className={`rounded-3xl p-8 border flex flex-col ${highlight ? "bg-[#7c3aed] border-[#7c3aed]" : "bg-white/70 border-black/8"}`}>
-                {note && <span className={`text-xs font-semibold tracking-widest uppercase mb-3 ${highlight ? "text-purple-200" : "text-[#78716c]"}`}>{note}</span>}
+              <div key={name} className={`rounded-3xl p-8 border flex flex-col ${highlight ? "bg-[#d97706] border-[#d97706]" : "bg-white/70 border-black/8"}`}>
+                {note && <span className={`text-xs font-semibold tracking-widest uppercase mb-3 ${highlight ? "text-amber-200" : "text-[#78716c]"}`}>{note}</span>}
                 <h3 className={`text-xl font-bold ${highlight ? "text-white" : "text-[#18120e]"}`}>{name}</h3>
                 <div className="mt-3 mb-1">
                   <span className={`font-display text-5xl ${highlight ? "text-white" : "text-[#18120e]"}`}>{price}</span>
@@ -297,11 +297,11 @@ export default function Home() {
                 <ul className="space-y-2.5 flex-1">
                   {features.map((f) => (
                     <li key={f} className={`flex items-start gap-2.5 text-sm ${highlight ? "text-white/80" : "text-[#78716c]"}`}>
-                      <span className={`font-bold mt-0.5 ${highlight ? "text-white" : "text-[#7c3aed]"}`}>✓</span> {f}
+                      <span className={`font-bold mt-0.5 ${highlight ? "text-white" : "text-[#d97706]"}`}>✓</span> {f}
                     </li>
                   ))}
                 </ul>
-                <a href="#erstellen" className={`mt-8 text-center text-sm font-bold py-3.5 rounded-full transition-all hover:scale-105 ${highlight ? "bg-white text-[#7c3aed] hover:bg-zinc-100" : "bg-[#7c3aed] text-white hover:bg-[#6d28d9]"}`}>
+                <a href="#erstellen" className={`mt-8 text-center text-sm font-bold py-3.5 rounded-full transition-all hover:scale-105 ${highlight ? "bg-white text-[#d97706] hover:bg-zinc-100" : "bg-[#d97706] text-white hover:bg-[#b45309]"}`}>
                   Jetzt starten
                 </a>
               </div>
@@ -314,7 +314,7 @@ export default function Home() {
       <section id="faq" className="py-24 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="mb-14 text-center">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#7c3aed] mb-3">Häufige Fragen</p>
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-3">Häufige Fragen</p>
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Du fragst. Wir antworten.</h2>
           </div>
           <div className="space-y-3">
@@ -322,7 +322,7 @@ export default function Home() {
               <details key={q} className="group bg-white/70 backdrop-blur rounded-2xl border border-black/5 overflow-hidden">
                 <summary className="flex items-center justify-between gap-4 p-6 cursor-pointer font-semibold text-[#18120e] list-none">
                   {q}
-                  <span className="text-[#7c3aed] text-xl shrink-0 group-open:rotate-45 transition-transform">+</span>
+                  <span className="text-[#d97706] text-xl shrink-0 group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="px-6 pb-6 text-[#78716c] leading-relaxed text-sm">{a}</p>
               </details>
@@ -338,7 +338,7 @@ export default function Home() {
             Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#f43f5e]">überrascht?</em>
           </h2>
           <p className="text-[#78716c] mb-8">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
-          <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#7c3aed] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#6d28d9] transition-all hover:scale-105 active:scale-95">
+          <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#b45309] transition-all hover:scale-105 active:scale-95">
             Meinen ersten Song erstellen →
           </a>
         </div>
@@ -347,7 +347,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-black/8 py-10 px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-display font-bold text-[#18120e]">Made<span className="text-[#7c3aed]">Song</span></span>
+          <span className="font-display font-bold text-[#18120e]">Made<span className="text-[#d97706]">Song</span></span>
           <p className="text-sm text-[#a8a29e]">© 2026 MadeSong — Ein persönlicher Song für jeden Moment.</p>
           <div className="flex gap-6 text-sm text-[#a8a29e]">
             <Link href="#" className="hover:text-[#1c1917] transition-colors">Impressum</Link>
