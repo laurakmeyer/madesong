@@ -28,33 +28,41 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
   };
 
   return (
-    <main className="min-h-screen relative flex flex-col items-center justify-center px-6 py-12 overflow-hidden">
-
-      {/* Foto als sanfter Hintergrund */}
-      {song.photo_url && (
-        <>
-          <div className="absolute inset-0 bg-cover bg-center scale-105"
-            style={{ backgroundImage: `url(${song.photo_url})` }} />
-          <div className="absolute inset-0 bg-white/75 backdrop-blur-md" />
-        </>
-      )}
-      {!song.photo_url && (
-        <div className="absolute inset-0 bg-gradient-to-br from-[#fdf8f2] via-[#f5ede0] to-[#ede0cc]" />
-      )}
+    <main className="min-h-screen bg-gradient-to-br from-[#fdf8f2] via-[#f5ede0] to-[#ede0cc] flex flex-col items-center px-6 py-12">
 
       {/* Inhalt */}
-      <div className="relative z-10 w-full max-w-xl space-y-6">
+      <div className="w-full max-w-xl space-y-6">
 
-        {/* Header */}
+        {/* Logo */}
         <div className="text-center">
-          <a href="/" className="flex items-center justify-center gap-2 mb-4">
-            <Music className="h-6 w-6 text-[#d97706]" />
-            <span className="text-xl font-bold text-[#1c1917]">MadeSong</span>
+          <a href="/" className="inline-flex items-center gap-2">
+            <Music className="h-5 w-5 text-[#d97706]" />
+            <span className="text-lg font-bold text-[#1c1917]">MadeSong</span>
           </a>
-          <p className="text-sm text-[#d97706] font-medium uppercase tracking-widest">Ein persönlicher Song für</p>
-          <h1 className="text-3xl font-extrabold text-gray-900 mt-1">{song.recipient_name} 🎵</h1>
-          {song.occasion && <p className="text-gray-500 text-sm mt-1">{song.occasion} · {song.mood}</p>}
         </div>
+
+        {/* Foto — prominent als Karte */}
+        {song.photo_url && (
+          <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl" style={{aspectRatio: "4/3"}}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={song.photo_url} alt="Foto" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            <div className="absolute bottom-5 left-5 right-5">
+              <p className="text-xs text-white/70 font-medium uppercase tracking-widest mb-1">Ein persönlicher Song für</p>
+              <h1 className="text-3xl font-extrabold text-white">{song.recipient_name} 🎵</h1>
+              {song.occasion && <p className="text-white/70 text-sm mt-1">{song.occasion} · {song.mood}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Kein Foto: Text-Header */}
+        {!song.photo_url && (
+          <div className="text-center">
+            <p className="text-sm text-[#d97706] font-medium uppercase tracking-widest">Ein persönlicher Song für</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 mt-1">{song.recipient_name} 🎵</h1>
+            {song.occasion && <p className="text-gray-500 text-sm mt-1">{song.occasion} · {song.mood}</p>}
+          </div>
+        )}
 
         {/* Player */}
         <SongPlayer mp3Url={song.mp3_url} />
