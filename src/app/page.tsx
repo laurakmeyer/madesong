@@ -21,7 +21,7 @@ export default function Home() {
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 backdrop-blur-md border-b border-white/10" style={{ backgroundColor: "rgba(44,28,16,0.85)" }}>
-        <span className="font-display text-2xl font-bold tracking-tight text-white">MadeSong</span>
+        <span className="text-2xl font-bold tracking-tight text-white">MadeSong</span>
         <nav className="hidden md:flex items-center gap-8 text-sm text-white/60">
           <a href="#so-funktionierts" className="hover:text-white transition-colors">So funktioniert&apos;s</a>
           <a href="#preise" className="hover:text-white transition-colors">Preise</a>
@@ -83,31 +83,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Feature 1: Oma */}
-      <section className="py-20 md:py-32 px-6 md:px-20">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
-          <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
-            <Image src="/hero-oma.png" alt="Oma hört personalisierten Song" fill className="object-cover" />
-          </div>
-          <div className="space-y-5">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
-            <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
-              Das erste Mal, dass ein Geschenk ihren Namen singt.
-            </h2>
-            <ul className="space-y-3 text-[#78716c]">
-              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Echter Song mit Gesang — keine Computerstimme</span></li>
-              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Fertig in unter 2 Minuten — nicht in 3 Tagen</span></li>
-              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Per WhatsApp teilen, als MP3 laden oder als Video auf Instagram posten</span></li>
-              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Text direkt bearbeiten oder per KI verfeinern</span></li>
-            </ul>
-            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
-              Song erstellen →
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature 2: Baby */}
+      {/* Feature 1: Baby/Schlaflied */}
       <section className="py-20 md:py-32 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-5 order-2 md:order-1">
@@ -131,7 +107,31 @@ export default function Home() {
             </a>
           </div>
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl order-1 md:order-2">
-            <Image src="/hero-baby.png" alt="Mutter singt Schlaflied" fill className="object-cover" />
+            <Image src="/hero-baby.png" alt="Mutter mit Baby" fill className="object-cover" />
+          </div>
+        </div>
+      </section>
+
+      {/* Feature 2: Mutter/Geburtstag */}
+      <section className="py-20 md:py-32 px-6 md:px-20">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+          <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
+            <Image src="/hero-mutter.png" alt="Mutter bekommt persönlichen Song" fill className="object-cover" />
+          </div>
+          <div className="space-y-5">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
+            <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
+              Das erste Mal, dass ein Geschenk ihren Namen singt.
+            </h2>
+            <ul className="space-y-3 text-[#78716c]">
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Echter Song mit Gesang — keine Computerstimme</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Fertig in unter 2 Minuten — nicht in 3 Tagen</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Per WhatsApp teilen, als MP3 laden oder als Video auf Instagram posten</span></li>
+              <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Text direkt bearbeiten oder per KI verfeinern</span></li>
+            </ul>
+            <a href="#erstellen" className="inline-flex items-center gap-2 text-sm font-bold bg-[#d97706] text-white px-6 py-3 rounded-full hover:bg-[#b45309] transition-all">
+              Song erstellen →
+            </a>
           </div>
         </div>
       </section>
