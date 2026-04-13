@@ -5,6 +5,14 @@ import Image from "next/image";
 
 const WAVE_DELAYS = [0, 0.1, 0.2, 0.15, 0.3, 0.05, 0.25, 0.35, 0.1, 0.2, 0.3, 0.05, 0.15, 0.25, 0.4, 0.08, 0.18, 0.28, 0.12, 0.22];
 
+const HERO_CARDS = [
+  { anlass: "Geburtstag", name: "Maria, 60 Jahre", preview: "Sechzig Jahre voller Glanz, heut' ist dein ganz besondrer Tanz...", icon: "🎂", tag: null },
+  { anlass: "Schlaflied", name: "Für kleine Emma", preview: "Schlaf, mein kleines Sternenkind, träum von allem was du bist...", icon: "🍼", tag: null },
+  { anlass: "Liebeslied", name: "Laura & Tom", preview: "Seit dem ersten Augenblick wusst ich, du bist mein Glück...", icon: "💑", tag: "Beliebt" },
+  { anlass: "Muttertag", name: "Für Mama", preview: "Mama, du bist mein Anker, mein Licht und mein Zuhause...", icon: "🌸", tag: null },
+  { anlass: "Weihnachten", name: "Familie Meyer", preview: "An Weihnachten, wenn Kerzen glüh'n, denk ich an euch, die ich lieb...", icon: "🎄", tag: null },
+];
+
 const FAQ = [
   { q: "Klingt das wirklich gut — oder wie ein Computer?", a: "Echter Gesang, echte Instrumente. Mureka AI erzeugt vollständige Songs mit menschlicher Stimme — kein synthetisches Text-to-Speech. Hör selbst: einfach einen kostenlosen Song erstellen." },
   { q: "Was wenn mir der Song nicht gefällt?", a: "Du kannst den Text direkt im Browser bearbeiten, ihn per KI mit einem Satz verfeinern (z.B. \"Mach es fröhlicher\") oder komplett neu generieren — so oft du willst, vor der Zahlung." },
@@ -33,66 +41,109 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — Foto rechts von ganz oben */}
-      <section className="pt-24 pb-0 px-6 md:px-12 overflow-hidden">
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+      {/* Hero — Hims-Style 3D Karten-Fan */}
+      <section className="hero-bg overflow-hidden pb-16" style={{minHeight: "100vh"}}>
+        {/* Spacer für fixed Header */}
+        <div className="h-24" />
 
-          {/* Links: Label + Headline + Amber Card */}
-          <div className="flex flex-col pt-8 pb-4">
-            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
-            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
-              Das Geschenk,<br />
-              das <em className="not-italic text-[#d97706]">wirklich</em><br />
-              bewegt.
-            </h1>
-            <div className="relative rounded-3xl overflow-hidden flex-1 hero-bg flex flex-col justify-between p-8 min-h-64">
-              <div>
-                <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
-                <h2 className="font-display text-3xl md:text-4xl text-white leading-tight">
-                  Ein Song, den es<br />nur einmal gibt.
-                </h2>
-              </div>
-              <div>
-                <div className="flex items-end gap-1 h-8 mb-4">
-                  {WAVE_DELAYS.slice(0, 12).map((delay, i) => (
-                    <div key={i} className="wave-bar w-1.5 rounded-full bg-white/60"
-                      style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
-                  ))}
-                </div>
-                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
-                  Jetzt kostenlos ausprobieren →
-                </a>
-              </div>
-            </div>
-            <p className="text-xs text-[#a8a29e] text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
-          </div>
-
-          {/* Rechts: Foto mit Tiles als Overlay */}
-          <div className="relative rounded-3xl overflow-hidden" style={{minHeight: "600px"}}>
-            <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/50" />
-            {/* Text oben */}
-            <div className="absolute top-6 left-6">
-              <p className="text-white/70 text-sm font-medium">Perfekt für</p>
-              <p className="font-display text-2xl md:text-3xl text-white leading-tight">Jeden Anlass.<br />Jede Person.</p>
-            </div>
-            {/* Tiles eingebettet unten */}
-            <div className="absolute bottom-4 left-4 right-4 grid grid-cols-2 gap-2">
-              {[
-                { icon: "🎂", label: "Geburtstag" },
-                { icon: "🍼", label: "Schlaflied" },
-                { icon: "💑", label: "Liebeslied" },
-                { icon: "🌸", label: "Muttertag" },
-              ].map(({ icon, label }) => (
-                <a key={label} href={`/?anlass=${label}#erstellen`}
-                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-white transition-colors">
-                  <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
-                </a>
-              ))}
-            </div>
-          </div>
-
+        {/* Headline */}
+        <div className="text-center px-6 pt-8 pb-12">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-white/50 mb-5">
+            Personalisierte KI-Songs · Ab €3,99
+          </p>
+          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight text-white">
+            Das Geschenk,<br />
+            das <em className="not-italic" style={{color: "#fcd34d"}}>wirklich</em> bewegt.
+          </h1>
         </div>
+
+        {/* 3D Karten-Stage — Desktop */}
+        <div
+          className="relative hidden md:block mx-auto"
+          style={{
+            height: "400px",
+            perspective: "1400px",
+            perspectiveOrigin: "50% 40%",
+            maxWidth: "1200px",
+          }}
+        >
+          {HERO_CARDS.map((card, i) => {
+            const offsets    = [-500, -252, 0, 252, 500];
+            const rotations  = [-32, -16, 0, 16, 32];
+            const zDepths    = [-180, -80, 0, -80, -180];
+            const opacities  = [0.5, 0.78, 1, 0.78, 0.5];
+            const scales     = [0.80, 0.91, 1, 0.91, 0.80];
+            const zIndexes   = [1, 2, 10, 2, 1];
+            return (
+              <a
+                key={i}
+                href={`/?anlass=${card.anlass}#erstellen`}
+                className="absolute top-0 left-1/2 bg-white rounded-3xl shadow-2xl p-6 flex flex-col hover:opacity-100 transition-all duration-300"
+                style={{
+                  width: "220px",
+                  height: "360px",
+                  transform: `translateX(calc(-50% + ${offsets[i]}px)) rotateY(${rotations[i]}deg) translateZ(${zDepths[i]}px) scale(${scales[i]})`,
+                  opacity: opacities[i],
+                  zIndex: zIndexes[i],
+                  transformStyle: "preserve-3d",
+                }}
+              >
+                <div className="text-3xl mb-3">{card.icon}</div>
+                <p className="text-xs font-bold tracking-wider uppercase text-[#d97706] mb-1">{card.anlass}</p>
+                <p className="font-display text-xl text-[#18120e] leading-snug mb-3">{card.name}</p>
+                <p className="text-xs text-[#78716c] leading-relaxed italic flex-1">
+                  &ldquo;{card.preview}&rdquo;
+                </p>
+                {i === 2 && (
+                  <div className="flex items-end gap-0.5 h-6 mt-3">
+                    {WAVE_DELAYS.slice(0, 10).map((delay, j) => (
+                      <div
+                        key={j}
+                        className="wave-bar w-1.5 rounded-full bg-[#d97706]"
+                        style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (j % 4) * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                )}
+                {card.tag && (
+                  <span className="absolute top-5 right-5 text-xs font-bold bg-[#d97706] text-white px-2.5 py-1 rounded-full">
+                    {card.tag}
+                  </span>
+                )}
+              </a>
+            );
+          })}
+        </div>
+
+        {/* Mobile: horizontaler Scroll */}
+        <div className="md:hidden px-4 pb-4">
+          <div className="flex gap-3 overflow-x-auto pb-3 snap-x snap-mandatory">
+            {HERO_CARDS.map((card, i) => (
+              <a
+                key={i}
+                href={`/?anlass=${card.anlass}#erstellen`}
+                className="flex-shrink-0 w-48 bg-white rounded-2xl p-5 shadow-lg snap-start"
+              >
+                <div className="text-2xl mb-2">{card.icon}</div>
+                <p className="text-xs font-bold text-[#d97706] uppercase tracking-wide mb-1">{card.anlass}</p>
+                <p className="font-display text-base text-[#18120e] leading-snug">{card.name}</p>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* CTAs */}
+        <div className="flex flex-col sm:flex-row justify-center gap-4 px-6 pt-10">
+          <a href="#erstellen" className="inline-flex items-center justify-center gap-2 bg-white text-[#18120e] font-bold text-base px-10 py-4 rounded-full hover:bg-amber-50 transition-all shadow-lg">
+            Jetzt Song erstellen →
+          </a>
+          <a href="#so-funktionierts" className="inline-flex items-center justify-center gap-2 border-2 border-white/40 text-white font-semibold text-base px-10 py-4 rounded-full hover:bg-white/10 transition-all">
+            Mehr erfahren
+          </a>
+        </div>
+        <p className="text-center text-xs text-white/40 mt-5">
+          Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte
+        </p>
       </section>
 
       {/* Karussell — amber Pill-Boxen */}
