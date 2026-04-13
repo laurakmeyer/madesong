@@ -79,22 +79,6 @@ export default function HeroCarousel() {
               &ldquo;{card.preview}&rdquo;
             </p>
 
-            {/* Wellenform nur bei Liebeslied (Mitte) */}
-            {card.anlass === "Liebeslied" && (
-              <div className="flex items-end gap-0.5 h-6 mt-3">
-                {WAVE_DELAYS.map((delay, j) => (
-                  <div
-                    key={j}
-                    className="wave-bar w-1.5 rounded-full bg-[#d97706]"
-                    style={{
-                      height: "100%",
-                      animationDelay: `${delay}s`,
-                      animationDuration: `${0.9 + (j % 4) * 0.15}s`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
 
             {card.tag && (
               <span className="absolute top-5 right-5 text-xs font-bold bg-[#d97706] text-white px-2.5 py-1 rounded-full">
