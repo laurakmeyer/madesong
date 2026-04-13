@@ -94,7 +94,7 @@ export default function Home() {
       </section>
 
       {/* Form — direkt nach Hero */}
-      <section id="erstellen" className="py-16 px-6">
+      <section id="erstellen" className="py-20 px-6">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Erstelle deinen Song. Jetzt.</h2>
@@ -105,7 +105,7 @@ export default function Home() {
       </section>
 
       {/* Problem vs. MadeSong */}
-      <section className="py-14 px-6 border-y border-black/8">
+      <section className="py-20 px-6 border-y border-black/8">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
           {[
             { pain: "Blumen welken.", solution: "Ein Song bleibt für immer." },
@@ -121,7 +121,7 @@ export default function Home() {
       </section>
 
       {/* Feature 1: Baby/Schlaflied */}
-      <section className="py-14 md:py-20 px-6 md:px-20">
+      <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="space-y-5 order-2 md:order-1">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Schlaflied · Taufe · Geburt</p>
@@ -150,7 +150,7 @@ export default function Home() {
       </section>
 
       {/* Feature 2: Mutter/Geburtstag */}
-      <section className="py-14 md:py-20 px-6 md:px-20">
+      <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
             <Image src="/hero-mutter.png" alt="Mutter bekommt persönlichen Song" fill className="object-cover" />
@@ -192,7 +192,7 @@ export default function Home() {
       </section>
 
       {/* Feature 3: Geburtstag */}
-      <section className="py-14 md:py-20 px-6 md:px-20">
+      <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
             <Image src="/hero-geburtstag.png" alt="Geburtstagssong" fill className="object-cover" />
@@ -215,7 +215,7 @@ export default function Home() {
       </section>
 
       {/* Instagram Video Section */}
-      <section className="py-20 md:py-28 px-6 border-y border-black/8">
+      <section className="py-20 px-6 border-y border-black/8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div className="space-y-5">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#f43f5e]">Neu · Story-Video Export</p>
@@ -288,7 +288,7 @@ export default function Home() {
       </section>
 
       {/* How it works */}
-      <section id="so-funktionierts" className="py-24 px-6">
+      <section id="so-funktionierts" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="mb-14 text-center">
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Von Idee zu Song — in unter 2 Minuten.</h2>
@@ -312,7 +312,7 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section id="preise" className="py-24 px-6 border-t border-black/8">
+      <section id="preise" className="py-20 px-6 border-t border-black/8">
         <div className="max-w-5xl mx-auto">
           <div className="mb-12 text-center">
             <h2 className="font-display text-4xl md:text-5xl text-[#18120e]">Ein Geschenk für die Ewigkeit.</h2>
@@ -349,7 +349,7 @@ export default function Home() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-24 px-6">
+      <section id="faq" className="py-20 px-6">
         <div className="max-w-3xl mx-auto">
           <div className="mb-14 text-center">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-3">Häufige Fragen</p>
@@ -370,7 +370,7 @@ export default function Home() {
       </section>
 
       {/* Final CTA */}
-      <section className="py-28 px-6 text-center border-t border-black/8">
+      <section className="py-20 px-6 text-center border-t border-black/8">
         <div className="max-w-2xl mx-auto">
           <h2 className="font-display text-5xl md:text-6xl leading-tight mb-4 text-[#18120e]">
             Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#f43f5e]">überrascht?</em>
