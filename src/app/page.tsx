@@ -20,34 +20,34 @@ export default function Home() {
     <main className="mesh-bg text-[#1c1917]">
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 backdrop-blur-md border-b border-black/5" style={{ backgroundColor: "rgba(253,248,242,0.92)" }}>
-        <span className="font-display text-2xl font-bold tracking-tight text-[#18120e]">MadeSong</span>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-[#78716c]">
-          <a href="#so-funktionierts" className="hover:text-[#1c1917] transition-colors">So funktioniert&apos;s</a>
-          <a href="#preise" className="hover:text-[#1c1917] transition-colors">Preise</a>
-          <a href="#faq" className="hover:text-[#1c1917] transition-colors">FAQ</a>
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 backdrop-blur-md border-b border-white/10" style={{ backgroundColor: "rgba(44,28,16,0.85)" }}>
+        <span className="font-display text-2xl font-bold tracking-tight text-white">MadeSong</span>
+        <nav className="hidden md:flex items-center gap-8 text-sm text-white/60">
+          <a href="#so-funktionierts" className="hover:text-white transition-colors">So funktioniert&apos;s</a>
+          <a href="#preise" className="hover:text-white transition-colors">Preise</a>
+          <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
         </nav>
-        <a href="#erstellen" className="text-sm font-semibold bg-[#7c3aed] text-white px-5 py-2.5 rounded-full hover:bg-[#6d28d9] transition-colors">
+        <a href="#erstellen" className="text-sm font-semibold bg-white text-[#18120e] px-5 py-2.5 rounded-full hover:bg-amber-100 transition-colors">
           Song erstellen →
         </a>
       </header>
 
       {/* Hero */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-8 text-center">
-        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#7c3aed] mb-6">Personalisierte KI-Musik · Ab €3,99</p>
-        <h1 className="font-display text-6xl md:text-8xl lg:text-[100px] leading-[0.95] tracking-tight mb-6 text-[#18120e]">
+      <section className="hero-bg relative min-h-screen flex flex-col items-center justify-center px-6 pt-28 pb-8 text-center">
+        <p className="text-xs font-semibold tracking-[0.2em] uppercase text-amber-300 mb-6">Personalisierte KI-Musik · Ab €3,99</p>
+        <h1 className="font-display text-6xl md:text-8xl lg:text-[100px] leading-[0.95] tracking-tight mb-6 text-white">
           Das Geschenk,<br />
-          das <em className="not-italic text-[#7c3aed]">wirklich</em><br />
+          das <em className="not-italic text-amber-300">wirklich</em><br />
           bewegt.
         </h1>
-        <p className="text-lg md:text-xl text-[#78716c] max-w-lg mx-auto mb-4 leading-relaxed">
+        <p className="text-lg md:text-xl text-white/70 max-w-lg mx-auto mb-4 leading-relaxed">
           Ein Song mit ihrem Namen, ihrer Geschichte, ihrer Melodie — in unter 2 Minuten. Kein anderer Mensch auf der Welt hat diesen Song.
         </p>
-        <p className="text-sm text-[#a8a29e] mb-8">€3,99. Weniger als ein Kaffee. Mehr als jedes Geschenk.</p>
-        <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#18120e] text-white font-bold text-base md:text-lg px-8 py-4 rounded-full hover:bg-[#7c3aed] transition-all hover:scale-105 active:scale-95">
+        <p className="text-sm text-white/50 mb-8">€3,99. Weniger als ein Kaffee. Mehr als jedes Geschenk.</p>
+        <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-base md:text-lg px-8 py-4 rounded-full hover:bg-amber-100 transition-all hover:scale-105 active:scale-95">
           Jetzt kostenlos ausprobieren →
         </a>
-        <p className="text-xs text-[#a8a29e] mt-3">Erste 10 Sekunden kostenlos hören · Kein Account</p>
+        <p className="text-xs text-white/40 mt-3">Erste 10 Sekunden kostenlos hören · Kein Account</p>
         <div className="mt-12 flex items-end gap-1 h-12">
           {WAVE_DELAYS.map((delay, i) => (
             <div key={i} className="wave-bar w-1.5 rounded-full"

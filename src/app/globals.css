@@ -151,6 +151,11 @@
     radial-gradient(ellipse at 50% 50%, rgba(253, 230, 200, 0.15) 0%, transparent 60%);
 }
 
+/* Hims-style hero: warm amber → dark walnut */
+.hero-bg {
+  background: linear-gradient(135deg, #c8914e 0%, #8a5e2a 35%, #3a2c18 70%, #1e180e 100%);
+}
+
 .font-display {
   font-family: var(--font-display), Georgia, serif;
 }
