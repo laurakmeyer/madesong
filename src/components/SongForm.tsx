@@ -427,10 +427,10 @@ export default function SongForm() {
         return <h3 key={i} className="text-lg font-bold text-[#fbbf24] mt-2 mb-3">{line.replace(/\*\*/g, "")}</h3>;
       }
       if (line.startsWith("[") && line.endsWith("]")) {
-        return <p key={i} className="text-xs font-semibold text-zinc-500 uppercase tracking-widest mt-4 mb-1">{line}</p>;
+        return <p key={i} className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mt-4 mb-1">{line}</p>;
       }
       if (line === "") return <br key={i} />;
-      return <p key={i} className="text-zinc-200 leading-relaxed">{line}</p>;
+      return <p key={i} className="text-[#1c1917] leading-relaxed">{line}</p>;
     });
   };
 
