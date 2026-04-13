@@ -38,7 +38,7 @@ export default function Home() {
           <a href="#preise" className="hover:text-[#18120e] transition-colors">Preise</a>
           <a href="#faq" className="hover:text-[#18120e] transition-colors">FAQ</a>
         </nav>
-        <a href="#erstellen" className="text-sm font-semibold bg-[#18120e] text-white px-5 py-2.5 rounded-full hover:bg-[#3a2c18] transition-colors">
+        <a href="#erstellen" className="text-sm font-semibold bg-[#d97706] text-white px-5 py-2.5 rounded-full hover:bg-[#b45309] transition-colors">
           Song erstellen →
         </a>
       </header>
