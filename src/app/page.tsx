@@ -33,76 +33,58 @@ export default function Home() {
         </a>
       </header>
 
-      {/* Hero — exakt Hims-Struktur */}
-      <section className="pt-28 pb-0 px-6 md:px-10">
-        <div className="max-w-7xl mx-auto">
+      {/* Hero — Hims-Style: Headline links, Foto rechts */}
+      <section className="pt-28 pb-0 px-6 md:px-12 overflow-hidden">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
 
-          {/* Headline solo, links */}
-          <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-6 text-[#18120e]">
-            Das Geschenk,<br />
-            das <em className="not-italic text-[#d97706]">wirklich</em><br />
-            bewegt.
-          </h1>
+          {/* Links: Headline + Cards */}
+          <div className="pb-8">
+            <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-4">Personalisierte KI-Musik · Ab €3,99</p>
+            <h1 className="font-display text-5xl md:text-7xl lg:text-8xl leading-[0.93] tracking-tight mb-8 text-[#18120e]">
+              Das Geschenk,<br />
+              das <em className="not-italic text-[#d97706]">wirklich</em><br />
+              bewegt.
+            </h1>
 
-          {/* Zwei große Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-
-            {/* Card 1: Amber/Song */}
-            <div className="relative rounded-3xl overflow-hidden h-72 md:h-[420px] hero-bg">
-              <div className="absolute inset-0 flex flex-col justify-between p-8">
-                <div>
-                  <p className="text-white/60 text-sm font-medium mb-1">Dein persönlicher Song</p>
-                  <h2 className="font-display text-2xl md:text-3xl text-white leading-tight">
-                    Erstelle deinen<br />Song. Jetzt.
-                  </h2>
+            {/* Amber-Card */}
+            <div className="relative rounded-3xl overflow-hidden hero-bg flex flex-col justify-between p-7 mb-4">
+              <p className="text-white/60 text-sm font-medium mb-2">Für jeden Moment</p>
+              <h2 className="font-display text-2xl md:text-3xl text-white leading-tight mb-4">
+                Ein Song, den es nur einmal gibt.
+              </h2>
+              <div className="flex items-center justify-between">
+                <div className="flex items-end gap-1 h-7">
+                  {WAVE_DELAYS.slice(0, 10).map((delay, i) => (
+                    <div key={i} className="wave-bar w-1.5 rounded-full bg-white/60"
+                      style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
+                  ))}
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-end gap-1 h-8">
-                    {WAVE_DELAYS.slice(0, 10).map((delay, i) => (
-                      <div key={i} className="wave-bar w-1.5 rounded-full bg-white/50"
-                        style={{ height: "100%", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s` }} />
-                    ))}
-                  </div>
-                  <a href="#erstellen" className="flex items-center gap-1 text-white/80 text-sm font-medium hover:text-white transition-colors">
-                    Starten →
-                  </a>
-                </div>
+                <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-5 py-2.5 rounded-full hover:bg-amber-50 transition-all">
+                  Kostenlos ausprobieren →
+                </a>
               </div>
             </div>
 
-            {/* Card 2: Foto */}
-            <div className="relative rounded-3xl overflow-hidden h-72 md:h-[420px]">
-              <Image src="/hero-mutter.png" alt="Frau tanzt vor Freude" fill className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#18120e]/70 via-transparent to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between">
-                <div>
-                  <p className="text-white/70 text-sm mb-1">Für jeden Moment</p>
-                  <p className="text-white font-semibold text-lg">Ein Song für immer</p>
-                </div>
-                <a href="#erstellen" className="text-white/70 text-sm font-medium hover:text-white transition-colors">→</a>
-              </div>
+            {/* Anlass-Kacheln */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { icon: "🎂", label: "Geburtstag" },
+                { icon: "🍼", label: "Schlaflied" },
+                { icon: "💑", label: "Liebeslied" },
+                { icon: "🌸", label: "Muttertag" },
+              ].map(({ icon, label }) => (
+                <a key={label} href={`/?anlass=${label}#erstellen`} className="flex flex-col items-center gap-1.5 bg-[#fdf8f2] rounded-2xl px-3 py-3 text-xs font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5 text-center">
+                  <span className="text-xl">{icon}</span> {label}
+                </a>
+              ))}
             </div>
+            <p className="text-xs text-[#a8a29e] mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
           </div>
 
-          {/* Vier kleine Kacheln */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-1">
-            {[
-              { icon: "🎂", label: "Geburtstag", sub: "Persönlicher als \"Happy Birthday\"" },
-              { icon: "🍼", label: "Schlaflied", sub: "Mit ihrem Namen" },
-              { icon: "💑", label: "Liebeslied", sub: "Eure Geschichte" },
-              { icon: "🌸", label: "Muttertag", sub: "Sie wird weinen" },
-            ].map(({ icon, label, sub }) => (
-              <a key={label} href={`/?anlass=${label}#erstellen`}
-                className="flex items-center justify-between bg-[#fdf8f2] rounded-2xl px-4 py-4 hover:bg-amber-50 transition-colors border border-black/5 group">
-                <div>
-                  <p className="text-sm font-semibold text-[#18120e]">{icon} {label}</p>
-                  <p className="text-xs text-[#78716c] mt-0.5">{sub}</p>
-                </div>
-                <span className="text-[#a8a29e] group-hover:text-[#d97706] transition-colors">›</span>
-              </a>
-            ))}
+          {/* Rechts: Foto */}
+          <div className="relative h-[600px] md:h-[720px] rounded-tl-3xl rounded-tr-3xl overflow-hidden">
+            <Image src="/hero-mutter.png" alt="Frau freut sich über persönlichen Song" fill className="object-cover object-top" />
           </div>
-          <p className="text-xs text-[#a8a29e] text-center py-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
         </div>
       </section>
 
