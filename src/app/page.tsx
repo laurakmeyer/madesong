@@ -170,7 +170,7 @@ export default function Home() {
       <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
-            <Image src="/hero-18.png" alt="Junger Mann bekommt Song zum 18. Geburtstag" fill className="object-cover" />
+            <Image src="/her-18neu.png" alt="Junger Mann bekommt Song zum 18. Geburtstag" fill className="object-cover" />
           </div>
           <div className="space-y-5">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
