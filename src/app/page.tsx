@@ -130,7 +130,7 @@ export default function Home() {
       {/* Karussell 2 — Drag-scrollbare Anlass-Karten */}
       <div className="hero-bg py-12">
         <div className="text-center mb-8 px-6">
-          <h2 className="font-display text-3xl md:text-4xl text-white">Für jeden Anlass den perfekten Song.</h2>
+          <h2 className="font-display text-4xl md:text-5xl text-white">Für jeden Anlass den perfekten Song.</h2>
           <p className="text-white/60 mt-2 text-sm">Einfach klicken und direkt loslegen.</p>
         </div>
         <HeroCarousel />
@@ -197,8 +197,8 @@ export default function Home() {
         <div className="absolute inset-0 flex items-center px-8 md:px-24">
           <div className="max-w-lg">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706] mb-3">Jahrestag · Valentinstag · Hochzeit</p>
-            <h2 className="font-display text-5xl md:text-6xl text-white leading-tight mb-4">
-              &ldquo;Unser Song&rdquo; —<br />aber wirklich<br />eurer.
+            <h2 className="font-display text-4xl md:text-5xl text-white leading-tight mb-4">
+              &ldquo;Unser Song&rdquo; —<br />aber wirklich eurer.
             </h2>
             <p className="text-[#d6d3d1] mb-6">Kein generischer Liebessong. Sondern einer, der eure Geschichte erzählt — eure erste Begegnung, euren Insider, euren Moment.</p>
             <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold px-7 py-3.5 rounded-full hover:bg-[#b45309] transition-all">
@@ -390,7 +390,7 @@ export default function Home() {
       <section className="py-20 px-6 md:px-12 overflow-hidden" style={{background: "linear-gradient(135deg, #fdf0e0 0%, #f5d9a8 40%, #e8b872 100%)"}}>
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           <div>
-            <h2 className="font-display text-5xl md:text-6xl leading-tight mb-4 text-[#18120e]">
+            <h2 className="font-display text-4xl md:text-5xl leading-tight mb-4 text-[#18120e]">
               Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#c2410c]">überrascht?</em>
             </h2>
             <p className="text-[#78716c] mb-8 text-lg">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
