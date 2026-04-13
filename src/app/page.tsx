@@ -165,18 +165,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Ticker — nach Schlaflied, manuell schiebbar */}
-      <div className="py-5 hero-bg border-t border-white/10">
-        <DragTicker variant="text" items={[
-          "Ein Song bleibt für immer.",
-          "Kein Song klingt wie der andere.",
-          "Fertig in 2 Minuten.",
-          "Ab €3,99.",
-          "Kein Account.",
-          "Echter Gesang.",
-          "Einzigartig wie die Person.",
-        ]} />
-      </div>
 
       {/* Feature 2: Mutter/Geburtstag */}
       <section className="py-20 px-6 md:px-20">
