@@ -283,9 +283,9 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: "Single", price: "€3,99", sub: "einmalig", desc: "1 Song", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Story-Video als MP4"], highlight: false, note: "" },
-              { name: "Paket", price: "€14,99", sub: "einmalig · spart €5", desc: "5 Songs", features: ["5 personalisierte Songs", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: true, note: "★ Beliebteste Wahl" },
-              { name: "Flat", price: "€34,99", sub: "pro Monat", desc: "max. 20 Songs", features: ["20 Songs/Monat", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Ideal für Familien & Kreative" },
+              { name: "Song", price: "€3,99", sub: "einmalig", desc: "1 Song", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link"], highlight: false, note: "" },
+              { name: "Song + Video", price: "€4,99", sub: "einmalig · nur €1 mehr", desc: "1 Song + Story-Video", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link", "Story-Video als MP4 (9:16)", "Direkt auf Instagram & WhatsApp"], highlight: true, note: "★ Empfohlen" },
+              { name: "Paket", price: "€19,99", sub: "einmalig · spart €5", desc: "5× Song + Video", features: ["5 personalisierte Songs", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Ideal für Familien & Kreative" },
             ].map(({ name, price, sub, desc, features, highlight, note }) => (
               <div key={name} className={`rounded-3xl p-8 border flex flex-col ${highlight ? "bg-[#d97706] border-[#d97706]" : "bg-white/70 border-black/8"}`}>
                 {note && <span className={`text-xs font-semibold tracking-widest uppercase mb-3 ${highlight ? "text-amber-200" : "text-[#78716c]"}`}>{note}</span>}
