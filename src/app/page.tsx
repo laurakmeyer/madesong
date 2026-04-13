@@ -114,9 +114,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Karussell 1 — amber Pills, manuell schiebbar */}
-      <div className="py-5 border-y border-black/6 bg-white">
-        <DragTicker variant="pills" items={[
+      {/* Karussell 1 — Sterne-Ticker, manuell schiebbar */}
+      <div className="py-5 hero-bg">
+        <DragTicker variant="text" items={[
           "Ein Song bleibt für immer.",
           "Kein Song klingt wie der andere.",
           "Fertig in unter 2 Minuten.",
