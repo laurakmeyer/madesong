@@ -160,13 +160,13 @@ export default function SongForm() {
           const h = photoImg.height * scale;
           ctx.drawImage(photoImg, (1080 - w) / 2, (1920 - h) / 2, w, h);
           ctx.restore();
-          ctx.fillStyle = "rgba(20, 5, 60, 0.58)";
+          ctx.fillStyle = "rgba(20, 8, 0, 0.58)";
           ctx.fillRect(0, 0, 1080, 1920);
         } else {
           const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
-          grad.addColorStop(0, "#1e0a4a");
-          grad.addColorStop(0.5, "#6d28d9");
-          grad.addColorStop(1, "#3b0764");
+          grad.addColorStop(0, "#1e180e");
+          grad.addColorStop(0.5, "#8a5e2a");
+          grad.addColorStop(1, "#3a2c18");
           ctx.fillStyle = grad;
           ctx.fillRect(0, 0, 1080, 1920);
         }
@@ -628,7 +628,7 @@ export default function SongForm() {
                   value={refineInput}
                   onChange={(e) => setRefineInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleRefine()}
-                  className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-purple-400"
+                  className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-amber-400"
                 />
                 <Button size="sm" onClick={handleRefine} disabled={refining || !refineInput.trim()}
                   className="bg-[#d97706] hover:bg-[#b45309] text-white shrink-0">

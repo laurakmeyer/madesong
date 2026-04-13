@@ -51,7 +51,7 @@ export default function Home() {
         <div className="mt-12 flex items-end gap-1 h-12">
           {WAVE_DELAYS.map((delay, i) => (
             <div key={i} className="wave-bar w-1.5 rounded-full"
-              style={{ height: "100%", background: i % 2 === 0 ? "#7c3aed" : "#f43f5e", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s`, opacity: 0.4 + (i % 3) * 0.2 }} />
+              style={{ height: "100%", background: i % 2 === 0 ? "#d97706" : "#f43f5e", animationDelay: `${delay}s`, animationDuration: `${0.9 + (i % 4) * 0.15}s`, opacity: 0.4 + (i % 3) * 0.2 }} />
           ))}
         </div>
       </section>
@@ -206,7 +206,7 @@ export default function Home() {
                 <span>9:41</span><span>●●●</span>
               </div>
               {/* Instagram Story mockup */}
-              <div className="relative h-full bg-gradient-to-b from-[#3b0764] to-[#1e0a4a] flex flex-col items-center justify-between pb-12 pt-4">
+              <div className="relative h-full bg-gradient-to-b from-[#3a2c18] to-[#1e180e] flex flex-col items-center justify-between pb-12 pt-4">
                 <div className="w-full px-4">
                   <div className="h-1 bg-white/30 rounded-full mb-3">
                     <div className="h-full w-1/3 bg-white rounded-full" />
@@ -347,7 +347,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="border-t border-black/8 py-10 px-6">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="font-display font-bold text-[#18120e]">Made<span className="text-[#d97706]">Song</span></span>
+          <span className="font-display font-bold text-[#18120e]">MadeSong</span>
           <p className="text-sm text-[#a8a29e]">© 2026 MadeSong — Ein persönlicher Song für jeden Moment.</p>
           <div className="flex gap-6 text-sm text-[#a8a29e]">
             <Link href="#" className="hover:text-[#1c1917] transition-colors">Impressum</Link>

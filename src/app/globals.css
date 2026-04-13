@@ -140,15 +140,15 @@
   }
 }
 
-/* Hims-style mesh gradient background */
+/* Hims-style mesh gradient background — warm amber/cream only, no purple */
 .mesh-bg {
   background-color: #fdf8f2;
   background-image:
-    radial-gradient(ellipse at 12% 18%, rgba(251, 191, 80, 0.28) 0%, transparent 48%),
-    radial-gradient(ellipse at 88% 80%, rgba(196, 120, 240, 0.22) 0%, transparent 48%),
-    radial-gradient(ellipse at 72% 8%,  rgba(252, 150, 120, 0.18) 0%, transparent 38%),
-    radial-gradient(ellipse at 28% 92%, rgba(160, 130, 255, 0.18) 0%, transparent 38%),
-    radial-gradient(ellipse at 50% 50%, rgba(253, 230, 200, 0.15) 0%, transparent 60%);
+    radial-gradient(ellipse at 12% 18%, rgba(251, 191, 80, 0.22) 0%, transparent 48%),
+    radial-gradient(ellipse at 88% 80%, rgba(217, 119, 6, 0.12) 0%, transparent 48%),
+    radial-gradient(ellipse at 72% 8%,  rgba(252, 150, 120, 0.15) 0%, transparent 38%),
+    radial-gradient(ellipse at 28% 92%, rgba(244, 63, 94, 0.08) 0%, transparent 38%),
+    radial-gradient(ellipse at 50% 50%, rgba(253, 230, 200, 0.18) 0%, transparent 60%);
 }
 
 /* Hims-style hero: warm amber → dark walnut */
