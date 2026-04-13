@@ -182,12 +182,12 @@ export default function Home() {
       <section className="py-20 px-6 md:px-20">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl">
-            <Image src="/18jähriger.png" alt="Junger Mann bekommt Song zum 18. Geburtstag" fill className="object-cover" />
+            <Image src="/hero-18.png" alt="Junger Mann bekommt Song zum 18. Geburtstag" fill className="object-cover" />
           </div>
           <div className="space-y-5">
             <p className="text-xs font-semibold tracking-[0.2em] uppercase text-[#d97706]">Geburtstag · Muttertag · Einfach so</p>
             <h2 className="font-display text-4xl md:text-5xl leading-tight text-[#18120e]">
-              Das erste Mal, dass ein Geschenk ihren Namen singt.
+              Das erste Mal, dass ein Geschenk den Namen deiner Person singt.
             </h2>
             <ul className="space-y-3 text-[#78716c]">
               <li className="flex gap-3"><span className="text-[#d97706] font-bold mt-0.5">✓</span><span>Echter Song mit Gesang — keine Computerstimme</span></li>
