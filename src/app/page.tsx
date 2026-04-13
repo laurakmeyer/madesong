@@ -109,7 +109,7 @@ export default function Home() {
           {[
             { pain: "Blumen welken.", solution: "Ein Song bleibt für immer." },
             { pain: "Gutscheine sind unpersönlich.", solution: "Kein Song klingt wie der andere." },
-            { pain: "Wettbewerber: €49, 3 Tage.", solution: "MadeSong: €3,99, unter 2 Minuten." },
+            { pain: "Tage warten, viel bezahlen.", solution: "Fertig in 2 Minuten. Ab €3,99." },
           ].map(({ pain, solution }) => (
             <div key={pain} className="space-y-2">
               <p className="text-[#a8a29e] line-through text-sm">{pain}</p>
@@ -203,7 +203,7 @@ export default function Home() {
             </h2>
             <p className="text-[#78716c] leading-relaxed">Alle singen dasselbe Lied. Du schenkst etwas, das es genau einmal auf der Welt gibt.</p>
             <div className="space-y-3 text-sm text-[#78716c] border-t border-black/8 pt-4">
-              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Wettbewerber: €29–€50 und Tage Wartezeit</p>
+              <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Kein Warten — fertig bevor du den Tab schließt</p>
               <p className="flex gap-3"><span className="text-[#d97706]">✓</span>MadeSong: €3,99 — fertig bevor du den Tab schließt</p>
               <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Text bearbeiten, verfeinern, neu generieren — unlimitiert</p>
               <p className="flex gap-3"><span className="text-[#d97706]">✓</span>Foto hochladen → erscheint als Hintergrund auf der Teilen-Seite</p>
