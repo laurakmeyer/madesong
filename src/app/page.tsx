@@ -67,24 +67,25 @@ export default function Home() {
             <p className="text-xs text-[#a8a29e] text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
           </div>
 
-          {/* Rechts: Foto von ganz oben + Tiles unten */}
-          <div className="rounded-3xl overflow-hidden flex flex-col" style={{minHeight: "600px"}}>
-            <div className="relative flex-1 overflow-hidden">
-              <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#18120e]/30" />
-              <div className="absolute top-6 left-6">
-                <p className="text-white/70 text-sm font-medium">Perfekt für</p>
-                <p className="font-display text-2xl md:text-3xl text-white leading-tight">Jeden Anlass.<br />Jede Person.</p>
-              </div>
+          {/* Rechts: Foto mit Tiles als Overlay */}
+          <div className="relative rounded-3xl overflow-hidden" style={{minHeight: "600px"}}>
+            <Image src="/hero-mutter.png" alt="Frau tanzt" fill className="object-cover object-top" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/5 via-transparent to-black/50" />
+            {/* Text oben */}
+            <div className="absolute top-6 left-6">
+              <p className="text-white/70 text-sm font-medium">Perfekt für</p>
+              <p className="font-display text-2xl md:text-3xl text-white leading-tight">Jeden Anlass.<br />Jede Person.</p>
             </div>
-            <div className="grid grid-cols-2 gap-2 p-3 bg-[#fdf8f2]">
+            {/* Tiles eingebettet unten */}
+            <div className="absolute bottom-4 left-4 right-4 grid grid-cols-2 gap-2">
               {[
                 { icon: "🎂", label: "Geburtstag" },
                 { icon: "🍼", label: "Schlaflied" },
                 { icon: "💑", label: "Liebeslied" },
                 { icon: "🌸", label: "Muttertag" },
               ].map(({ icon, label }) => (
-                <a key={label} href={`/?anlass=${label}#erstellen`} className="flex items-center gap-2 bg-white rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-amber-50 transition-colors border border-black/5">
+                <a key={label} href={`/?anlass=${label}#erstellen`}
+                  className="flex items-center gap-2 bg-white/90 backdrop-blur-sm rounded-xl px-3 py-2.5 text-sm font-medium text-[#18120e] hover:bg-white transition-colors">
                   <span>{icon}</span> {label} <span className="ml-auto text-[#78716c] text-xs">›</span>
                 </a>
               ))}
