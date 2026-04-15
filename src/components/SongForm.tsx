@@ -34,6 +34,7 @@ export default function SongForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState<number | null>(null);
   const [videoStatus, setVideoStatus] = useState<string>("");
+  const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
@@ -80,6 +81,33 @@ export default function SongForm() {
       console.error(err);
     } finally {
       setRefining(false);
+    }
+  };
+
+  // Nach Lyrics-Bearbeitung: Audio neu generieren falls Songs bereits vorhanden
+  const handleLyricsEditDone = async () => {
+    setEditingLyrics(false);
+    if (!lyrics || songs.length === 0) return;
+
+    setAudioLoading(true);
+    setSongs([]);
+    setShareSlug(null);
+    setError(null);
+    try {
+      const audioRes = await fetch("/api/generate-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lyrics, mood: form.mood, age: form.age, occasion: form.occasion }),
+      });
+      const audioData = await audioRes.json();
+      if (audioData.error) throw new Error(audioData.error);
+      const generatedSongs = await pollAudio(audioData.taskId, lyrics, currentPhotoUrl);
+      setSongs(generatedSongs);
+    } catch (err) {
+      console.error(err);
+      setError("Audio-Generierung fehlgeschlagen. Bitte versuche es nochmal.");
+    } finally {
+      setAudioLoading(false);
     }
   };
 
@@ -363,7 +391,7 @@ export default function SongForm() {
         formData.append("file", photoFile);
         const photoRes = await fetch("/api/upload-photo", { method: "POST", body: formData });
         const photoData = await photoRes.json();
-        if (photoData.url) photoUrl = photoData.url;
+        if (photoData.url) { photoUrl = photoData.url; setCurrentPhotoUrl(photoData.url); }
       }
 
       // 3. Audio generieren
@@ -576,9 +604,9 @@ export default function SongForm() {
                   value={lyrics}
                   onChange={(e) => setLyrics(e.target.value)}
                 />
-                <Button size="sm" onClick={() => setEditingLyrics(false)}
+                <Button size="sm" onClick={handleLyricsEditDone}
                   className="bg-[#d97706] hover:bg-[#b45309] text-white text-xs">
-                  ✓ Fertig
+                  ✓ Fertig {songs.length > 0 && <span className="ml-1 opacity-70">— Song neu erstellen</span>}
                 </Button>
               </div>
             ) : (
