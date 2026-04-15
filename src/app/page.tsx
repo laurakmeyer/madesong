@@ -289,16 +289,6 @@ export default function Home() {
                   <p className="text-white/40 text-[10px]">madesong.com</p>
                 </div>
               </div>
-              {/* Add video overlay hint */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-[36px]">
-                <div className="text-center">
-                  <div className="w-14 h-14 rounded-full bg-white/20 border-2 border-white flex items-center justify-center mx-auto mb-2">
-                    <span className="text-white text-2xl ml-1">▶</span>
-                  </div>
-                  <p className="text-white text-xs font-medium">Demo-Video</p>
-                  <p className="text-white/50 text-[10px] mt-1">kommt bald</p>
-                </div>
-              </div>
             </div>
           </div>
         </div>

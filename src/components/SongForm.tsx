@@ -32,11 +32,14 @@ export default function SongForm() {
   const [error, setError] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
+  const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
   const [videoLoading, setVideoLoading] = useState<number | null>(null);
   const [videoStatus, setVideoStatus] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const ffmpegRef = useRef<FFmpeg | null>(null);
 
   const initialOccasion = searchParams.get("anlass") ?? "Geburtstag";
@@ -58,6 +61,13 @@ export default function SongForm() {
     if (!file) return;
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBgVideoFile(file);
+    setBgVideoPreview(URL.createObjectURL(file));
   };
 
   // Lyrics verfeinern
@@ -123,14 +133,19 @@ export default function SongForm() {
     }
   };
 
-  // Hintergrundbild auf Canvas rendern (1080x1920)
-  const renderFrameToPng = async (photoSrc: string | null): Promise<Uint8Array> => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = 1920;
-    const ctx = canvas.getContext("2d")!;
+  // Hilfsfunktion: Canvas-Frame als PNG-Bytes exportieren
+  const canvasToPng = (canvas: HTMLCanvasElement): Promise<Uint8Array> =>
+    new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        blob!.arrayBuffer().then((buf) => resolve(new Uint8Array(buf)));
+      }, "image/png");
+    });
 
-    // Hintergrund
+  // Hintergrund + Text auf Canvas zeichnen (ohne Wellenform)
+  const drawBackground = async (
+    ctx: CanvasRenderingContext2D,
+    photoSrc: string | null
+  ) => {
     if (photoSrc) {
       const img = await new Promise<HTMLImageElement>((resolve) => {
         const i = new Image();
@@ -174,7 +189,7 @@ export default function SongForm() {
     ctx.fillText(form.recipientName, 540, 670);
     ctx.shadowBlur = 0;
 
-    // Anlass — nur wenn sinnvoll
+    // Anlass
     const occasionLabel = form.occasion !== "Einfach so" ? form.occasion : "Ein persönlicher Song";
     ctx.font = "54px system-ui, sans-serif";
     ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
@@ -188,7 +203,7 @@ export default function SongForm() {
     ctx.lineTo(900, 810);
     ctx.stroke();
 
-    // Lyrics (statisch, erste ~18 Zeilen)
+    // Lyrics
     const lyricsLines = (lyrics || "").split("\n").filter((l) => l.trim()).slice(0, 18);
     let y = 890;
     for (const line of lyricsLines) {
@@ -206,7 +221,6 @@ export default function SongForm() {
       } else {
         ctx.font = "42px system-ui, sans-serif";
         ctx.fillStyle = "rgba(255,255,255,0.85)";
-        // Einfacher Zeilenumbruch
         const words = line.split(" ");
         let current = "";
         for (const word of words) {
@@ -216,9 +230,7 @@ export default function SongForm() {
             ctx.fillText(current, 540, y);
             y += 60;
             current = word;
-          } else {
-            current = test;
-          }
+          } else { current = test; }
         }
         if (current) { ctx.fillText(current, 540, y); y += 60; }
       }
@@ -228,12 +240,83 @@ export default function SongForm() {
     ctx.font = "38px system-ui, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     ctx.fillText("madesong.com", 540, 1870);
+  };
 
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        blob!.arrayBuffer().then((buf) => resolve(new Uint8Array(buf)));
-      }, "image/png");
-    });
+  // Wellenform-Balken zeichnen (t = 0..1, Animationsposition im Loop)
+  const drawWaveform = (ctx: CanvasRenderingContext2D, t: number) => {
+    const barCount = 24;
+    const barWidth = 18;
+    const gap = 8;
+    const maxH = 140;
+    const totalW = barCount * (barWidth + gap) - gap;
+    const startX = 540 - totalW / 2;
+    const baseY = 1820;
+
+    for (let i = 0; i < barCount; i++) {
+      const phase = (i / barCount) * Math.PI * 4;
+      const speed = 1 + (i % 5) * 0.2;
+      const h = maxH * (0.25 + 0.75 * Math.abs(Math.sin(t * Math.PI * 2 * speed + phase)));
+      const x = startX + i * (barWidth + gap);
+      const alpha = 0.55 + 0.45 * Math.abs(Math.sin(t * Math.PI * 2 * speed + phase));
+      ctx.fillStyle = `rgba(255, 200, 80, ${alpha})`;
+      ctx.fillRect(x, baseY - h, barWidth, h);
+    }
+  };
+
+  // 30 animierte Frames rendern (1 Sek Loop bei 30fps)
+  const renderAnimatedFrames = async (photoSrc: string | null): Promise<Uint8Array[]> => {
+    const totalFrames = 30;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext("2d")!;
+
+    // Hintergrund einmalig rendern und cachen
+    await drawBackground(ctx, photoSrc);
+    const bgData = ctx.getImageData(0, 0, 1080, 1920);
+
+    const frames: Uint8Array[] = [];
+    for (let f = 0; f < totalFrames; f++) {
+      ctx.putImageData(bgData, 0, 0);
+      drawWaveform(ctx, f / totalFrames);
+      frames.push(await canvasToPng(canvas));
+    }
+    return frames;
+  };
+
+  // Text-Overlay PNG für Video-Hintergrund (transparenter Hintergrund)
+  const renderOverlayPng = async (): Promise<Uint8Array> => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext("2d")!;
+    ctx.clearRect(0, 0, 1080, 1920);
+
+    // Dunkles Overlay
+    ctx.fillStyle = "rgba(10, 4, 0, 0.55)";
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // Name
+    ctx.shadowColor = "rgba(0,0,0,0.8)";
+    ctx.shadowBlur = 30;
+    ctx.font = "bold 110px system-ui, sans-serif";
+    ctx.fillStyle = "white";
+    ctx.textAlign = "center";
+    ctx.fillText(form.recipientName, 540, 300);
+    ctx.shadowBlur = 0;
+
+    // Anlass
+    const occasionLabel = form.occasion !== "Einfach so" ? form.occasion : "Ein persönlicher Song";
+    ctx.font = "54px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
+    ctx.fillText(occasionLabel, 540, 380);
+
+    // Branding
+    ctx.font = "40px system-ui, sans-serif";
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.fillText("madesong.com", 540, 1870);
+
+    return canvasToPng(canvas);
   };
 
   // Video mit FFmpeg WASM generieren
@@ -243,53 +326,86 @@ export default function SongForm() {
     setVideoStatus("FFmpeg wird geladen...");
 
     try {
-      // FFmpeg einmalig laden und cachen
       if (!ffmpegRef.current) {
         const ff = new FFmpeg();
-        await ff.load({
-          coreURL: "/ffmpeg/ffmpeg-core.js",
-          wasmURL: "/ffmpeg/ffmpeg-core.wasm",
-        });
+        await ff.load({ coreURL: "/ffmpeg/ffmpeg-core.js", wasmURL: "/ffmpeg/ffmpeg-core.wasm" });
         ffmpegRef.current = ff;
       }
       const ff = ffmpegRef.current;
 
-      // 1. Hintergrundbild rendern
-      setVideoStatus("Bild wird vorbereitet...");
-      const pngData = await renderFrameToPng(photoPreview);
-      await ff.writeFile("bg.png", pngData);
-
-      // 2. Audio laden
       setVideoStatus("Audio wird geladen...");
       const audioData = await fetchFile(`/api/proxy-audio?url=${encodeURIComponent(song.mp3_url)}`);
       await ff.writeFile("audio.mp3", audioData);
 
-      // 3. Video rendern
-      setVideoStatus("Video wird erstellt...");
       ff.on("progress", ({ progress }) => {
         const pct = Math.round(Math.min(progress, 1) * 100);
         setVideoStatus(`Video wird erstellt... ${pct}%`);
       });
 
-      await ff.exec([
-        "-loop", "1",
-        "-i", "bg.png",
-        "-i", "audio.mp3",
-        "-c:v", "libx264",
-        "-preset", "ultrafast",
-        "-tune", "stillimage",
-        "-c:a", "aac",
-        "-b:a", "192k",
-        "-pix_fmt", "yuv420p",
-        "-shortest",
-        "-movflags", "+faststart",
-        "output.mp4",
-      ]);
+      if (bgVideoFile && bgVideoPreview) {
+        // ── Pfad B: Eigenes Video als Hintergrund ──
+        setVideoStatus("Video wird vorbereitet...");
+        const videoData = await fetchFile(bgVideoPreview);
+        await ff.writeFile("bg_video.mp4", videoData);
 
-      // 4. Datei herunterladen
+        const overlayData = await renderOverlayPng();
+        await ff.writeFile("overlay.png", overlayData);
+
+        setVideoStatus("Video wird erstellt...");
+        await ff.exec([
+          "-stream_loop", "-1", "-i", "bg_video.mp4",
+          "-i", "audio.mp3",
+          "-i", "overlay.png",
+          "-filter_complex",
+          "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920[bg];[bg][2:v]overlay=0:0[v]",
+          "-map", "[v]", "-map", "1:a",
+          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+          "-c:a", "aac", "-b:a", "192k",
+          "-shortest", "-movflags", "+faststart",
+          "output.mp4",
+        ]);
+
+        await ff.deleteFile("bg_video.mp4");
+        await ff.deleteFile("overlay.png");
+      } else {
+        // ── Pfad A: Foto mit animierter Wellenform ──
+        setVideoStatus("Frames werden gerendert...");
+        const frames = await renderAnimatedFrames(photoPreview);
+
+        for (let f = 0; f < frames.length; f++) {
+          await ff.writeFile(`frame${f.toString().padStart(4, "0")}.png`, frames[f]);
+        }
+
+        // 1-Sekunden-Loop-Video aus den 30 Frames
+        setVideoStatus("Loop wird erstellt...");
+        await ff.exec([
+          "-framerate", "30",
+          "-i", "frame%04d.png",
+          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+          "-t", "1",
+          "loop.mp4",
+        ]);
+
+        for (let f = 0; f < frames.length; f++) {
+          await ff.deleteFile(`frame${f.toString().padStart(4, "0")}.png`);
+        }
+
+        // Loop mit Audio zu finalem Video
+        setVideoStatus("Video wird erstellt...");
+        await ff.exec([
+          "-stream_loop", "-1", "-i", "loop.mp4",
+          "-i", "audio.mp3",
+          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
+          "-c:a", "aac", "-b:a", "192k",
+          "-shortest", "-movflags", "+faststart",
+          "output.mp4",
+        ]);
+
+        await ff.deleteFile("loop.mp4");
+      }
+
       setVideoStatus("Fertig! Download startet...");
       const data = await ff.readFile("output.mp4");
-      // Copy into a plain ArrayBuffer to satisfy Blob constructor types
       const raw = data as Uint8Array;
       const blob = new Blob([new Uint8Array(raw).buffer], { type: "video/mp4" });
       const url = URL.createObjectURL(blob);
@@ -301,8 +417,6 @@ export default function SongForm() {
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      // Cleanup
-      await ff.deleteFile("bg.png");
       await ff.deleteFile("audio.mp3");
       await ff.deleteFile("output.mp4");
     } catch (err) {
@@ -494,7 +608,7 @@ export default function SongForm() {
 
             {/* Foto Upload */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Foto <span className="text-[#a8a29e] font-normal">(optional — erscheint als Hintergrund auf der Teilen-Seite)</span></Label>
+              <Label className="text-zinc-300">Foto <span className="text-[#a8a29e] font-normal">(optional — Hintergrund auf der Teilen-Seite &amp; im Story-Video)</span></Label>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
               {photoPreview ? (
                 <div className="relative inline-block">
@@ -509,6 +623,25 @@ export default function SongForm() {
                   className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/30 text-sm text-[#78716c] hover:border-[#d97706] hover:text-[#d97706] transition-all">
                   <ImagePlus className="h-4 w-4" />
                   Foto hochladen
+                </button>
+              )}
+
+              {/* Video Upload — für Story-Video Hintergrund */}
+              <Label className="text-zinc-300 mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video für Instagram &amp; WhatsApp Status)</span></Label>
+              <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
+              {bgVideoPreview ? (
+                <div className="relative inline-block">
+                  <video src={bgVideoPreview} className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30" muted playsInline />
+                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); }}
+                    className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/30 text-sm text-[#78716c] hover:border-[#d97706] hover:text-[#d97706] transition-all">
+                  <Video className="h-4 w-4" />
+                  Video hochladen
                 </button>
               )}
             </div>
