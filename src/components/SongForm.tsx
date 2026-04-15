@@ -203,39 +203,6 @@ export default function SongForm() {
     ctx.lineTo(900, 810);
     ctx.stroke();
 
-    // Lyrics
-    const lyricsLines = (lyrics || "").split("\n").filter((l) => l.trim()).slice(0, 18);
-    let y = 890;
-    for (const line of lyricsLines) {
-      if (y > 1790) break;
-      if (line.startsWith("**") && line.endsWith("**")) {
-        ctx.font = "bold 48px system-ui, sans-serif";
-        ctx.fillStyle = "rgba(255,255,255,0.95)";
-        ctx.fillText(line.replace(/\*\*/g, ""), 540, y);
-        y += 72;
-      } else if (line.startsWith("[") && line.endsWith("]")) {
-        ctx.font = "bold 34px system-ui, sans-serif";
-        ctx.fillStyle = "rgba(255, 200, 80, 0.85)";
-        ctx.fillText(line, 540, y);
-        y += 56;
-      } else {
-        ctx.font = "42px system-ui, sans-serif";
-        ctx.fillStyle = "rgba(255,255,255,0.85)";
-        const words = line.split(" ");
-        let current = "";
-        for (const word of words) {
-          const test = current ? `${current} ${word}` : word;
-          ctx.font = "42px system-ui, sans-serif";
-          if (ctx.measureText(test).width > 920 && current) {
-            ctx.fillText(current, 540, y);
-            y += 60;
-            current = word;
-          } else { current = test; }
-        }
-        if (current) { ctx.fillText(current, 540, y); y += 60; }
-      }
-    }
-
     // Branding
     ctx.font = "38px system-ui, sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.4)";
@@ -263,22 +230,68 @@ export default function SongForm() {
     }
   };
 
-  // 30 animierte Frames rendern (1 Sek Loop bei 30fps)
+  // Scrollende Lyrics zeichnen (t = 0..1, Position im Song)
+  const drawScrollingLyrics = (ctx: CanvasRenderingContext2D, t: number) => {
+    const allLines = (lyrics || "").split("\n").filter((l) => l.trim());
+    if (allLines.length === 0) return;
+
+    const visibleLines = 12;
+    const totalScroll = Math.max(0, allLines.length - visibleLines);
+    const scrollOffset = Math.floor(t * totalScroll);
+
+    let y = 870;
+    for (let i = 0; i < visibleLines; i++) {
+      const lineIdx = scrollOffset + i;
+      if (lineIdx >= allLines.length || y > 1790) break;
+      const line = allLines[lineIdx];
+      const isActive = i === Math.floor(visibleLines / 3); // aktive Zeile hervorheben
+
+      if (line.startsWith("**") && line.endsWith("**")) {
+        ctx.font = `bold 48px system-ui, sans-serif`;
+        ctx.fillStyle = isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.75)";
+        ctx.fillText(line.replace(/\*\*/g, ""), 540, y);
+        y += 72;
+      } else if (line.startsWith("[") && line.endsWith("]")) {
+        ctx.font = "bold 34px system-ui, sans-serif";
+        ctx.fillStyle = "rgba(255, 200, 80, 0.85)";
+        ctx.fillText(line, 540, y);
+        y += 52;
+      } else {
+        ctx.font = isActive ? "bold 44px system-ui, sans-serif" : "42px system-ui, sans-serif";
+        ctx.fillStyle = isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.7)";
+        const words = line.split(" ");
+        let current = "";
+        for (const word of words) {
+          const test = current ? `${current} ${word}` : word;
+          ctx.font = isActive ? "bold 44px system-ui, sans-serif" : "42px system-ui, sans-serif";
+          if (ctx.measureText(test).width > 920 && current) {
+            ctx.fillText(current, 540, y);
+            y += 58;
+            current = word;
+          } else { current = test; }
+        }
+        if (current) { ctx.fillText(current, 540, y); y += 58; }
+      }
+    }
+  };
+
+  // Frames für Foto-Modus: 1fps, scrollende Lyrics + animierte Wellenform
   const renderAnimatedFrames = async (photoSrc: string | null): Promise<Uint8Array[]> => {
-    const totalFrames = 30;
+    const totalFrames = 75; // 75 Sekunden Puffer, -shortest schneidet bei Audio-Ende ab
     const canvas = document.createElement("canvas");
     canvas.width = 1080;
     canvas.height = 1920;
     const ctx = canvas.getContext("2d")!;
 
-    // Hintergrund einmalig rendern und cachen
+    // Statischen Hintergrund einmalig rendern und cachen
     await drawBackground(ctx, photoSrc);
     const bgData = ctx.getImageData(0, 0, 1080, 1920);
 
     const frames: Uint8Array[] = [];
     for (let f = 0; f < totalFrames; f++) {
       ctx.putImageData(bgData, 0, 0);
-      drawWaveform(ctx, f / totalFrames);
+      drawScrollingLyrics(ctx, f / totalFrames);
+      drawWaveform(ctx, (f % 30) / 30); // Wellenform-Animation cycled durch 30 Positionen
       frames.push(await canvasToPng(canvas));
     }
     return frames;
@@ -287,8 +300,8 @@ export default function SongForm() {
   // Text-Overlay PNG für Video-Hintergrund (transparenter Hintergrund)
   const renderOverlayPng = async (): Promise<Uint8Array> => {
     const canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = 1920;
+    canvas.width = 720;
+    canvas.height = 1280;
     const ctx = canvas.getContext("2d")!;
     ctx.clearRect(0, 0, 1080, 1920);
 
@@ -357,10 +370,10 @@ export default function SongForm() {
           "-i", "audio.mp3",
           "-i", "overlay.png",
           "-filter_complex",
-          "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920[bg];[bg][2:v]overlay=0:0[v]",
+          "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[2:v]scale=720:1280[ov];[bg][ov]overlay=0:0[v]",
           "-map", "[v]", "-map", "1:a",
-          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
-          "-c:a", "aac", "-b:a", "192k",
+          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-pix_fmt", "yuv420p",
+          "-c:a", "aac", "-b:a", "128k",
           "-shortest", "-movflags", "+faststart",
           "output.mp4",
         ]);
@@ -376,32 +389,22 @@ export default function SongForm() {
           await ff.writeFile(`frame${f.toString().padStart(4, "0")}.png`, frames[f]);
         }
 
-        // 1-Sekunden-Loop-Video aus den 30 Frames
-        setVideoStatus("Loop wird erstellt...");
+        setVideoStatus("Video wird erstellt...");
         await ff.exec([
-          "-framerate", "30",
+          "-framerate", "1",
           "-i", "frame%04d.png",
-          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
-          "-t", "1",
-          "loop.mp4",
+          "-i", "audio.mp3",
+          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
+          "-vf", "scale=720:1280",
+          "-pix_fmt", "yuv420p",
+          "-c:a", "aac", "-b:a", "128k",
+          "-shortest", "-movflags", "+faststart",
+          "output.mp4",
         ]);
 
         for (let f = 0; f < frames.length; f++) {
           await ff.deleteFile(`frame${f.toString().padStart(4, "0")}.png`);
         }
-
-        // Loop mit Audio zu finalem Video
-        setVideoStatus("Video wird erstellt...");
-        await ff.exec([
-          "-stream_loop", "-1", "-i", "loop.mp4",
-          "-i", "audio.mp3",
-          "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p",
-          "-c:a", "aac", "-b:a", "192k",
-          "-shortest", "-movflags", "+faststart",
-          "output.mp4",
-        ]);
-
-        await ff.deleteFile("loop.mp4");
       }
 
       setVideoStatus("Fertig! Download startet...");

@@ -50,7 +50,7 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
             <div className="absolute bottom-5 left-5 right-5">
               <p className="text-xs text-white/70 font-medium uppercase tracking-widest mb-1">Ein persönlicher Song für</p>
               <h1 className="text-3xl font-extrabold text-white">{song.recipient_name} 🎵</h1>
-              {song.occasion && <p className="text-white/70 text-sm mt-1">{song.occasion} · {song.mood}</p>}
+              {song.occasion && song.occasion !== "Einfach so" && <p className="text-white/70 text-sm mt-1">{song.occasion}</p>}
             </div>
           </div>
         )}
