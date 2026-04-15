@@ -771,10 +771,12 @@ export default function SongForm() {
 
             {/* KI Verfeinern */}
             {!audioLoading && songs.length === 0 && (
-              <div className="flex gap-2">
+              <div className="space-y-1.5">
+              <p className="text-xs font-medium text-[#78716c]">✨ Text per KI anpassen — einfach eintippen was du ändern möchtest:</p>
+            <div className="flex gap-2">
                 <input
                   type="text"
-                  placeholder='z.B. "Mach es kindgerechter" oder "Kein Schwerenöter"'
+                  placeholder='z.B. "Mach es fröhlicher" oder "Füge ihren Hund Max ein"'
                   value={refineInput}
                   onChange={(e) => setRefineInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleRefine()}
