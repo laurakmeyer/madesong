@@ -89,6 +89,18 @@ export default function SongForm() {
     setEditingLyrics(false);
     if (!lyrics || songs.length === 0) return;
 
+    // Moderations-Check für manuell bearbeiteten Text
+    const modRes = await fetch("/api/moderate-lyrics", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ lyrics }),
+    });
+    const modData = await modRes.json();
+    if (!modData.ok) {
+      setError(`Dieser Text kann leider nicht verwendet werden: ${modData.reason || "Unangemessener Inhalt"}`);
+      return;
+    }
+
     setAudioLoading(true);
     setSongs([]);
     setShareSlug(null);
