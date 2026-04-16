@@ -555,7 +555,7 @@ export default function SongForm() {
       if (audioData.error) throw new Error(audioData.error);
 
       // 4. Auf Fertigstellung warten (mit Foto URL)
-      const generatedSongs = await pollAudio(audioData.taskId, lyricsData.lyrics, photoUrl);
+      const generatedSongs = await pollAudio(audioData.taskId!, lyricsData.lyrics, photoUrl);
       setSongs(generatedSongs);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.";
