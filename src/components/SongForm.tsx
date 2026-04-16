@@ -56,16 +56,30 @@ export default function SongForm() {
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File): Promise<File> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 1920;
+        const scale = img.width > maxW ? maxW / img.width : 1;
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        canvas.getContext("2d")!.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          resolve(new File([blob!], file.name, { type: "image/jpeg" }));
+        }, "image/jpeg", 0.82);
+      };
+      img.src = URL.createObjectURL(file);
+    });
+
+  const handlePhotoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 4 * 1024 * 1024) {
-      setError("Das Foto ist zu groß (max. 4 MB). Bitte wähle ein kleineres Foto.");
-      return;
-    }
     setError(null);
-    setPhotoFile(file);
-    setPhotoPreview(URL.createObjectURL(file));
+    const compressed = file.size > 1.5 * 1024 * 1024 ? await compressImage(file) : file;
+    setPhotoFile(compressed);
+    setPhotoPreview(URL.createObjectURL(compressed));
   };
 
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -531,9 +545,6 @@ export default function SongForm() {
       // 2. Foto hochladen (falls vorhanden)
       let photoUrl = null;
       if (photoFile) {
-        if (photoFile.size > 4 * 1024 * 1024) {
-          throw new Error("Das Foto ist zu groß (max. 4 MB). Bitte wähle ein kleineres Foto oder komprimiere es zuerst.");
-        }
         try {
           const formData = new FormData();
           formData.append("file", photoFile);
