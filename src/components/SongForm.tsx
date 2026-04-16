@@ -487,7 +487,11 @@ export default function SongForm() {
         headers: { "Content-Type": "application/json" },
         body,
       });
-      const data = await res.json();
+      if (!res.ok && !res.headers.get("content-type")?.includes("json")) {
+        console.error("Poll non-JSON error:", res.status, res.statusText);
+        continue; // retry instead of crashing
+      }
+      const data = await res.json().catch(() => ({ status: "preparing" }));
       if (data.status === "succeeded") {
         if (data.shareSlug) setShareSlug(data.shareSlug);
         return data.songs as Song[];
@@ -539,7 +543,12 @@ export default function SongForm() {
           occasion: form.occasion,
         }),
       });
-      const audioData = await audioRes.json();
+      if (!audioRes.ok && audioRes.headers.get("content-type")?.includes("json") === false) {
+        throw new Error(`Server-Fehler ${audioRes.status} bei Audio-Generierung`);
+      }
+      const audioData = await audioRes.json().catch(() => {
+        throw new Error(`Server-Fehler ${audioRes.status} bei Audio-Generierung`);
+      });
       if (audioData.error) throw new Error(audioData.error);
 
       // 4. Auf Fertigstellung warten (mit Foto URL)
