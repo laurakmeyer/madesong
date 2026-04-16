@@ -60,7 +60,11 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       console.error("Mureka error:", data);
-      return NextResponse.json({ error: "Audio-Generierung konnte nicht gestartet werden." }, { status: 500 });
+      // Concurrent limit hit — benutzerfreundliche Meldung
+      const msg = res.status === 429 || data?.message?.toLowerCase().includes("concurrent")
+        ? "Bitte warte kurz — der vorherige Song wird noch generiert. Versuche es in 30 Sekunden nochmal."
+        : `Audio-Generierung fehlgeschlagen: ${data?.message || data?.error || res.status}`;
+      return NextResponse.json({ error: msg }, { status: 500 });
     }
 
     // Gibt task_id zurück — Frontend pollt dann den Status

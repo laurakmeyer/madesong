@@ -469,7 +469,7 @@ export default function SongForm() {
 
   // Mureka polling
   const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null) => {
-    const maxAttempts = 30;
+    const maxAttempts = 40;
     const params = new URLSearchParams({
       taskId,
       lyrics: lyricsText,
@@ -542,7 +542,8 @@ export default function SongForm() {
       const generatedSongs = await pollAudio(audioData.taskId, lyricsData.lyrics, photoUrl);
       setSongs(generatedSongs);
     } catch (err) {
-      setError("Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.");
+      const msg = err instanceof Error ? err.message : "Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.";
+      setError(msg);
       console.error(err);
     } finally {
       setLoading(false);
@@ -772,20 +773,21 @@ export default function SongForm() {
             {/* KI Verfeinern */}
             {!audioLoading && songs.length === 0 && (
               <div className="space-y-1.5">
-              <p className="text-xs font-medium text-[#78716c]">✨ Text per KI anpassen — einfach eintippen was du ändern möchtest:</p>
-            <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder='z.B. "Mach es fröhlicher" oder "Füge ihren Hund Max ein"'
-                  value={refineInput}
-                  onChange={(e) => setRefineInput(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && handleRefine()}
-                  className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-amber-400"
-                />
-                <Button size="sm" onClick={handleRefine} disabled={refining || !refineInput.trim()}
-                  className="bg-[#d97706] hover:bg-[#b45309] text-white shrink-0">
-                  {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
-                </Button>
+                <p className="text-xs font-medium text-[#78716c]">✨ Text per KI anpassen — einfach eintippen was du ändern möchtest:</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder='z.B. "Mach es fröhlicher" oder "Füge ihren Hund Max ein"'
+                    value={refineInput}
+                    onChange={(e) => setRefineInput(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleRefine()}
+                    className="flex-1 text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-amber-400"
+                  />
+                  <Button size="sm" onClick={handleRefine} disabled={refining || !refineInput.trim()}
+                    className="bg-[#d97706] hover:bg-[#b45309] text-white shrink-0">
+                    {refining ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                  </Button>
+                </div>
               </div>
             )}
 
