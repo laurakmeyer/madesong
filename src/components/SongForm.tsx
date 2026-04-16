@@ -470,30 +470,32 @@ export default function SongForm() {
   // Mureka polling
   const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null) => {
     const maxAttempts = 40;
-    const body = JSON.stringify({
-      taskId,
-      lyrics: lyricsText,
-      recipientName: form.recipientName,
-      age: form.age,
-      occasion: form.occasion,
-      language: form.language,
-      mood: form.mood,
-      ...(photoUrl ? { photoUrl } : {}),
-    });
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((r) => setTimeout(r, 5000));
       const res = await fetch("/api/poll-audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body,
+        body: JSON.stringify({ taskId }),
       });
-      if (!res.ok && !res.headers.get("content-type")?.includes("json")) {
-        console.error("Poll non-JSON error:", res.status, res.statusText);
-        continue; // retry instead of crashing
-      }
       const data = await res.json().catch(() => ({ status: "preparing" }));
-      if (data.status === "succeeded") {
-        if (data.shareSlug) setShareSlug(data.shareSlug);
+      if (data.status === "succeeded" && data.songs?.length > 0) {
+        // Song-Metadaten einmalig in Supabase speichern
+        const saveRes = await fetch("/api/save-song", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mp3Url: data.songs[0].mp3_url,
+            lyrics: lyricsText,
+            recipientName: form.recipientName,
+            age: form.age,
+            occasion: form.occasion,
+            language: form.language,
+            mood: form.mood,
+            photoUrl: photoUrl || null,
+          }),
+        });
+        const saveData = await saveRes.json().catch(() => ({}));
+        if (saveData.shareSlug) setShareSlug(saveData.shareSlug);
         return data.songs as Song[];
       }
       if (data.status === "failed") throw new Error("Song-Generierung fehlgeschlagen.");

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Stimmung & Alter → Mureka Stil-Prompt
 function buildMurekaPrompt(mood: string, age: string, occasion: string): string {
   const ageNum = age ? parseInt(age) : null;
   const isChild = ageNum !== null && ageNum <= 12;
@@ -49,25 +48,19 @@ export async function POST(req: NextRequest) {
         "Authorization": `Bearer ${process.env.MUREKA_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        lyrics,
-        prompt,
-        model: "auto",
-      }),
+      body: JSON.stringify({ lyrics, prompt, model: "auto" }),
     });
 
     const data = await res.json();
 
     if (!res.ok) {
       console.error("Mureka error:", data);
-      // Concurrent limit hit — benutzerfreundliche Meldung
       const msg = res.status === 429 || data?.message?.toLowerCase().includes("concurrent")
         ? "Bitte warte kurz — der vorherige Song wird noch generiert. Versuche es in 30 Sekunden nochmal."
         : `Audio-Generierung fehlgeschlagen: ${data?.message || data?.error || res.status}`;
       return NextResponse.json({ error: msg }, { status: 500 });
     }
 
-    // Gibt task_id zurück — Frontend pollt dann den Status
     return NextResponse.json({ taskId: data.id });
   } catch (error) {
     console.error("Mureka API Error:", error);
