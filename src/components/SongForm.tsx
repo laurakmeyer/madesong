@@ -545,12 +545,13 @@ export default function SongForm() {
           occasion: form.occasion,
         }),
       });
-      if (!audioRes.ok && audioRes.headers.get("content-type")?.includes("json") === false) {
-        throw new Error(`Server-Fehler ${audioRes.status} bei Audio-Generierung`);
+      const audioText = await audioRes.text();
+      let audioData: { taskId?: string; error?: string };
+      try {
+        audioData = JSON.parse(audioText);
+      } catch {
+        throw new Error(`HTTP ${audioRes.status} von /api/generate-audio: ${audioText.slice(0, 120)}`);
       }
-      const audioData = await audioRes.json().catch(() => {
-        throw new Error(`Server-Fehler ${audioRes.status} bei Audio-Generierung`);
-      });
       if (audioData.error) throw new Error(audioData.error);
 
       // 4. Auf Fertigstellung warten (mit Foto URL)
