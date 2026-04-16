@@ -470,7 +470,7 @@ export default function SongForm() {
   // Mureka polling
   const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null) => {
     const maxAttempts = 40;
-    const params = new URLSearchParams({
+    const body = JSON.stringify({
       taskId,
       lyrics: lyricsText,
       recipientName: form.recipientName,
@@ -482,7 +482,11 @@ export default function SongForm() {
     });
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((r) => setTimeout(r, 5000));
-      const res = await fetch(`/api/poll-audio?${params}`);
+      const res = await fetch("/api/poll-audio", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body,
+      });
       const data = await res.json();
       if (data.status === "succeeded") {
         if (data.shareSlug) setShareSlug(data.shareSlug);

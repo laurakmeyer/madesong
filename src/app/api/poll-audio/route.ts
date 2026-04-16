@@ -2,15 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { nanoid } from "nanoid";
 
-export async function GET(req: NextRequest) {
-  const taskId = req.nextUrl.searchParams.get("taskId");
-  const lyrics = req.nextUrl.searchParams.get("lyrics");
-  const recipientName = req.nextUrl.searchParams.get("recipientName");
-  const age = req.nextUrl.searchParams.get("age");
-  const occasion = req.nextUrl.searchParams.get("occasion");
-  const language = req.nextUrl.searchParams.get("language");
-  const mood = req.nextUrl.searchParams.get("mood");
-  const photoUrl = req.nextUrl.searchParams.get("photoUrl");
+export async function POST(req: NextRequest) {
+  const { taskId, lyrics, recipientName, age, occasion, language, mood, photoUrl } = await req.json();
 
   if (!taskId) {
     return NextResponse.json({ error: "Keine taskId angegeben." }, { status: 400 });
