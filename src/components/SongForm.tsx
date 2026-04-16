@@ -59,6 +59,11 @@ export default function SongForm() {
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 4 * 1024 * 1024) {
+      setError("Das Foto ist zu groß (max. 4 MB). Bitte wähle ein kleineres Foto.");
+      return;
+    }
+    setError(null);
     setPhotoFile(file);
     setPhotoPreview(URL.createObjectURL(file));
   };
@@ -526,11 +531,24 @@ export default function SongForm() {
       // 2. Foto hochladen (falls vorhanden)
       let photoUrl = null;
       if (photoFile) {
-        const formData = new FormData();
-        formData.append("file", photoFile);
-        const photoRes = await fetch("/api/upload-photo", { method: "POST", body: formData });
-        const photoData = await photoRes.json();
-        if (photoData.url) { photoUrl = photoData.url; setCurrentPhotoUrl(photoData.url); }
+        if (photoFile.size > 4 * 1024 * 1024) {
+          throw new Error("Das Foto ist zu groß (max. 4 MB). Bitte wähle ein kleineres Foto oder komprimiere es zuerst.");
+        }
+        try {
+          const formData = new FormData();
+          formData.append("file", photoFile);
+          const photoRes = await fetch("/api/upload-photo", { method: "POST", body: formData });
+          if (photoRes.ok) {
+            const photoText = await photoRes.text();
+            const photoData = JSON.parse(photoText);
+            if (photoData.url) { photoUrl = photoData.url; setCurrentPhotoUrl(photoData.url); }
+          } else {
+            console.warn("Foto-Upload fehlgeschlagen, weiter ohne Foto");
+          }
+        } catch (uploadErr) {
+          console.warn("Foto-Upload Fehler:", uploadErr);
+          // Weiter ohne Foto — Song-Generierung soll nicht blockiert werden
+        }
       }
 
       // 3. Audio generieren
