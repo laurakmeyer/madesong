@@ -37,6 +37,9 @@ export default function SongForm() {
   const [videoLoading, setVideoLoading] = useState<number | null>(null);
   const [videoStatus, setVideoStatus] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
+  const [paid, setPaid] = useState(false);
+  const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
+  const [checkingPayment, setCheckingPayment] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -450,16 +453,26 @@ export default function SongForm() {
     }
   };
 
-  // Audio abspielen / pausieren
+  // Audio abspielen / pausieren (10-Sek-Preview wenn nicht bezahlt)
+  const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const togglePlay = (index: number, mp3_url: string) => {
     if (playingIndex === index) {
       audioRef.current?.pause();
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       setPlayingIndex(null);
     } else {
       if (audioRef.current) audioRef.current.pause();
+      if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       audioRef.current = new Audio(mp3_url);
       audioRef.current.play();
       audioRef.current.onended = () => setPlayingIndex(null);
+      // 30-Sekunden-Preview wenn nicht bezahlt
+      if (!paid) {
+        previewTimerRef.current = setTimeout(() => {
+          audioRef.current?.pause();
+          setPlayingIndex(null);
+        }, 30000);
+      }
       setPlayingIndex(index);
     }
   };
@@ -468,6 +481,36 @@ export default function SongForm() {
   useEffect(() => {
     return () => { audioRef.current?.pause(); };
   }, []);
+
+  // Nach Stripe-Zahlung: URL-Parameter prüfen
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get("session_id");
+    const slug = params.get("slug");
+    if (!sessionId) return;
+    setCheckingPayment(true);
+    fetch(`/api/verify-payment?session_id=${sessionId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.paid && slug) {
+          window.location.href = `/song/${slug}`;
+          return;
+        }
+        setCheckingPayment(false);
+      })
+      .catch(() => setCheckingPayment(false));
+  }, []);
+
+  const handleCheckout = async (tier: "song" | "song_video") => {
+    if (!shareSlug) return;
+    const res = await fetch("/api/create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tier, shareSlug, recipientName: form.recipientName }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  };
 
   // Song teilen
   const handleShare = async (song: Song, index: number) => {
@@ -529,6 +572,8 @@ export default function SongForm() {
     setSongs([]);
     setError(null);
     setPlayingIndex(null);
+    setPaid(false);
+    setShareSlug(null);
 
     try {
       // 1. Songtext generieren
@@ -759,7 +804,7 @@ export default function SongForm() {
             </Button>
 
             <p className="text-center text-xs text-gray-400">
-              Erste 10 Sekunden kostenlos hören — keine Kreditkarte
+              Erste 30 Sekunden kostenlos hören — keine Kreditkarte
             </p>
           </form>
         </CardContent>
@@ -845,7 +890,13 @@ export default function SongForm() {
             )}
 
             {songs.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-4">
+                {checkingPayment && (
+                  <div className="flex items-center gap-2 text-sm text-[#d97706]">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Zahlung wird geprüft...
+                  </div>
+                )}
+
                 <p className="text-sm font-medium text-gray-700">🎵 {songs.length} Version{songs.length > 1 ? "en" : ""} für dich:</p>
                 {songs.map((song, i) => (
                   <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-[#fef3c7] border-[#d97706]/40" : "bg-white/4 border-white/8"}`}>
@@ -854,41 +905,65 @@ export default function SongForm() {
                         className="w-10 h-10 rounded-full bg-[#d97706] hover:bg-[#b45309] flex items-center justify-center text-white transition-colors">
                         {playingIndex === i ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
                       </button>
-                      <span className="text-sm font-medium text-[#78716c]">Version {i + 1}</span>
+                      <span className="text-sm font-medium text-[#78716c]">
+                        Version {i + 1}
+                        {!paid && <span className="ml-1 text-[10px] text-[#a8a29e]">(30 Sek. Vorschau)</span>}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {/* WhatsApp */}
-                      <a
-                        href={`https://wa.me/?text=${encodeURIComponent(`🎵 Ich habe einen personalisierten Song für ${form.recipientName} erstellt!\n\n${lyrics ? lyrics.replace(/\*\*/g, "").trim() + "\n\n" : ""}🎧 Hier anhören: ${shareSlug ? `https://madesong.com/song/${shareSlug}` : song.mp3_url}`)}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs font-medium text-green-600 hover:text-green-700">
-                        <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                        WhatsApp
-                      </a>
-                      {/* Link kopieren */}
-                      <button onClick={() => handleShare(song, i)}
-                        className="flex items-center gap-1.5 text-xs text-[#d97706] hover:text-[#b45309] font-medium">
-                        {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Link</>}
-                      </button>
-                      {/* Video für Stories */}
-                      <button
-                        onClick={() => generateVideo(song, i)}
-                        disabled={videoLoading !== null}
-                        className="flex items-center gap-1.5 text-xs text-pink-600 hover:text-pink-700 font-medium disabled:opacity-40"
-                        title="Als MP4-Video für Instagram/WhatsApp Stories"
-                      >
-                        {videoLoading === i
-                          ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {videoStatus || "Lädt..."}</>
-                          : <><Video className="h-3.5 w-3.5" /> Video</>}
-                      </button>
-                      {/* Download */}
-                      <a href={song.mp3_url} download={`madesong-${i + 1}.mp3`} target="_blank" rel="noopener noreferrer"
-                        className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium">
-                        <Download className="h-3.5 w-3.5" /> MP3
-                      </a>
+                      {paid ? (
+                        <>
+                          {/* WhatsApp — freigeschaltet */}
+                          <a href={`https://wa.me/?text=${encodeURIComponent(`🎵 Ich habe einen personalisierten Song für ${form.recipientName} erstellt!\n\n🎧 Hier anhören: https://madesong.com/song/${shareSlug}`)}`}
+                            target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs font-medium text-green-600 hover:text-green-700">
+                            <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            WhatsApp
+                          </a>
+                          <button onClick={() => handleShare(song, i)}
+                            className="flex items-center gap-1.5 text-xs text-[#d97706] hover:text-[#b45309] font-medium">
+                            {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Link</>}
+                          </button>
+                          {paidTier === "song_video" && (
+                            <button onClick={() => generateVideo(song, i)} disabled={videoLoading !== null}
+                              className="flex items-center gap-1.5 text-xs text-pink-600 hover:text-pink-700 font-medium disabled:opacity-40">
+                              {videoLoading === i
+                                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {videoStatus || "Lädt..."}</>
+                                : <><Video className="h-3.5 w-3.5" /> Video</>}
+                            </button>
+                          )}
+                          <a href={song.mp3_url} download={`madesong-${form.recipientName}.mp3`} target="_blank" rel="noopener noreferrer"
+                            className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium">
+                            <Download className="h-3.5 w-3.5" /> MP3
+                          </a>
+                        </>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">🔒 Freischalten zum Teilen & Download</span>
+                      )}
                     </div>
                   </div>
                 ))}
+
+                {/* Payment Wall */}
+                {!paid && shareSlug && (
+                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
+                    <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button onClick={() => handleCheckout("song")}
+                        className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all">
+                        <span className="text-lg font-black text-[#18120e]">€3,99</span>
+                        <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
+                      </button>
+                      <button onClick={() => handleCheckout("song_video")}
+                        className="flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all relative">
+                        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Empfohlen</span>
+                        <span className="text-lg font-black text-white">€4,99</span>
+                        <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
+                      </button>
+                    </div>
+                    <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
+                  </div>
+                )}
               </div>
             )}
           </CardContent>

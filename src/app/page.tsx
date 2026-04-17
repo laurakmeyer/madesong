@@ -16,11 +16,11 @@ const HERO_CARDS = [
 ];
 
 const FAQ = [
-  { q: "Klingt das wirklich gut — oder wie ein Computer?", a: "Echter Gesang, echte Instrumente. Mureka AI erzeugt vollständige Songs mit menschlicher Stimme — kein synthetisches Text-to-Speech. Hör selbst: einfach einen kostenlosen Song erstellen." },
+  { q: "Klingt das wirklich gut — oder wie ein Computer?", a: "Echter Gesang, echte Instrumente. Unsere KI erzeugt vollständige Songs mit menschlicher Stimme — kein synthetisches Text-to-Speech. Hör selbst: einfach einen kostenlosen Song erstellen." },
   { q: "Was wenn mir der Song nicht gefällt?", a: "Du kannst den Text direkt im Browser bearbeiten, ihn per KI mit einem Satz verfeinern (z.B. \"Mach es fröhlicher\") oder komplett neu generieren — so oft du willst, vor der Zahlung." },
   { q: "Wie persönlich ist das wirklich?", a: "Du gibst Name, Alter, Anlass, Lieblingstiere, persönliche Details ein — alles fließt in den Song ein. Kein anderer Mensch auf der Welt hat denselben Song." },
   { q: "Wie lange dauert die Erstellung?", a: "Unter 2 Minuten. Der Songtext erscheint in Sekunden, die Musik dauert ca. 60 Sekunden. Kein Warten, kein Mensch dazwischen." },
-  { q: "Was bekomme ich kostenlos?", a: "Du erstellst deinen Song vollständig und hörst die ersten 10 Sekunden als Vorschau. Für den kompletten Song inkl. MP3-Download und Teilen-Link zahlst du einmalig €3,99." },
+  { q: "Was bekomme ich kostenlos?", a: "Du erstellst deinen Song vollständig und hörst die ersten 30 Sekunden als Vorschau. Für den kompletten Song inkl. MP3-Download und Teilen-Link zahlst du einmalig €3,99." },
   { q: "Kann ich den Song behalten und teilen?", a: "Ja. MP3-Download, ein dauerhafter Teilen-Link (madesong.com/song/…) und ein Story-Video für Instagram & WhatsApp. Alles gehört dir." },
   { q: "Brauche ich Technikkenntnisse oder ein Konto?", a: "Nein. Formular ausfüllen, auf \"Erstellen\" klicken, fertig. Kein Account, keine App, keine Kreditkarte für die Vorschau." },
   { q: "Funktioniert das auch für Kinder?", a: "Besonders gut. Die KI erkennt das Alter und passt Sprache und Stil automatisch an — einfach für Kleinkinder, cool für Teenies." },
@@ -72,7 +72,7 @@ export default function Home() {
                 <a href="#erstellen" className="inline-flex items-center gap-2 bg-white text-[#18120e] font-bold text-sm px-6 py-3 rounded-full hover:bg-amber-50 transition-all">
                   Jetzt kostenlos ausprobieren →
                 </a>
-                <p className="text-xs text-white/40 text-center mt-3">Erste 10 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
+                <p className="text-xs text-white/40 text-center mt-3">Erste 30 Sekunden kostenlos · Kein Account · Keine Kreditkarte</p>
               </div>
             </div>
           </div>
@@ -108,7 +108,7 @@ export default function Home() {
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="font-display text-4xl md:text-5xl text-white">Erstelle deinen Song. Jetzt.</h2>
-            <p className="text-white/60 mt-2">Erste 10 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
+            <p className="text-white/60 mt-2">Erste 30 Sekunden kostenlos hören — kein Account, keine Kreditkarte.</p>
           </div>
           <Suspense fallback={null}><SongForm /></Suspense>
         </div>
@@ -304,7 +304,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { num: "01", icon: "✍️", title: "Details eingeben", desc: "Name, Anlass, Alter und ein paar persönliche Details. Das dauert 60 Sekunden." },
-              { num: "02", icon: "✨", title: "KI komponiert sofort", desc: "Claude AI schreibt den Text. Mureka AI vertont ihn mit echtem Gesang — alles in ~60 Sekunden." },
+              { num: "02", icon: "✨", title: "KI komponiert sofort", desc: "Unsere KI schreibt den Text und vertont ihn mit echtem Gesang — alles in ~60 Sekunden." },
               { num: "03", icon: "📱", title: "Teilen als Song oder Video", desc: "MP3-Download, Teilen-Link oder Story-Video für Instagram & WhatsApp Status. Fertig." },
             ].map(({ num, icon, title, desc }) => (
               <div key={num} className="bg-white/70 backdrop-blur rounded-3xl p-8 border border-black/5">
@@ -383,7 +383,7 @@ export default function Home() {
             <h2 className="font-display text-4xl md:text-5xl leading-tight mb-4 text-[#18120e]">
               Wann hast du zuletzt<br />jemanden wirklich<br /><em className="not-italic text-[#c2410c]">überrascht?</em>
             </h2>
-            <p className="text-[#78716c] mb-8 text-lg">Erste 10 Sekunden kostenlos hören. Kein Risiko.</p>
+            <p className="text-[#78716c] mb-8 text-lg">Erste 30 Sekunden kostenlos hören. Kein Risiko.</p>
             <a href="#erstellen" className="inline-flex items-center gap-2 bg-[#d97706] text-white font-bold text-lg px-10 py-5 rounded-full hover:bg-[#b45309] transition-all hover:scale-105 active:scale-95">
               Meinen ersten Song erstellen →
             </a>
