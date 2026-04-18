@@ -2,6 +2,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { Music } from "lucide-react";
 import SongPlayer from "@/components/SongPlayer";
+import SongActions from "@/components/SongActions";
 
 export default async function SongPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -30,7 +31,6 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
   return (
     <main className="min-h-screen bg-gradient-to-br from-[#fdf8f2] via-[#f5ede0] to-[#ede0cc] flex flex-col items-center px-6 py-12">
 
-      {/* Inhalt */}
       <div className="w-full max-w-xl space-y-6">
 
         {/* Logo */}
@@ -41,7 +41,7 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
           </a>
         </div>
 
-        {/* Foto — prominent als Karte */}
+        {/* Foto */}
         {song.photo_url && (
           <div className="relative w-full rounded-3xl overflow-hidden shadow-2xl" style={{aspectRatio: "4/3"}}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -66,6 +66,19 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
 
         {/* Player */}
         <SongPlayer mp3Url={song.mp3_url} />
+
+        {/* Sharing & Video */}
+        {song.paid_tier && (
+          <SongActions
+            mp3Url={song.mp3_url}
+            recipientName={song.recipient_name}
+            occasion={song.occasion || ""}
+            lyrics={song.lyrics}
+            photoUrl={song.photo_url}
+            shareSlug={song.share_slug}
+            paidTier={song.paid_tier}
+          />
+        )}
 
         {/* Lyrics */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 space-y-1 border border-white/50">

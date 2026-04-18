@@ -15,6 +15,15 @@ export async function GET(req: NextRequest) {
     const paid = session.payment_status === "paid";
     const tier = session.metadata?.tier || "song";
     const shareSlug = session.metadata?.shareSlug || null;
+
+    if (paid && shareSlug) {
+      const { supabaseAdmin } = await import("@/lib/supabase");
+      await supabaseAdmin
+        .from("songs")
+        .update({ paid_tier: tier })
+        .eq("share_slug", shareSlug);
+    }
+
     return NextResponse.json({ paid, tier, shareSlug });
   } catch {
     return NextResponse.json({ paid: false });
