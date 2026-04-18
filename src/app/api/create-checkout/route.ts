@@ -37,11 +37,13 @@ export async function POST(req: NextRequest) {
       metadata: { shareSlug, tier },
       success_url: `${origin}/?payment_success=1&session_id={CHECKOUT_SESSION_ID}&slug=${shareSlug}&tier=${tier}`,
       cancel_url: `${origin}/`,
+      payment_method_types: ["card"],
     });
 
     return NextResponse.json({ url: session.url });
-  } catch (error) {
-    console.error("Stripe error:", error);
-    return NextResponse.json({ error: "Checkout konnte nicht erstellt werden." }, { status: 500 });
+  } catch (error: unknown) {
+    const msg = error instanceof Error ? error.message : "Unbekannter Fehler";
+    console.error("Stripe error:", msg);
+    return NextResponse.json({ error: `Checkout fehlgeschlagen: ${msg}` }, { status: 500 });
   }
 }

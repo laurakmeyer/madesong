@@ -875,14 +875,12 @@ export default function SongForm() {
                 </Button>
               </div>
             ) : (
-              <div>
-                <div className="bg-white rounded-xl p-6 space-y-1 border border-[#d97706]/10">
-                  {formatLyrics(lyrics)}
-                </div>
+              <div className="bg-white rounded-xl p-6 space-y-1 border border-[#d97706]/10 relative">
                 <button onClick={() => setEditingLyrics(true)}
-                  className="mt-3 flex items-center gap-1.5 text-sm text-[#d97706] hover:text-[#b45309] font-medium transition-colors">
-                  <Pencil className="h-3.5 w-3.5" /> Lyrics bearbeiten
+                  className="absolute top-3 right-3 flex items-center gap-1.5 text-xs text-[#d97706] hover:text-[#b45309] font-medium transition-colors bg-amber-50 rounded-lg px-2.5 py-1.5 border border-[#d97706]/20">
+                  <Pencil className="h-3 w-3" /> Lyrics bearbeiten
                 </button>
+                {formatLyrics(lyrics)}
               </div>
             )}
 
