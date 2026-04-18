@@ -7,9 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X, Video } from "lucide-react";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile } from "@ffmpeg/util";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Liebeslied", "Jahrestag", "Valentinstag", "Muttertag", "Vatertag", "Weihnachten", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -32,18 +30,12 @@ export default function SongForm() {
   const [error, setError] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
-  const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
-  const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
-  const [videoLoading, setVideoLoading] = useState<number | null>(null);
-  const [videoStatus, setVideoStatus] = useState<string>("");
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
   const [checkingPayment, setCheckingPayment] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const videoInputRef = useRef<HTMLInputElement>(null);
-  const ffmpegRef = useRef<FFmpeg | null>(null);
 
   const initialOccasion = searchParams.get("anlass") ?? "Geburtstag";
   const [form, setForm] = useState({
@@ -85,17 +77,6 @@ export default function SongForm() {
     setPhotoPreview(URL.createObjectURL(compressed));
   };
 
-  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (file.size > 50 * 1024 * 1024) {
-      setError("Video ist zu groß (max. 50 MB). Bitte ein kürzeres Video wählen.");
-      e.target.value = "";
-      return;
-    }
-    setBgVideoFile(file);
-    setBgVideoPreview(URL.createObjectURL(file));
-  };
 
   // Lyrics verfeinern
   const handleRefine = async () => {
@@ -157,304 +138,6 @@ export default function SongForm() {
       setError("Audio-Generierung fehlgeschlagen. Bitte versuche es nochmal.");
     } finally {
       setAudioLoading(false);
-    }
-  };
-
-  // Hilfsfunktion: Canvas-Frame als PNG-Bytes exportieren
-  const canvasToPng = (canvas: HTMLCanvasElement): Promise<Uint8Array> =>
-    new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        blob!.arrayBuffer().then((buf) => resolve(new Uint8Array(buf)));
-      }, "image/png");
-    });
-
-  // Hintergrund + Text auf Canvas zeichnen (ohne Wellenform)
-  const drawBackground = async (
-    ctx: CanvasRenderingContext2D,
-    photoSrc: string | null
-  ) => {
-    if (photoSrc) {
-      const img = await new Promise<HTMLImageElement>((resolve) => {
-        const i = new Image();
-        i.onload = () => resolve(i);
-        i.src = photoSrc;
-      });
-      const scale = Math.max(1080 / img.width, 1920 / img.height) * 1.05;
-      const w = img.width * scale;
-      const h = img.height * scale;
-      ctx.drawImage(img, (1080 - w) / 2, (1920 - h) / 2, w, h);
-      ctx.fillStyle = "rgba(10, 4, 0, 0.65)";
-      ctx.fillRect(0, 0, 1080, 1920);
-    } else {
-      const grad = ctx.createLinearGradient(0, 0, 1080, 1920);
-      grad.addColorStop(0, "#1e180e");
-      grad.addColorStop(0.5, "#8a5e2a");
-      grad.addColorStop(1, "#3a2c18");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1080, 1920);
-    }
-
-    // Dekorative Ringe
-    for (let r = 0; r < 5; r++) {
-      ctx.beginPath();
-      ctx.arc(540, 430, 100 + r * 65, 0, Math.PI * 2);
-      ctx.strokeStyle = `rgba(255,255,255,${0.12 - r * 0.02})`;
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    }
-
-    // Musik-Note
-    ctx.font = "140px serif";
-    ctx.textAlign = "center";
-    ctx.fillText("🎵", 540, 480);
-
-    // Name
-    ctx.shadowColor = "rgba(0,0,0,0.7)";
-    ctx.shadowBlur = 28;
-    ctx.font = "bold 110px system-ui, sans-serif";
-    ctx.fillStyle = "white";
-    ctx.fillText(form.recipientName, 540, 670);
-    ctx.shadowBlur = 0;
-
-    // Anlass
-    const occasionLabel = form.occasion !== "Einfach so" ? form.occasion : "Ein persönlicher Song";
-    ctx.font = "54px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
-    ctx.fillText(occasionLabel, 540, 755);
-
-    // Trennlinie
-    ctx.strokeStyle = "rgba(255,255,255,0.18)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(180, 810);
-    ctx.lineTo(900, 810);
-    ctx.stroke();
-
-    // Branding
-    ctx.font = "38px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
-    ctx.fillText("madesong.com", 540, 1870);
-  };
-
-  // Wellenform-Balken zeichnen (t = 0..1, Animationsposition im Loop)
-  const drawWaveform = (ctx: CanvasRenderingContext2D, t: number) => {
-    const barCount = 24;
-    const barWidth = 18;
-    const gap = 8;
-    const maxH = 140;
-    const totalW = barCount * (barWidth + gap) - gap;
-    const startX = 540 - totalW / 2;
-    const baseY = 1820;
-
-    for (let i = 0; i < barCount; i++) {
-      const phase = (i / barCount) * Math.PI * 4;
-      const speed = 1 + (i % 5) * 0.2;
-      const h = maxH * (0.25 + 0.75 * Math.abs(Math.sin(t * Math.PI * 2 * speed + phase)));
-      const x = startX + i * (barWidth + gap);
-      const alpha = 0.55 + 0.45 * Math.abs(Math.sin(t * Math.PI * 2 * speed + phase));
-      ctx.fillStyle = `rgba(255, 200, 80, ${alpha})`;
-      ctx.fillRect(x, baseY - h, barWidth, h);
-    }
-  };
-
-  // Scrollende Lyrics zeichnen (t = 0..1, Position im Song)
-  const drawScrollingLyrics = (ctx: CanvasRenderingContext2D, t: number) => {
-    const allLines = (lyrics || "").split("\n").filter((l) => l.trim());
-    if (allLines.length === 0) return;
-
-    const visibleLines = 12;
-    const totalScroll = Math.max(0, allLines.length - visibleLines);
-    const scrollOffset = Math.floor(t * totalScroll);
-
-    let y = 870;
-    for (let i = 0; i < visibleLines; i++) {
-      const lineIdx = scrollOffset + i;
-      if (lineIdx >= allLines.length || y > 1790) break;
-      const line = allLines[lineIdx];
-      const isActive = i === Math.floor(visibleLines / 3); // aktive Zeile hervorheben
-
-      if (line.startsWith("**") && line.endsWith("**")) {
-        ctx.font = `bold 48px system-ui, sans-serif`;
-        ctx.fillStyle = isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.75)";
-        ctx.fillText(line.replace(/\*\*/g, ""), 540, y);
-        y += 72;
-      } else if (line.startsWith("[") && line.endsWith("]")) {
-        ctx.font = "bold 34px system-ui, sans-serif";
-        ctx.fillStyle = "rgba(255, 200, 80, 0.85)";
-        ctx.fillText(line, 540, y);
-        y += 52;
-      } else {
-        ctx.font = isActive ? "bold 44px system-ui, sans-serif" : "42px system-ui, sans-serif";
-        ctx.fillStyle = isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.7)";
-        const words = line.split(" ");
-        let current = "";
-        for (const word of words) {
-          const test = current ? `${current} ${word}` : word;
-          ctx.font = isActive ? "bold 44px system-ui, sans-serif" : "42px system-ui, sans-serif";
-          if (ctx.measureText(test).width > 920 && current) {
-            ctx.fillText(current, 540, y);
-            y += 58;
-            current = word;
-          } else { current = test; }
-        }
-        if (current) { ctx.fillText(current, 540, y); y += 58; }
-      }
-    }
-  };
-
-  // Frames für Foto-Modus: 1fps, scrollende Lyrics + animierte Wellenform
-  const renderAnimatedFrames = async (photoSrc: string | null): Promise<Uint8Array[]> => {
-    const totalFrames = 75; // 75 Sekunden Puffer, -shortest schneidet bei Audio-Ende ab
-    const canvas = document.createElement("canvas");
-    canvas.width = 1080;
-    canvas.height = 1920;
-    const ctx = canvas.getContext("2d")!;
-
-    // Statischen Hintergrund einmalig rendern und cachen
-    await drawBackground(ctx, photoSrc);
-    const bgData = ctx.getImageData(0, 0, 1080, 1920);
-
-    const frames: Uint8Array[] = [];
-    for (let f = 0; f < totalFrames; f++) {
-      ctx.putImageData(bgData, 0, 0);
-      drawScrollingLyrics(ctx, f / totalFrames);
-      drawWaveform(ctx, (f % 30) / 30); // Wellenform-Animation cycled durch 30 Positionen
-      frames.push(await canvasToPng(canvas));
-    }
-    return frames;
-  };
-
-  // Text-Overlay PNG für Video-Hintergrund (transparenter Hintergrund)
-  const renderOverlayPng = async (): Promise<Uint8Array> => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 720;
-    canvas.height = 1280;
-    const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, 1080, 1920);
-
-    // Dunkles Overlay
-    ctx.fillStyle = "rgba(10, 4, 0, 0.55)";
-    ctx.fillRect(0, 0, 1080, 1920);
-
-    // Name
-    ctx.shadowColor = "rgba(0,0,0,0.8)";
-    ctx.shadowBlur = 30;
-    ctx.font = "bold 110px system-ui, sans-serif";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.fillText(form.recipientName, 540, 300);
-    ctx.shadowBlur = 0;
-
-    // Anlass
-    const occasionLabel = form.occasion !== "Einfach so" ? form.occasion : "Ein persönlicher Song";
-    ctx.font = "54px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
-    ctx.fillText(occasionLabel, 540, 380);
-
-    // Branding
-    ctx.font = "40px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.fillText("madesong.com", 540, 1870);
-
-    return canvasToPng(canvas);
-  };
-
-  // Video mit FFmpeg WASM generieren
-  const generateVideo = async (song: Song, index: number) => {
-    if (typeof window === "undefined") return;
-    setVideoLoading(index);
-    setVideoStatus("FFmpeg wird geladen...");
-
-    try {
-      if (!ffmpegRef.current) {
-        const ff = new FFmpeg();
-        await ff.load({ coreURL: "/ffmpeg/ffmpeg-core.js", wasmURL: "/ffmpeg/ffmpeg-core.wasm" });
-        ffmpegRef.current = ff;
-      }
-      const ff = ffmpegRef.current;
-
-      setVideoStatus("Audio wird geladen...");
-      const audioData = await fetchFile(`/api/proxy-audio?url=${encodeURIComponent(song.mp3_url)}`);
-      await ff.writeFile("audio.mp3", audioData);
-
-      ff.on("progress", ({ progress }) => {
-        const pct = Math.round(Math.min(progress, 1) * 100);
-        setVideoStatus(`Video wird erstellt... ${pct}%`);
-      });
-
-      if (bgVideoFile && bgVideoPreview) {
-        // ── Pfad B: Eigenes Video als Hintergrund ──
-        setVideoStatus("Video wird vorbereitet...");
-        const videoData = await fetchFile(bgVideoPreview);
-        await ff.writeFile("bg_video.mp4", videoData);
-
-        const overlayData = await renderOverlayPng();
-        await ff.writeFile("overlay.png", overlayData);
-
-        setVideoStatus("Video wird erstellt...");
-        await ff.exec([
-          "-stream_loop", "-1", "-i", "bg_video.mp4",
-          "-i", "audio.mp3",
-          "-i", "overlay.png",
-          "-filter_complex",
-          "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[2:v]scale=720:1280[ov];[bg][ov]overlay=0:0[v]",
-          "-map", "[v]", "-map", "1:a",
-          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28", "-pix_fmt", "yuv420p",
-          "-c:a", "aac", "-b:a", "128k",
-          "-shortest", "-movflags", "+faststart",
-          "output.mp4",
-        ]);
-
-        await ff.deleteFile("bg_video.mp4");
-        await ff.deleteFile("overlay.png");
-      } else {
-        // ── Pfad A: Foto mit animierter Wellenform ──
-        setVideoStatus("Frames werden gerendert...");
-        const frames = await renderAnimatedFrames(photoPreview);
-
-        for (let f = 0; f < frames.length; f++) {
-          await ff.writeFile(`frame${f.toString().padStart(4, "0")}.png`, frames[f]);
-        }
-
-        setVideoStatus("Video wird erstellt...");
-        await ff.exec([
-          "-framerate", "1",
-          "-i", "frame%04d.png",
-          "-i", "audio.mp3",
-          "-c:v", "libx264", "-preset", "ultrafast", "-crf", "28",
-          "-vf", "scale=720:1280",
-          "-pix_fmt", "yuv420p",
-          "-c:a", "aac", "-b:a", "128k",
-          "-shortest", "-movflags", "+faststart",
-          "output.mp4",
-        ]);
-
-        for (let f = 0; f < frames.length; f++) {
-          await ff.deleteFile(`frame${f.toString().padStart(4, "0")}.png`);
-        }
-      }
-
-      setVideoStatus("Fertig! Download startet...");
-      const data = await ff.readFile("output.mp4");
-      const raw = data as Uint8Array;
-      const blob = new Blob([new Uint8Array(raw).buffer], { type: "video/mp4" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `madesong-${form.recipientName}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      await ff.deleteFile("audio.mp3");
-      await ff.deleteFile("output.mp4");
-    } catch (err) {
-      console.error("Video error:", err);
-      setError("Video konnte nicht erstellt werden. Bitte versuche es nochmal.");
-    } finally {
-      setVideoLoading(null);
-      setVideoStatus("");
     }
   };
 
@@ -745,24 +428,6 @@ export default function SongForm() {
                 </button>
               )}
 
-              {/* Video Upload — für Story-Video Hintergrund */}
-              <Label className="text-[#78716c] mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video für Instagram &amp; WhatsApp Status)</span></Label>
-              <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
-              {bgVideoPreview ? (
-                <div className="relative inline-block">
-                  <video src={bgVideoPreview} className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30" muted playsInline />
-                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); }}
-                    className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ) : (
-                <button type="button" onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/60 text-sm text-[#d97706] hover:bg-amber-50 hover:border-[#d97706] transition-all">
-                  <Video className="h-4 w-4" />
-                  Video hochladen
-                </button>
-              )}
             </div>
 
             {/* Anlass */}
@@ -948,14 +613,6 @@ export default function SongForm() {
                             className="flex items-center gap-1.5 text-xs text-[#d97706] hover:text-[#b45309] font-medium">
                             {copiedIndex === i ? <><Check className="h-3.5 w-3.5" /> Kopiert!</> : <><Share2 className="h-3.5 w-3.5" /> Link</>}
                           </button>
-                          {paidTier === "song_video" && (
-                            <button onClick={() => generateVideo(song, i)} disabled={videoLoading !== null}
-                              className="flex items-center gap-1.5 text-xs text-pink-600 hover:text-pink-700 font-medium disabled:opacity-40">
-                              {videoLoading === i
-                                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {videoStatus || "Lädt..."}</>
-                                : <><Video className="h-3.5 w-3.5" /> Video</>}
-                            </button>
-                          )}
                           <a href={song.mp3_url} download={`madesong-${form.recipientName}.mp3`} target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 font-medium">
                             <Download className="h-3.5 w-3.5" /> MP3

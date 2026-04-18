@@ -3,9 +3,13 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { execSync } from "child_process";
 import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
 import { join } from "path";
-import { createCanvas } from "canvas";
+import sharp from "sharp";
 
 export const maxDuration = 60;
+
+function escapeXml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
 
 export async function POST(req: NextRequest) {
   const { shareSlug } = await req.json();
@@ -34,20 +38,12 @@ export async function POST(req: NextRequest) {
     const audioPath = join(tmpDir, "audio.mp3");
     writeFileSync(audioPath, audioBuffer);
 
-    // 2. Create overlay image with lyrics
-    const overlayPath = join(tmpDir, "overlay.png");
-    await createOverlayImage(overlayPath, song);
+    // 2. Create composite image (photo + overlay)
+    const compositePath = join(tmpDir, "composite.png");
+    await createCompositeImage(compositePath, song);
+    console.log("Composite image created, size:", readFileSync(compositePath).length);
 
-    // 3. Download photo or use overlay as background
-    let bgPath = overlayPath;
-    if (song.photo_url) {
-      const photoRes = await fetch(song.photo_url);
-      const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
-      bgPath = join(tmpDir, "photo.jpg");
-      writeFileSync(bgPath, photoBuffer);
-    }
-
-    // 4. Get ffmpeg path
+    // 3. Get ffmpeg path
     let ffmpegPath = "ffmpeg";
     try {
       const ffmpegStatic = require("ffmpeg-static");
@@ -56,27 +52,27 @@ export async function POST(req: NextRequest) {
       // fallback to system ffmpeg
     }
 
-    // 5. Run FFmpeg
-    const outputPath = join(tmpDir, "output.mp4");
+    // 4. Make sure ffmpeg binary is executable
+    try {
+      execSync(`chmod +x "${ffmpegPath}"`, { timeout: 5000 });
+    } catch {}
 
-    if (song.photo_url) {
+    // 5. Run FFmpeg — single image + audio → video
+    const outputPath = join(tmpDir, "output.mp4");
+    try {
       execSync(
-        `${ffmpegPath} -y -loop 1 -i "${bgPath}" -i "${audioPath}" -i "${overlayPath}" ` +
-        `-filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[bg][2:v]overlay=0:0[out]" ` +
-        `-map "[out]" -map 1:a -c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p ` +
-        `-t 60 -shortest -movflags +faststart "${outputPath}"`,
-        { timeout: 50000 }
-      );
-    } else {
-      execSync(
-        `${ffmpegPath} -y -loop 1 -i "${overlayPath}" -i "${audioPath}" ` +
+        `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
         `-c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p ` +
         `-t 60 -shortest -movflags +faststart "${outputPath}"`,
-        { timeout: 50000 }
+        { timeout: 50000, stdio: "pipe" }
       );
+    } catch (ffErr: unknown) {
+      const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
+      console.error("FFmpeg stderr:", stderr);
+      throw new Error(`FFmpeg failed: ${stderr.slice(-500)}`);
     }
 
-    // 6. Upload to Supabase Storage
+    // 5. Upload to Supabase Storage
     const videoData = readFileSync(outputPath);
     const fileName = `videos/${shareSlug}.mp4`;
 
@@ -96,14 +92,14 @@ export async function POST(req: NextRequest) {
       .from("songs")
       .getPublicUrl(fileName);
 
-    // 7. Save video URL to database
+    // 6. Save video URL to database
     await supabaseAdmin
       .from("songs")
       .update({ video_url: publicUrl.publicUrl })
       .eq("share_slug", shareSlug);
 
-    // 8. Cleanup
-    [audioPath, overlayPath, bgPath, outputPath].forEach((f) => {
+    // 7. Cleanup
+    [audioPath, compositePath, outputPath].forEach((f) => {
       try { unlinkSync(f); } catch {}
     });
 
@@ -115,48 +111,54 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function createOverlayImage(path: string, song: { recipient_name: string; occasion: string; lyrics: string; mood: string }) {
-  // Use sharp or canvas to create the overlay
-  // For now, create a simple PNG with text
-  const { createCanvas: cc } = require("canvas");
-  const canvas = cc(720, 1280);
-  const ctx = canvas.getContext("2d");
+async function createCompositeImage(
+  outputPath: string,
+  song: { recipient_name: string; occasion: string; lyrics: string; mood: string; photo_url?: string }
+) {
+  const W = 720;
+  const H = 1280;
 
-  // Dark overlay
-  ctx.fillStyle = "rgba(10, 4, 0, 0.55)";
-  ctx.fillRect(0, 0, 720, 1280);
-
-  // Name
-  ctx.shadowColor = "rgba(0,0,0,0.8)";
-  ctx.shadowBlur = 20;
-  ctx.font = "bold 64px sans-serif";
-  ctx.fillStyle = "white";
-  ctx.textAlign = "center";
-  ctx.fillText(song.recipient_name, 360, 200);
-  ctx.shadowBlur = 0;
-
-  // Occasion
-  const occasionLabel = song.occasion !== "Einfach so" ? song.occasion : "Ein persönlicher Song";
-  ctx.font = "32px sans-serif";
-  ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
-  ctx.fillText(occasionLabel, 360, 260);
-
-  // Lyrics
-  const lines = song.lyrics
+  // Build lyrics lines
+  const lyricsLines = song.lyrics
     .split("\n")
-    .filter((l: string) => !l.startsWith("[") && !l.startsWith("**") && l.trim());
-  ctx.font = "22px sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.85)";
-  const startY = 400;
-  lines.slice(0, 20).forEach((line: string, i: number) => {
-    ctx.fillText(line.substring(0, 40), 360, startY + i * 34);
-  });
+    .filter((l: string) => !l.startsWith("[") && !l.startsWith("**") && l.trim())
+    .slice(0, 20)
+    .map((l: string) => l.substring(0, 40));
 
-  // Branding
-  ctx.font = "28px sans-serif";
-  ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.fillText("madesong.com", 360, 1230);
+  const occasionLabel = song.occasion !== "Einfach so" ? song.occasion : "Ein persönlicher Song";
 
-  const buffer = canvas.toBuffer("image/png");
-  writeFileSync(path, buffer);
+  // Build SVG text overlay
+  const lyricsSvg = lyricsLines
+    .map((line: string, i: number) => `<text x="360" y="${400 + i * 34}" font-size="22" fill="rgba(255,255,255,0.85)" text-anchor="middle" font-family="sans-serif">${escapeXml(line)}</text>`)
+    .join("\n");
+
+  const svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${W}" height="${H}" fill="rgba(10,4,0,0.55)"/>
+    <text x="360" y="200" font-size="56" font-weight="bold" fill="white" text-anchor="middle" font-family="sans-serif">${escapeXml(song.recipient_name)}</text>
+    <text x="360" y="260" font-size="28" fill="rgba(255,210,120,0.9)" text-anchor="middle" font-family="sans-serif">${escapeXml(occasionLabel)}</text>
+    ${lyricsSvg}
+    <text x="360" y="1230" font-size="24" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="sans-serif">madesong.com</text>
+  </svg>`;
+
+  const overlayBuffer = Buffer.from(svg);
+
+  if (song.photo_url) {
+    // Download and resize photo, then composite the text overlay
+    const photoRes = await fetch(song.photo_url);
+    const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
+
+    await sharp(photoBuffer)
+      .resize(W, H, { fit: "cover" })
+      .composite([{ input: overlayBuffer, top: 0, left: 0 }])
+      .png()
+      .toFile(outputPath);
+  } else {
+    // No photo — just render the SVG overlay on a dark background
+    await sharp({
+      create: { width: W, height: H, channels: 4, background: { r: 20, g: 10, b: 5, alpha: 1 } },
+    })
+      .composite([{ input: overlayBuffer, top: 0, left: 0 }])
+      .png()
+      .toFile(outputPath);
+  }
 }
