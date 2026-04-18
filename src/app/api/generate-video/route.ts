@@ -58,9 +58,9 @@ export async function POST(req: NextRequest) {
     try {
       execSync(
         `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
-        `-c:v libx264 -tune stillimage -c:a aac -b:a 192k -pix_fmt yuv420p ` +
+        `-c:v libx264 -preset ultrafast -tune stillimage -crf 28 -c:a aac -b:a 128k -pix_fmt yuv420p ` +
         `-t 60 -shortest -movflags +faststart "${outputPath}"`,
-        { timeout: 50000, stdio: "pipe" }
+        { timeout: 55000, stdio: "pipe" }
       );
     } catch (ffErr: unknown) {
       const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
