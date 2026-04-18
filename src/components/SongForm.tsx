@@ -510,15 +510,31 @@ export default function SongForm() {
       .catch(() => setCheckingPayment(false));
   }, []);
 
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const handleCheckout = async (tier: "song" | "song_video") => {
-    if (!shareSlug) return;
-    const res = await fetch("/api/create-checkout", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ tier, shareSlug, recipientName: form.recipientName }),
-    });
-    const data = await res.json();
-    if (data.url) window.location.href = data.url;
+    if (!shareSlug) {
+      setError("Song konnte nicht gespeichert werden. Bitte erstelle den Song nochmal.");
+      return;
+    }
+    setCheckoutLoading(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/create-checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tier, shareSlug, recipientName: form.recipientName }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || "Checkout konnte nicht gestartet werden.");
+        setCheckoutLoading(false);
+      }
+    } catch {
+      setError("Verbindung fehlgeschlagen. Bitte versuche es nochmal.");
+      setCheckoutLoading(false);
+    }
   };
 
   // Song teilen
@@ -964,16 +980,16 @@ export default function SongForm() {
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
             <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
             <div className="grid grid-cols-2 gap-3">
-              <button type="button" onClick={() => handleCheckout("song")}
-                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all cursor-pointer">
-                <span className="text-lg font-black text-[#18120e]">€3,99</span>
+              <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song")}
+                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all cursor-pointer disabled:opacity-50">
+                <span className="text-lg font-black text-[#18120e]">{checkoutLoading ? "..." : "€3,99"}</span>
                 <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
               </button>
               <div className="relative">
                 <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">Empfohlen</span>
-                <button type="button" onClick={() => handleCheckout("song_video")}
-                  className="w-full flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all cursor-pointer">
-                  <span className="text-lg font-black text-white">€4,99</span>
+                <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song_video")}
+                  className="w-full flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all cursor-pointer disabled:opacity-50">
+                  <span className="text-lg font-black text-white">{checkoutLoading ? "..." : "€4,99"}</span>
                   <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
                 </button>
               </div>
