@@ -72,11 +72,9 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
           <SongActions
             mp3Url={song.mp3_url}
             recipientName={song.recipient_name}
-            occasion={song.occasion || ""}
-            lyrics={song.lyrics}
-            photoUrl={song.photo_url}
             shareSlug={song.share_slug}
             paidTier={song.paid_tier}
+            videoUrl={song.video_url || null}
           />
         )}
 

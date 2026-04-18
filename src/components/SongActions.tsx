@@ -1,26 +1,21 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Download, Share2, Check, Video, Loader2 } from "lucide-react";
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile } from "@ffmpeg/util";
 
 type SongActionsProps = {
   mp3Url: string;
   recipientName: string;
-  occasion: string;
-  lyrics: string;
-  photoUrl: string | null;
   shareSlug: string;
   paidTier: string | null;
+  videoUrl: string | null;
 };
 
-export default function SongActions({ mp3Url, recipientName, occasion, lyrics, photoUrl, shareSlug, paidTier }: SongActionsProps) {
+export default function SongActions({ mp3Url, recipientName, shareSlug, paidTier, videoUrl: initialVideoUrl }: SongActionsProps) {
   const [copied, setCopied] = useState(false);
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoStatus, setVideoStatus] = useState("");
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  const ffmpegRef = useRef<FFmpeg | null>(null);
+  const [videoUrl, setVideoUrl] = useState<string | null>(initialVideoUrl);
 
   const shareUrl = `https://madesong.com/song/${shareSlug}`;
   const shareText = `🎵 Hör dir diesen personalisierten Song für ${recipientName} an!\n\n🎧 ${shareUrl}`;
@@ -31,120 +26,24 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const canvasToPng = (canvas: HTMLCanvasElement): Promise<Uint8Array> =>
-    new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
-        reader.readAsArrayBuffer(blob!);
-      }, "image/png");
-    });
-
-  const renderOverlayPng = async (): Promise<Uint8Array> => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 720;
-    canvas.height = 1280;
-    const ctx = canvas.getContext("2d")!;
-    ctx.clearRect(0, 0, 720, 1280);
-
-    ctx.fillStyle = "rgba(10, 4, 0, 0.55)";
-    ctx.fillRect(0, 0, 720, 1280);
-
-    ctx.shadowColor = "rgba(0,0,0,0.8)";
-    ctx.shadowBlur = 30;
-    ctx.font = "bold 64px system-ui, sans-serif";
-    ctx.fillStyle = "white";
-    ctx.textAlign = "center";
-    ctx.fillText(recipientName, 360, 200);
-    ctx.shadowBlur = 0;
-
-    const occasionLabel = occasion !== "Einfach so" ? occasion : "Ein persönlicher Song";
-    ctx.font = "32px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255, 210, 120, 0.9)";
-    ctx.fillText(occasionLabel, 360, 260);
-
-    // Lyrics
-    const lines = lyrics.split("\n").filter(l => !l.startsWith("[") && !l.startsWith("**") && l.trim());
-    ctx.font = "24px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.85)";
-    const startY = 400;
-    lines.slice(0, 16).forEach((line, i) => {
-      ctx.fillText(line, 360, startY + i * 36);
-    });
-
-    ctx.font = "28px system-ui, sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.5)";
-    ctx.fillText("madesong.com", 360, 1230);
-
-    return canvasToPng(canvas);
-  };
-
   const generateVideo = async () => {
-    if (typeof window === "undefined") return;
     setVideoLoading(true);
-    setVideoStatus("FFmpeg wird geladen...");
-
+    setVideoStatus("Video wird erstellt...");
     try {
-      if (!ffmpegRef.current) {
-        const ff = new FFmpeg();
-        ff.on("progress", ({ progress }) => {
-          const pct = Math.round(Math.min(progress, 1) * 100);
-          setVideoStatus(`Video wird erstellt... ${pct}%`);
-        });
-        await ff.load({
-          coreURL: "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.js",
-          wasmURL: "https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.wasm",
-        });
-        ffmpegRef.current = ff;
-      }
-      const ff = ffmpegRef.current;
-
-      setVideoStatus("Audio wird geladen...");
-      const audioData = await fetchFile(mp3Url);
-      await ff.writeFile("audio.mp3", audioData);
-
-      const overlayData = await renderOverlayPng();
-      await ff.writeFile("overlay.png", overlayData);
-
-      if (photoUrl) {
-        setVideoStatus("Foto wird geladen...");
-        const photoData = await fetchFile(photoUrl);
-        await ff.writeFile("photo.jpg", photoData);
-
-        setVideoStatus("Video wird erstellt...");
-        await ff.exec([
-          "-loop", "1", "-i", "photo.jpg",
-          "-i", "audio.mp3",
-          "-i", "overlay.png",
-          "-filter_complex", "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[bg][2:v]overlay=0:0[out]",
-          "-map", "[out]", "-map", "1:a",
-          "-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac",
-          "-b:a", "192k", "-pix_fmt", "yuv420p",
-          "-t", "60", "-shortest",
-          "-movflags", "+faststart",
-          "output.mp4"
-        ]);
+      const res = await fetch("/api/generate-video", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug }),
+      });
+      const data = await res.json();
+      if (data.videoUrl) {
+        setVideoUrl(data.videoUrl);
+        setVideoStatus("");
       } else {
-        setVideoStatus("Video wird erstellt...");
-        await ff.exec([
-          "-loop", "1", "-i", "overlay.png",
-          "-i", "audio.mp3",
-          "-c:v", "libx264", "-tune", "stillimage", "-c:a", "aac",
-          "-b:a", "192k", "-pix_fmt", "yuv420p",
-          "-t", "60", "-shortest",
-          "-movflags", "+faststart",
-          "output.mp4"
-        ]);
+        setVideoStatus(data.error || "Video konnte nicht erstellt werden.");
       }
-
-      const data = await ff.readFile("output.mp4");
-      const blob = new Blob([data as unknown as BlobPart], { type: "video/mp4" });
-      const url = URL.createObjectURL(blob);
-      setVideoUrl(url);
-      setVideoStatus("");
-    } catch (err) {
-      console.error("Video error:", err);
-      setVideoStatus("Video konnte nicht erstellt werden.");
+    } catch {
+      setVideoStatus("Verbindung fehlgeschlagen.");
     } finally {
       setVideoLoading(false);
     }
@@ -156,7 +55,6 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/50">
         <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Teilen & Download</p>
         <div className="flex flex-wrap gap-3">
-          {/* WhatsApp */}
           <a href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}
             target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors">
@@ -164,13 +62,11 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
             WhatsApp
           </a>
 
-          {/* Link kopieren */}
           <button onClick={handleCopyLink}
             className="flex items-center gap-2 bg-[#d97706] hover:bg-[#b45309] text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors">
             {copied ? <><Check className="h-4 w-4" /> Kopiert!</> : <><Share2 className="h-4 w-4" /> Link kopieren</>}
           </button>
 
-          {/* MP3 Download */}
           <a href={mp3Url} download={`madesong-${recipientName}.mp3`} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium text-sm px-4 py-2.5 rounded-xl transition-colors">
             <Download className="h-4 w-4" /> MP3
@@ -178,31 +74,30 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
         </div>
       </div>
 
-      {/* Video Section - nur auf Desktop, da FFmpeg WASM auf Mobile nicht funktioniert */}
+      {/* Video Section */}
       {paidTier === "song_video" && (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/50">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Story-Video</p>
           {videoUrl ? (
             <div className="space-y-3">
-              <video src={videoUrl} controls className="w-full rounded-xl" />
-              <a href={videoUrl} download={`madesong-${recipientName}.mp4`}
+              <video src={videoUrl} controls playsInline className="w-full rounded-xl" />
+              <a href={videoUrl} download={`madesong-${recipientName}.mp4`} target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors">
                 <Download className="h-4 w-4" /> Video herunterladen
               </a>
             </div>
           ) : (
-            <>
-              <button onClick={generateVideo} disabled={videoLoading}
-                className="hidden md:flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50">
+            <div className="space-y-2">
+              <button type="button" onClick={generateVideo} disabled={videoLoading}
+                className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50">
                 {videoLoading
                   ? <><Loader2 className="h-4 w-4 animate-spin" /> {videoStatus}</>
                   : <><Video className="h-4 w-4" /> Story-Video erstellen</>}
               </button>
-              <p className="md:hidden text-sm text-[#78716c]">
-                <Video className="h-4 w-4 inline mr-1.5" />
-                Öffne diesen Link auf einem Computer, um dein Story-Video zu erstellen.
-              </p>
-            </>
+              {videoStatus && !videoLoading && (
+                <p className="text-sm text-red-500">{videoStatus}</p>
+              )}
+            </div>
           )}
         </div>
       )}
