@@ -400,8 +400,8 @@ export default function Home() {
           <span className="font-display font-bold text-[#18120e]">MadeSong</span>
           <p className="text-sm text-[#a8a29e]">© 2026 MadeSong — Ein persönlicher Song für jeden Moment.</p>
           <div className="flex gap-6 text-sm text-[#a8a29e]">
-            <Link href="#" className="hover:text-[#1c1917] transition-colors">Impressum</Link>
-            <Link href="#" className="hover:text-[#1c1917] transition-colors">Datenschutz</Link>
+            <Link href="/impressum" className="hover:text-[#1c1917] transition-colors">Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-[#1c1917] transition-colors">Datenschutz</Link>
           </div>
         </div>
       </footer>
