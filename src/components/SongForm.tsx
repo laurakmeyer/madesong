@@ -88,6 +88,11 @@ export default function SongForm() {
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      setError("Video ist zu groß (max. 50 MB). Bitte ein kürzeres Video wählen.");
+      e.target.value = "";
+      return;
+    }
     setBgVideoFile(file);
     setBgVideoPreview(URL.createObjectURL(file));
   };
@@ -817,6 +822,7 @@ export default function SongForm() {
 
       {/* Songtext */}
       {lyrics && (
+        <>
         <Card className="shadow-2xl border border-[#d97706]/20 bg-[#fdf8f0]">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -944,30 +950,32 @@ export default function SongForm() {
                   </div>
                 ))}
 
-                {/* Payment Wall */}
-                {!paid && shareSlug && (
-                  <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
-                    <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
-                    <div className="grid grid-cols-2 gap-3">
-                      <button onClick={() => handleCheckout("song")}
-                        className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all">
-                        <span className="text-lg font-black text-[#18120e]">€3,99</span>
-                        <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
-                      </button>
-                      <button onClick={() => handleCheckout("song_video")}
-                        className="flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all relative">
-                        <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Empfohlen</span>
-                        <span className="text-lg font-black text-white">€4,99</span>
-                        <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
-                      </button>
-                    </div>
-                    <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
-                  </div>
-                )}
               </div>
             )}
           </CardContent>
         </Card>
+
+        {/* Payment Wall — außerhalb der Card, damit overflow-hidden nicht greift */}
+        {!paid && shareSlug && songs.length > 0 && (
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
+            <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button onClick={() => handleCheckout("song")}
+                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all">
+                <span className="text-lg font-black text-[#18120e]">€3,99</span>
+                <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
+              </button>
+              <button onClick={() => handleCheckout("song_video")}
+                className="flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all relative overflow-visible">
+                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Empfohlen</span>
+                <span className="text-lg font-black text-white">€4,99</span>
+                <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
+              </button>
+            </div>
+            <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
+          </div>
+        )}
+        </>
       )}
     </div>
   );

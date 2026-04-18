@@ -12,7 +12,7 @@ export default function Datenschutz() {
         </div>
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-8 border border-white/50 space-y-6">
-          <h1 className="text-3xl font-extrabold text-[#18120e]">Datenschutzerklärung</h1>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[#18120e]">Datenschutzerklärung</h1>
 
           <div className="space-y-6 text-[#44403c] leading-relaxed">
             <div>
