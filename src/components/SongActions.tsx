@@ -178,7 +178,7 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
         </div>
       </div>
 
-      {/* Video Section */}
+      {/* Video Section - nur auf Desktop, da FFmpeg WASM auf Mobile nicht funktioniert */}
       {paidTier === "song_video" && (
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-white/50">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-4">Story-Video</p>
@@ -191,12 +191,18 @@ export default function SongActions({ mp3Url, recipientName, occasion, lyrics, p
               </a>
             </div>
           ) : (
-            <button onClick={generateVideo} disabled={videoLoading}
-              className="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50">
-              {videoLoading
-                ? <><Loader2 className="h-4 w-4 animate-spin" /> {videoStatus}</>
-                : <><Video className="h-4 w-4" /> Story-Video erstellen</>}
-            </button>
+            <>
+              <button onClick={generateVideo} disabled={videoLoading}
+                className="hidden md:flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition-colors disabled:opacity-50">
+                {videoLoading
+                  ? <><Loader2 className="h-4 w-4 animate-spin" /> {videoStatus}</>
+                  : <><Video className="h-4 w-4" /> Story-Video erstellen</>}
+              </button>
+              <p className="md:hidden text-sm text-[#78716c]">
+                <Video className="h-4 w-4 inline mr-1.5" />
+                Öffne diesen Link auf einem Computer, um dein Story-Video zu erstellen.
+              </p>
+            </>
           )}
         </div>
       )}
