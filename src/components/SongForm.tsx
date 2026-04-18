@@ -458,25 +458,29 @@ export default function SongForm() {
     }
   };
 
-  // Audio abspielen / pausieren (10-Sek-Preview wenn nicht bezahlt)
+  // Audio abspielen / pausieren (30-Sek-Preview wenn nicht bezahlt)
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentUrlRef = useRef<string | null>(null);
   const togglePlay = (index: number, mp3_url: string) => {
     if (playingIndex === index) {
       audioRef.current?.pause();
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
       setPlayingIndex(null);
     } else {
-      if (audioRef.current) audioRef.current.pause();
       if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
-      audioRef.current = new Audio(mp3_url);
+      if (!audioRef.current || currentUrlRef.current !== mp3_url) {
+        if (audioRef.current) audioRef.current.pause();
+        audioRef.current = new Audio(mp3_url);
+        currentUrlRef.current = mp3_url;
+      }
       audioRef.current.play();
       audioRef.current.onended = () => setPlayingIndex(null);
-      // 30-Sekunden-Preview wenn nicht bezahlt
       if (!paid) {
+        const remaining = Math.max(0, 30 - audioRef.current.currentTime) * 1000;
         previewTimerRef.current = setTimeout(() => {
           audioRef.current?.pause();
           setPlayingIndex(null);
-        }, 30000);
+        }, remaining);
       }
       setPlayingIndex(index);
     }
@@ -707,7 +711,7 @@ export default function SongForm() {
 
             {/* Foto Upload */}
             <div className="space-y-1.5">
-              <Label className="text-zinc-300">Foto <span className="text-[#a8a29e] font-normal">(optional — Hintergrund auf der Teilen-Seite &amp; im Story-Video)</span></Label>
+              <Label className="text-[#78716c]">Foto <span className="text-[#a8a29e] font-normal">(optional — Hintergrund auf der Teilen-Seite &amp; im Story-Video)</span></Label>
               <input ref={fileInputRef} type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
               {photoPreview ? (
                 <div className="relative inline-block">
@@ -719,14 +723,14 @@ export default function SongForm() {
                 </div>
               ) : (
                 <button type="button" onClick={() => fileInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/30 text-sm text-[#78716c] hover:border-[#d97706] hover:text-[#d97706] transition-all">
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/60 text-sm text-[#d97706] hover:bg-amber-50 hover:border-[#d97706] transition-all">
                   <ImagePlus className="h-4 w-4" />
                   Foto hochladen
                 </button>
               )}
 
               {/* Video Upload — für Story-Video Hintergrund */}
-              <Label className="text-zinc-300 mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video für Instagram &amp; WhatsApp Status)</span></Label>
+              <Label className="text-[#78716c] mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video für Instagram &amp; WhatsApp Status)</span></Label>
               <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
               {bgVideoPreview ? (
                 <div className="relative inline-block">
@@ -738,7 +742,7 @@ export default function SongForm() {
                 </div>
               ) : (
                 <button type="button" onClick={() => videoInputRef.current?.click()}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/30 text-sm text-[#78716c] hover:border-[#d97706] hover:text-[#d97706] transition-all">
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/60 text-sm text-[#d97706] hover:bg-amber-50 hover:border-[#d97706] transition-all">
                   <Video className="h-4 w-4" />
                   Video hochladen
                 </button>
