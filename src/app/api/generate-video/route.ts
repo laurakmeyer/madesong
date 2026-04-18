@@ -44,13 +44,9 @@ export async function POST(req: NextRequest) {
     console.log("Composite image created, size:", readFileSync(compositePath).length);
 
     // 3. Get ffmpeg path
-    let ffmpegPath = "ffmpeg";
-    try {
-      const ffmpegStatic = require("ffmpeg-static");
-      if (ffmpegStatic) ffmpegPath = ffmpegStatic;
-    } catch {
-      // fallback to system ffmpeg
-    }
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ffmpegPath: string = require("ffmpeg-static");
+    console.log("FFmpeg path:", ffmpegPath, "exists:", existsSync(ffmpegPath));
 
     // 4. Make sure ffmpeg binary is executable
     try {
