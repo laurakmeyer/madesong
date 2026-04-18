@@ -864,7 +864,7 @@ export default function SongForm() {
                   {formatLyrics(lyrics)}
                 </div>
                 <button onClick={() => setEditingLyrics(true)}
-                  className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-white rounded-lg p-1.5 shadow-sm border border-gray-200 text-gray-500 hover:text-[#d97706]">
+                  className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-white rounded-lg p-1.5 shadow-sm border border-gray-200 text-gray-500 hover:text-[#d97706]">
                   <Pencil className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -964,17 +964,19 @@ export default function SongForm() {
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
             <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
             <div className="grid grid-cols-2 gap-3">
-              <button onClick={() => handleCheckout("song")}
-                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all">
+              <button type="button" onClick={() => handleCheckout("song")}
+                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all cursor-pointer">
                 <span className="text-lg font-black text-[#18120e]">€3,99</span>
                 <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
               </button>
-              <button onClick={() => handleCheckout("song_video")}
-                className="flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all relative overflow-visible">
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Empfohlen</span>
-                <span className="text-lg font-black text-white">€4,99</span>
-                <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
-              </button>
+              <div className="relative">
+                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">Empfohlen</span>
+                <button type="button" onClick={() => handleCheckout("song_video")}
+                  className="w-full flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all cursor-pointer">
+                  <span className="text-lg font-black text-white">€4,99</span>
+                  <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
+                </button>
+              </div>
             </div>
             <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
           </div>
