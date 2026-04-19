@@ -346,21 +346,26 @@ export default function SongForm() {
       if (bgVideoFile && !currentVideoUrl) {
         (async () => {
           try {
-            const res = await fetch("/api/upload-video", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ fileName: bgVideoFile.name, contentType: bgVideoFile.type }),
+            const { createClient } = await import("@supabase/supabase-js");
+            const sb = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+            );
+            const ext = bgVideoFile.name.split(".").pop() || "mp4";
+            const path = `bg-videos/${Date.now()}.${ext}`;
+            const { error } = await sb.storage.from("songs").upload(path, bgVideoFile, {
+              contentType: bgVideoFile.type,
+              upsert: false,
             });
-            if (!res.ok) return;
-            const { signedUrl, publicUrl } = await res.json();
-            if (!signedUrl) return;
-            const uploadRes = await fetch(signedUrl, {
-              method: "PUT",
-              headers: { "Content-Type": bgVideoFile.type },
-              body: bgVideoFile,
-            });
-            if (uploadRes.ok) setCurrentVideoUrl(publicUrl);
-          } catch {}
+            if (!error) {
+              const { data } = sb.storage.from("songs").getPublicUrl(path);
+              setCurrentVideoUrl(data.publicUrl);
+            } else {
+              console.error("Video upload error:", error);
+            }
+          } catch (e) {
+            console.error("Video upload failed:", e);
+          }
         })();
       }
 
