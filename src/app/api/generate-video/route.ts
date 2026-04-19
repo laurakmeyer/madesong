@@ -56,32 +56,56 @@ export async function POST(req: NextRequest) {
     const audioPath = join(tmpDir, "audio.mp3");
     writeFileSync(audioPath, audioBuffer);
 
-    // 2. Create composite image (photo + overlay with embedded fonts)
-    const compositePath = join(tmpDir, "composite.png");
-    await createCompositeImage(compositePath, song);
+    // 2. Create overlay image with embedded fonts
+    const overlayPath = join(tmpDir, "overlay.png");
+    await createOverlayImage(overlayPath, song);
 
     // 3. Get ffmpeg path
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const ffmpegPath: string = require("ffmpeg-static");
-
-    // 4. Make sure ffmpeg binary is executable
     try {
       execSync(`chmod +x "${ffmpegPath}"`, { timeout: 5000 });
     } catch {}
 
-    // 5. Run FFmpeg — single image + audio → video
     const outputPath = join(tmpDir, "output.mp4");
-    try {
-      execSync(
-        `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
-        `-c:v libx264 -preset ultrafast -tune stillimage -crf 28 -c:a aac -b:a 128k -pix_fmt yuv420p ` +
-        `-t 60 -shortest -movflags +faststart "${outputPath}"`,
-        { timeout: 55000, stdio: "pipe" }
-      );
-    } catch (ffErr: unknown) {
-      const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
-      console.error("FFmpeg stderr:", stderr);
-      throw new Error(`FFmpeg failed: ${stderr.slice(-500)}`);
+
+    if (song.bg_video_url) {
+      // 4a. Download background video + composite with overlay + audio
+      const bgVideoRes = await fetch(song.bg_video_url);
+      const bgVideoBuffer = Buffer.from(await bgVideoRes.arrayBuffer());
+      const bgVideoPath = join(tmpDir, "bg_video.mp4");
+      writeFileSync(bgVideoPath, bgVideoBuffer);
+
+      try {
+        execSync(
+          `${ffmpegPath} -y -stream_loop -1 -i "${bgVideoPath}" -i "${audioPath}" -i "${overlayPath}" ` +
+          `-filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[2:v]scale=720:1280[ov];[bg][ov]overlay=0:0[v]" ` +
+          `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
+          `-c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`,
+          { timeout: 55000, stdio: "pipe" }
+        );
+      } catch (ffErr: unknown) {
+        const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
+        console.error("FFmpeg stderr:", stderr);
+        throw new Error(`FFmpeg failed: ${stderr.slice(-500)}`);
+      }
+    } else {
+      // 4b. Static image (photo or plain) + audio
+      const compositePath = join(tmpDir, "composite.png");
+      await createCompositeImage(compositePath, overlayPath, song);
+
+      try {
+        execSync(
+          `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
+          `-c:v libx264 -preset ultrafast -tune stillimage -crf 28 -c:a aac -b:a 128k -pix_fmt yuv420p ` +
+          `-t 60 -shortest -movflags +faststart "${outputPath}"`,
+          { timeout: 55000, stdio: "pipe" }
+        );
+      } catch (ffErr: unknown) {
+        const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
+        console.error("FFmpeg stderr:", stderr);
+        throw new Error(`FFmpeg failed: ${stderr.slice(-500)}`);
+      }
     }
 
     // 6. Upload to Supabase Storage
@@ -110,10 +134,11 @@ export async function POST(req: NextRequest) {
       .update({ video_url: publicUrl.publicUrl })
       .eq("share_slug", shareSlug);
 
-    // 8. Cleanup
-    [audioPath, compositePath, outputPath].forEach((f) => {
-      try { unlinkSync(f); } catch {}
-    });
+    // 8. Cleanup tmp dir
+    try {
+      const files = require("fs").readdirSync(tmpDir);
+      for (const f of files) { try { unlinkSync(join(tmpDir, f)); } catch {} }
+    } catch {}
 
     return NextResponse.json({ videoUrl: publicUrl.publicUrl, status: "ready" });
   } catch (err: unknown) {
@@ -123,14 +148,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function createCompositeImage(
-  outputPath: string,
-  song: { recipient_name: string; occasion: string; lyrics: string; mood: string; photo_url?: string }
-) {
+function buildOverlaySvg(song: { recipient_name: string; occasion: string; lyrics: string }) {
   const W = 720;
   const H = 1280;
-
-  // Load embedded fonts as base64
   const boldB64 = getFontBase64(fontBoldPath);
   const regularB64 = getFontBase64(fontRegularPath);
 
@@ -146,19 +166,11 @@ async function createCompositeImage(
     .map((line: string, i: number) => `<text x="360" y="${400 + i * 34}" font-size="22" fill="rgba(255,255,255,0.85)" text-anchor="middle" font-family="Inter">${escapeXml(line)}</text>`)
     .join("\n");
 
-  const svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+  return `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style>
-      @font-face {
-        font-family: 'Inter';
-        font-weight: 700;
-        src: url('data:font/truetype;base64,${boldB64}') format('truetype');
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-weight: 400;
-        src: url('data:font/truetype;base64,${regularB64}') format('truetype');
-      }
+      @font-face { font-family: 'Inter'; font-weight: 700; src: url('data:font/truetype;base64,${boldB64}') format('truetype'); }
+      @font-face { font-family: 'Inter'; font-weight: 400; src: url('data:font/truetype;base64,${regularB64}') format('truetype'); }
     </style>
   </defs>
   <rect width="${W}" height="${H}" fill="rgba(10,4,0,0.55)"/>
@@ -167,8 +179,24 @@ async function createCompositeImage(
   ${lyricsSvg}
   <text x="360" y="1230" font-size="24" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="Inter">madesong.com</text>
 </svg>`;
+}
 
-  const overlayBuffer = Buffer.from(svg);
+async function createOverlayImage(
+  outputPath: string,
+  song: { recipient_name: string; occasion: string; lyrics: string }
+) {
+  const svg = buildOverlaySvg(song);
+  await sharp(Buffer.from(svg)).png().toFile(outputPath);
+}
+
+async function createCompositeImage(
+  outputPath: string,
+  overlayPath: string,
+  song: { recipient_name: string; occasion: string; lyrics: string; photo_url?: string }
+) {
+  const W = 720;
+  const H = 1280;
+  const overlayBuffer = readFileSync(overlayPath);
 
   if (song.photo_url) {
     const photoRes = await fetch(song.photo_url);

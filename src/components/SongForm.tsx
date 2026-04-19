@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X } from "lucide-react";
+import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X, Video } from "lucide-react";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Liebeslied", "Jahrestag", "Valentinstag", "Muttertag", "Vatertag", "Weihnachten", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -30,12 +30,15 @@ export default function SongForm() {
   const [error, setError] = useState<string | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
+  const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
   const [checkingPayment, setCheckingPayment] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   const initialOccasion = searchParams.get("anlass") ?? "Geburtstag";
   const [form, setForm] = useState({
@@ -77,6 +80,17 @@ export default function SongForm() {
     setPhotoPreview(URL.createObjectURL(compressed));
   };
 
+  const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      setError("Video ist zu groß (max. 50 MB). Bitte ein kürzeres Video wählen.");
+      e.target.value = "";
+      return;
+    }
+    setBgVideoFile(file);
+    setBgVideoPreview(URL.createObjectURL(file));
+  };
 
   // Lyrics verfeinern
   const handleRefine = async () => {
@@ -131,7 +145,7 @@ export default function SongForm() {
       });
       const audioData = await audioRes.json();
       if (audioData.error) throw new Error(audioData.error);
-      const generatedSongs = await pollAudio(audioData.taskId, lyrics, currentPhotoUrl);
+      const generatedSongs = await pollAudio(audioData.taskId, lyrics, currentPhotoUrl, null);
       setSongs(generatedSongs);
     } catch (err) {
       console.error(err);
@@ -238,7 +252,7 @@ export default function SongForm() {
   };
 
   // Mureka polling
-  const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null) => {
+  const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null, bgVideoUrl?: string | null) => {
     const maxAttempts = 40;
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((r) => setTimeout(r, 5000));
@@ -262,6 +276,7 @@ export default function SongForm() {
             language: form.language,
             mood: form.mood,
             photoUrl: photoUrl || null,
+            bgVideoUrl: bgVideoUrl || null,
           }),
         });
         const saveData = await saveRes.json().catch(() => ({}));
@@ -311,7 +326,24 @@ export default function SongForm() {
           }
         } catch (uploadErr) {
           console.warn("Foto-Upload Fehler:", uploadErr);
-          // Weiter ohne Foto — Song-Generierung soll nicht blockiert werden
+        }
+      }
+
+      // 2b. Video hochladen (falls vorhanden)
+      let bgVideoUrl = null;
+      if (bgVideoFile) {
+        try {
+          const formData = new FormData();
+          formData.append("file", bgVideoFile);
+          const videoRes = await fetch("/api/upload-video", { method: "POST", body: formData });
+          if (videoRes.ok) {
+            const videoData = await videoRes.json();
+            if (videoData.url) bgVideoUrl = videoData.url;
+          } else {
+            console.warn("Video-Upload fehlgeschlagen, weiter ohne Video");
+          }
+        } catch (uploadErr) {
+          console.warn("Video-Upload Fehler:", uploadErr);
         }
       }
 
@@ -337,7 +369,7 @@ export default function SongForm() {
       if (audioData.error) throw new Error(audioData.error);
 
       // 4. Auf Fertigstellung warten (mit Foto URL)
-      const generatedSongs = await pollAudio(audioData.taskId!, lyricsData.lyrics, photoUrl);
+      const generatedSongs = await pollAudio(audioData.taskId!, lyricsData.lyrics, photoUrl, bgVideoUrl);
       setSongs(generatedSongs);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.";
@@ -428,6 +460,24 @@ export default function SongForm() {
                 </button>
               )}
 
+              {/* Video Upload */}
+              <Label className="text-[#78716c] mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video)</span></Label>
+              <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
+              {bgVideoPreview ? (
+                <div className="relative inline-block">
+                  <video src={bgVideoPreview} className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30" muted playsInline />
+                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); }}
+                    className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button type="button" onClick={() => videoInputRef.current?.click()}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-[#d97706]/60 text-sm text-[#d97706] hover:bg-amber-50 hover:border-[#d97706] transition-all">
+                  <Video className="h-4 w-4" />
+                  Video hochladen
+                </button>
+              )}
             </div>
 
             {/* Anlass */}

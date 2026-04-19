@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
-  const { mp3Url, lyrics, recipientName, age, occasion, language, mood, photoUrl } = await req.json();
+  const { mp3Url, lyrics, recipientName, age, occasion, language, mood, photoUrl, bgVideoUrl } = await req.json();
 
   if (!mp3Url || !lyrics) {
     return NextResponse.json({ error: "Fehlende Daten." }, { status: 400 });
@@ -21,6 +21,7 @@ export async function POST(req: NextRequest) {
       mp3_url: mp3Url,
       share_slug: shareSlug,
       photo_url: photoUrl || null,
+      bg_video_url: bgVideoUrl || null,
     });
     return NextResponse.json({ shareSlug });
   } catch (error) {
