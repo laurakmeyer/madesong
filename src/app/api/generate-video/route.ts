@@ -102,12 +102,22 @@ export async function POST(req: NextRequest) {
       writeFileSync(bgVideoPath, bgVideoBuffer);
 
       try {
+        // Step 1: Downscale bg video to small loop clip (fast)
+        const smallBgPath = join(tmpDir, "bg_small.mp4");
         execSync(
-          `${ffmpegPath} -y -stream_loop -1 -i "${bgVideoPath}" -i "${audioPath}" -i "${overlayPath}" ` +
-          `-filter_complex "[0:v]scale=360:640:force_original_aspect_ratio=increase,crop=360:640[bg];[2:v]scale=360:640[ov];[bg][ov]overlay=0:0[v]" ` +
-          `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 35 -pix_fmt yuv420p -r 15 ` +
+          `${ffmpegPath} -y -i "${bgVideoPath}" -an ` +
+          `-vf "scale=540:960:force_original_aspect_ratio=increase,crop=540:960" ` +
+          `-c:v libx264 -preset ultrafast -crf 30 -pix_fmt yuv420p -r 20 "${smallBgPath}"`,
+          { timeout: 25000, stdio: "pipe" }
+        );
+
+        // Step 2: Loop small bg + overlay + audio → final video
+        execSync(
+          `${ffmpegPath} -y -stream_loop -1 -i "${smallBgPath}" -i "${audioPath}" -i "${overlayPath}" ` +
+          `-filter_complex "[2:v]scale=540:960[ov];[0:v][ov]overlay=0:0[v]" ` +
+          `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 30 -pix_fmt yuv420p ` +
           `-c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`,
-          { timeout: 55000, stdio: "pipe" }
+          { timeout: 30000, stdio: "pipe" }
         );
       } catch (ffErr: unknown) {
         const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
