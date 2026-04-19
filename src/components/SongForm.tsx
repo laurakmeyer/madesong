@@ -332,10 +332,24 @@ export default function SongForm() {
           .catch(() => {});
       }
       if (bgVideoFile && !currentVideoUrl) {
-        fetch("/api/upload-video", { method: "POST", body: (() => { const fd = new FormData(); fd.append("file", bgVideoFile); return fd; })() })
-          .then(r => r.ok ? r.json() : null)
-          .then(d => { if (d?.url) setCurrentVideoUrl(d.url); })
-          .catch(() => {});
+        (async () => {
+          try {
+            const res = await fetch("/api/upload-video", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fileName: bgVideoFile.name, contentType: bgVideoFile.type }),
+            });
+            if (!res.ok) return;
+            const { signedUrl, publicUrl } = await res.json();
+            if (!signedUrl) return;
+            const uploadRes = await fetch(signedUrl, {
+              method: "PUT",
+              headers: { "Content-Type": bgVideoFile.type },
+              body: bgVideoFile,
+            });
+            if (uploadRes.ok) setCurrentVideoUrl(publicUrl);
+          } catch {}
+        })();
       }
 
       // 3. Audio generieren

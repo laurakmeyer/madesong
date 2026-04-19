@@ -4,27 +4,29 @@ import { nanoid } from "nanoid";
 
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File;
-    if (!file) return NextResponse.json({ error: "Kein Video." }, { status: 400 });
+    const { fileName, contentType } = await req.json();
+    if (!fileName) return NextResponse.json({ error: "Kein Dateiname." }, { status: 400 });
 
-    const ext = file.name.split(".").pop() || "mp4";
-    const fileName = `bg-videos/${nanoid()}.${ext}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
+    const ext = fileName.split(".").pop() || "mp4";
+    const storagePath = `bg-videos/${nanoid()}.${ext}`;
 
-    const { error } = await supabaseAdmin.storage
+    const { data, error } = await supabaseAdmin.storage
       .from("songs")
-      .upload(fileName, buffer, { contentType: file.type, upsert: false });
+      .createSignedUploadUrl(storagePath);
 
     if (error) throw error;
 
     const { data: { publicUrl } } = supabaseAdmin.storage
       .from("songs")
-      .getPublicUrl(fileName);
+      .getPublicUrl(storagePath);
 
-    return NextResponse.json({ url: publicUrl });
+    return NextResponse.json({
+      signedUrl: data.signedUrl,
+      publicUrl,
+      token: data.token,
+    });
   } catch (error) {
-    console.error("Video upload error:", error);
-    return NextResponse.json({ error: "Video-Upload fehlgeschlagen." }, { status: 500 });
+    console.error("Signed URL error:", error);
+    return NextResponse.json({ error: "Upload-URL konnte nicht erstellt werden." }, { status: 500 });
   }
 }
