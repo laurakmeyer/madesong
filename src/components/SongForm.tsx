@@ -89,8 +89,8 @@ export default function SongForm() {
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 50 * 1024 * 1024) {
-      setError("Video ist zu groß (max. 50 MB). Bitte ein kürzeres Video wählen.");
+    if (file.size > 200 * 1024 * 1024) {
+      setError("Video ist zu groß (max. 200 MB). Bitte ein kürzeres Video wählen.");
       e.target.value = "";
       return;
     }
