@@ -35,6 +35,7 @@ export default function SongForm() {
   const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
   const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
+  const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
   const [checkingPayment, setCheckingPayment] = useState(false);
@@ -139,6 +140,8 @@ export default function SongForm() {
     setSongs([]);
     setShareSlug(null);
     setSelectedSongIndex(null);
+    setCurrentPhotoUrl(null);
+    setCurrentVideoUrl(null);
     setError(null);
     try {
       const audioRes = await fetch("/api/generate-audio", {
@@ -279,20 +282,6 @@ export default function SongForm() {
     const song = songs[index];
     if (!song) return;
 
-    // Upload bg video if present
-    let bgVideoUrl = null;
-    if (bgVideoFile) {
-      try {
-        const fd = new FormData();
-        fd.append("file", bgVideoFile);
-        const videoRes = await fetch("/api/upload-video", { method: "POST", body: fd });
-        if (videoRes.ok) {
-          const d = await videoRes.json();
-          if (d.url) bgVideoUrl = d.url;
-        }
-      } catch {}
-    }
-
     const saveRes = await fetch("/api/save-song", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -305,7 +294,7 @@ export default function SongForm() {
         language: form.language,
         mood: form.mood,
         photoUrl: currentPhotoUrl || null,
-        bgVideoUrl: bgVideoUrl || null,
+        bgVideoUrl: currentVideoUrl || null,
       }),
     });
     const saveData = await saveRes.json().catch(() => ({}));
@@ -335,11 +324,17 @@ export default function SongForm() {
       setLyrics(lyricsData.lyrics);
       setLoading(false);
 
-      // 2. Foto im Hintergrund hochladen (parallel zum Audio)
+      // 2. Foto + Video im Hintergrund hochladen (parallel zum Audio)
       if (photoFile && !currentPhotoUrl) {
         fetch("/api/upload-photo", { method: "POST", body: (() => { const fd = new FormData(); fd.append("file", photoFile); return fd; })() })
           .then(r => r.ok ? r.json() : null)
           .then(d => { if (d?.url) setCurrentPhotoUrl(d.url); })
+          .catch(() => {});
+      }
+      if (bgVideoFile && !currentVideoUrl) {
+        fetch("/api/upload-video", { method: "POST", body: (() => { const fd = new FormData(); fd.append("file", bgVideoFile); return fd; })() })
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d?.url) setCurrentVideoUrl(d.url); })
           .catch(() => {});
       }
 
