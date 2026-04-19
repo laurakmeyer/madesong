@@ -86,13 +86,25 @@ export default function SongForm() {
   const handleVideoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 50 * 1024 * 1024) {
-      setError("Video ist zu groß (max. 50 MB). Bitte ein kürzeres Video wählen.");
+    if (file.size > 20 * 1024 * 1024) {
+      setError("Video ist zu groß (max. 20 MB). Bitte ein kürzeres Video wählen.");
       e.target.value = "";
       return;
     }
-    setBgVideoFile(file);
-    setBgVideoPreview(URL.createObjectURL(file));
+    const url = URL.createObjectURL(file);
+    const video = document.createElement("video");
+    video.preload = "metadata";
+    video.onloadedmetadata = () => {
+      URL.revokeObjectURL(video.src);
+      if (video.duration > 30) {
+        setError("Video ist zu lang (max. 30 Sekunden).");
+        e.target.value = "";
+        return;
+      }
+      setBgVideoFile(file);
+      setBgVideoPreview(url);
+    };
+    video.src = url;
   };
 
   // Lyrics verfeinern
@@ -466,7 +478,7 @@ export default function SongForm() {
               )}
 
               {/* Video Upload */}
-              <Label className="text-[#78716c] mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — als Hintergrund im Story-Video)</span></Label>
+              <Label className="text-[#78716c] mt-3 block">Video <span className="text-[#a8a29e] font-normal">(optional — max. 30 Sek., als Hintergrund im Story-Video)</span></Label>
               <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
               {bgVideoPreview ? (
                 <div className="relative inline-block">

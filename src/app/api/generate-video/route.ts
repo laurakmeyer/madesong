@@ -104,9 +104,9 @@ export async function POST(req: NextRequest) {
       try {
         execSync(
           `${ffmpegPath} -y -stream_loop -1 -i "${bgVideoPath}" -i "${audioPath}" -i "${overlayPath}" ` +
-          `-filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[2:v]scale=720:1280[ov];[bg][ov]overlay=0:0[v]" ` +
-          `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
-          `-c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`,
+          `-filter_complex "[0:v]scale=540:960:force_original_aspect_ratio=increase,crop=540:960[bg];[2:v]scale=540:960[ov];[bg][ov]overlay=0:0[v]" ` +
+          `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 32 -pix_fmt yuv420p -r 24 ` +
+          `-c:a aac -b:a 128k -t 30 -shortest -movflags +faststart "${outputPath}"`,
           { timeout: 55000, stdio: "pipe" }
         );
       } catch (ffErr: unknown) {
