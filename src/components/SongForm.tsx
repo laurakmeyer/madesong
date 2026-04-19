@@ -35,6 +35,7 @@ export default function SongForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
   const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
+  const [videoPreviewFailed, setVideoPreviewFailed] = useState(false);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
   const [videoUploadStatus, setVideoUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
@@ -107,6 +108,7 @@ export default function SongForm() {
       }
       setBgVideoFile(file);
       setBgVideoPreview(previewUrl);
+      setVideoPreviewFailed(false);
       setCurrentVideoUrl(null);
       setVideoUploadStatus("idle");
     };
@@ -114,6 +116,7 @@ export default function SongForm() {
       URL.revokeObjectURL(checkUrl);
       setBgVideoFile(file);
       setBgVideoPreview(previewUrl);
+      setVideoPreviewFailed(false);
       setCurrentVideoUrl(null);
       setVideoUploadStatus("idle");
     };
@@ -505,8 +508,21 @@ export default function SongForm() {
               <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
               {bgVideoPreview ? (
                 <div className="relative inline-block">
-                  <video src={bgVideoPreview} className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30" muted playsInline />
-                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); setCurrentVideoUrl(null); setVideoUploadStatus("idle"); }}
+                  {videoPreviewFailed ? (
+                    <div className="h-20 w-28 rounded-xl border border-[#d97706]/30 bg-amber-50 flex flex-col items-center justify-center gap-1">
+                      <Video className="h-6 w-6 text-[#d97706]" />
+                      <span className="text-[10px] text-[#d97706] font-medium truncate max-w-[100px]">{bgVideoFile?.name}</span>
+                    </div>
+                  ) : (
+                    <video
+                      src={bgVideoPreview}
+                      className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30"
+                      muted
+                      playsInline
+                      onError={() => setVideoPreviewFailed(true)}
+                    />
+                  )}
+                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); setCurrentVideoUrl(null); setVideoUploadStatus("idle"); setVideoPreviewFailed(false); }}
                     className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
                     <X className="h-3.5 w-3.5" />
                   </button>
