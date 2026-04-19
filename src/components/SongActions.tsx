@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Download, Share2, Check, Video, Loader2 } from "lucide-react";
 
 type SongActionsProps = {
@@ -16,9 +16,16 @@ export default function SongActions({ mp3Url, recipientName, shareSlug, paidTier
   const [videoLoading, setVideoLoading] = useState(false);
   const [videoStatus, setVideoStatus] = useState("");
   const [videoUrl, setVideoUrl] = useState<string | null>(initialVideoUrl);
+  const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const shareUrl = `https://madesong.com/song/${shareSlug}`;
   const shareText = `🎵 Hör dir diesen personalisierten Song für ${recipientName} an!\n\n🎧 ${shareUrl}`;
+
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(shareUrl);
@@ -29,24 +36,62 @@ export default function SongActions({ mp3Url, recipientName, shareSlug, paidTier
   const generateVideo = async () => {
     setVideoLoading(true);
     setVideoStatus("Video wird erstellt...");
+
+    // Fire-and-forget: start generation, then poll for result
     try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+
       const res = await fetch("/api/generate-video", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ shareSlug }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
+
       const data = await res.json();
       if (data.videoUrl) {
         setVideoUrl(data.videoUrl);
         setVideoStatus("");
-      } else {
-        setVideoStatus(data.error || "Video konnte nicht erstellt werden.");
+        setVideoLoading(false);
+        return;
+      }
+      if (data.error) {
+        setVideoStatus(data.error);
+        setVideoLoading(false);
+        return;
       }
     } catch {
-      setVideoStatus("Verbindung fehlgeschlagen.");
-    } finally {
-      setVideoLoading(false);
+      // Request timed out or failed — start polling
     }
+
+    setVideoStatus("Video wird generiert, bitte warten...");
+    let attempts = 0;
+    pollingRef.current = setInterval(async () => {
+      attempts++;
+      try {
+        const res = await fetch("/api/generate-video", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ shareSlug }),
+        });
+        const data = await res.json();
+        if (data.videoUrl) {
+          setVideoUrl(data.videoUrl);
+          setVideoStatus("");
+          setVideoLoading(false);
+          if (pollingRef.current) clearInterval(pollingRef.current);
+        }
+      } catch {
+        // keep polling
+      }
+      if (attempts > 12) {
+        setVideoStatus("Video-Generierung dauert zu lange. Bitte Seite neu laden und erneut versuchen.");
+        setVideoLoading(false);
+        if (pollingRef.current) clearInterval(pollingRef.current);
+      }
+    }, 5000);
   };
 
   return (
