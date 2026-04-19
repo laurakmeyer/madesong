@@ -24,6 +24,7 @@ export default function SongForm() {
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [selectedSongIndex, setSelectedSongIndex] = useState<number | null>(null);
+  const [selectingSong, setSelectingSound] = useState(false);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
   const [editingLyrics, setEditingLyrics] = useState(false);
   const [refineInput, setRefineInput] = useState("");
@@ -274,22 +275,9 @@ export default function SongForm() {
 
   const selectSong = async (index: number) => {
     setSelectedSongIndex(index);
+    setSelectingSound(true);
     const song = songs[index];
     if (!song) return;
-
-    // Upload photo if needed
-    let photoUrl = currentPhotoUrl;
-    if (photoFile && !currentPhotoUrl) {
-      try {
-        const fd = new FormData();
-        fd.append("file", photoFile);
-        const photoRes = await fetch("/api/upload-photo", { method: "POST", body: fd });
-        if (photoRes.ok) {
-          const d = await photoRes.json();
-          if (d.url) { photoUrl = d.url; setCurrentPhotoUrl(d.url); }
-        }
-      } catch {}
-    }
 
     // Upload bg video if present
     let bgVideoUrl = null;
@@ -316,12 +304,13 @@ export default function SongForm() {
         occasion: form.occasion,
         language: form.language,
         mood: form.mood,
-        photoUrl: photoUrl || null,
+        photoUrl: currentPhotoUrl || null,
         bgVideoUrl: bgVideoUrl || null,
       }),
     });
     const saveData = await saveRes.json().catch(() => ({}));
     if (saveData.shareSlug) setShareSlug(saveData.shareSlug);
+    setSelectingSound(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -346,7 +335,15 @@ export default function SongForm() {
       setLyrics(lyricsData.lyrics);
       setLoading(false);
 
-      // 2. Audio generieren
+      // 2. Foto im Hintergrund hochladen (parallel zum Audio)
+      if (photoFile && !currentPhotoUrl) {
+        fetch("/api/upload-photo", { method: "POST", body: (() => { const fd = new FormData(); fd.append("file", photoFile); return fd; })() })
+          .then(r => r.ok ? r.json() : null)
+          .then(d => { if (d?.url) setCurrentPhotoUrl(d.url); })
+          .catch(() => {});
+      }
+
+      // 3. Audio generieren
       setAudioLoading(true);
       const audioRes = await fetch("/api/generate-audio", {
         method: "POST",
@@ -667,10 +664,14 @@ export default function SongForm() {
                           </a>
                         </>
                       ) : selectedSongIndex === i ? (
-                        <span className="text-xs text-[#d97706] font-semibold">✓ Ausgewählt</span>
+                        selectingSong ? (
+                          <span className="flex items-center gap-1.5 text-xs text-[#d97706] font-semibold"><Loader2 className="h-3.5 w-3.5 animate-spin" /> Wird gespeichert...</span>
+                        ) : (
+                          <span className="text-xs text-[#d97706] font-semibold">✓ Ausgewählt</span>
+                        )
                       ) : (
-                        <button type="button" onClick={() => selectSong(i)}
-                          className="text-xs font-semibold text-white bg-[#d97706] hover:bg-[#b45309] px-3 py-1.5 rounded-lg transition-colors">
+                        <button type="button" onClick={() => selectSong(i)} disabled={selectingSong}
+                          className="text-xs font-semibold text-white bg-[#d97706] hover:bg-[#b45309] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50">
                           Diesen Song wählen
                         </button>
                       )}
