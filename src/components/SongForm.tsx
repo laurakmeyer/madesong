@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sparkles, Loader2, Music2, RefreshCw, Play, Pause, Download, Share2, Check, Pencil, Wand2, ImagePlus, X, Video } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 const OCCASIONS = ["Geburtstag", "Schlaflied", "Liebeslied", "Jahrestag", "Valentinstag", "Muttertag", "Vatertag", "Weihnachten", "Einfach so"];
 const LANGUAGES = ["Deutsch", "English"];
@@ -36,6 +37,7 @@ export default function SongForm() {
   const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
+  const [videoUploadStatus, setVideoUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
   const [paid, setPaid] = useState(false);
   const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
   const [checkingPayment, setCheckingPayment] = useState(false);
@@ -103,6 +105,8 @@ export default function SongForm() {
       }
       setBgVideoFile(file);
       setBgVideoPreview(url);
+      setCurrentVideoUrl(null);
+      setVideoUploadStatus("idle");
     };
     video.src = url;
   };
@@ -344,27 +348,32 @@ export default function SongForm() {
           .catch(() => {});
       }
       if (bgVideoFile && !currentVideoUrl) {
+        setVideoUploadStatus("uploading");
         (async () => {
           try {
-            const { createClient } = await import("@supabase/supabase-js");
-            const sb = createClient(
-              process.env.NEXT_PUBLIC_SUPABASE_URL!,
-              process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-            );
-            const ext = bgVideoFile.name.split(".").pop() || "mp4";
-            const path = `bg-videos/${Date.now()}.${ext}`;
-            const { error } = await sb.storage.from("songs").upload(path, bgVideoFile, {
-              contentType: bgVideoFile.type,
-              upsert: false,
+            const res = await fetch("/api/upload-video", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ fileName: bgVideoFile.name, contentType: bgVideoFile.type }),
             });
-            if (!error) {
-              const { data } = sb.storage.from("songs").getPublicUrl(path);
-              setCurrentVideoUrl(data.publicUrl);
+            const { token, path, publicUrl } = await res.json();
+            if (!token || !path) { console.error("No upload token received"); setVideoUploadStatus("error"); return; }
+
+            const { error: uploadError } = await supabase.storage
+              .from("songs")
+              .uploadToSignedUrl(path, token, bgVideoFile, {
+                contentType: bgVideoFile.type || "video/mp4",
+              });
+            if (uploadError) {
+              console.error("Video upload failed:", uploadError.message);
+              setVideoUploadStatus("error");
             } else {
-              console.error("Video upload error:", error);
+              setCurrentVideoUrl(publicUrl);
+              setVideoUploadStatus("done");
             }
           } catch (e) {
-            console.error("Video upload failed:", e);
+            console.error("Video upload error:", e);
+            setVideoUploadStatus("error");
           }
         })();
       }
@@ -488,10 +497,13 @@ export default function SongForm() {
               {bgVideoPreview ? (
                 <div className="relative inline-block">
                   <video src={bgVideoPreview} className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30" muted playsInline />
-                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); }}
+                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); setCurrentVideoUrl(null); setVideoUploadStatus("idle"); }}
                     className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
                     <X className="h-3.5 w-3.5" />
                   </button>
+                  {videoUploadStatus === "uploading" && <p className="text-xs text-amber-600 mt-1">Video wird hochgeladen...</p>}
+                  {videoUploadStatus === "done" && <p className="text-xs text-green-600 mt-1">Hochgeladen!</p>}
+                  {videoUploadStatus === "error" && <p className="text-xs text-red-500 mt-1">Upload fehlgeschlagen</p>}
                 </div>
               ) : (
                 <button type="button" onClick={() => videoInputRef.current?.click()}

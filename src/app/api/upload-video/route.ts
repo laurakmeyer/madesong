@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
       signedUrl: data.signedUrl,
       publicUrl,
       token: data.token,
+      path: storagePath,
     });
   } catch (error) {
     console.error("Signed URL error:", error);
