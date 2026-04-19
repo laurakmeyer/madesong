@@ -93,22 +93,31 @@ export default function SongForm() {
       e.target.value = "";
       return;
     }
-    const url = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file);
+    const checkUrl = URL.createObjectURL(file);
     const video = document.createElement("video");
     video.preload = "metadata";
     video.onloadedmetadata = () => {
-      URL.revokeObjectURL(video.src);
+      URL.revokeObjectURL(checkUrl);
       if (video.duration > 30) {
         setError("Video ist zu lang (max. 30 Sekunden).");
+        URL.revokeObjectURL(previewUrl);
         e.target.value = "";
         return;
       }
       setBgVideoFile(file);
-      setBgVideoPreview(url);
+      setBgVideoPreview(previewUrl);
       setCurrentVideoUrl(null);
       setVideoUploadStatus("idle");
     };
-    video.src = url;
+    video.onerror = () => {
+      URL.revokeObjectURL(checkUrl);
+      setBgVideoFile(file);
+      setBgVideoPreview(previewUrl);
+      setCurrentVideoUrl(null);
+      setVideoUploadStatus("idle");
+    };
+    video.src = checkUrl;
   };
 
   // Lyrics verfeinern
