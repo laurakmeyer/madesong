@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import { execSync } from "child_process";
-import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync } from "fs";
+import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync, copyFileSync } from "fs";
 import { join, resolve } from "path";
 import sharp from "sharp";
 
@@ -10,8 +10,37 @@ export const maxDuration = 60;
 const fontBoldPath = resolve(process.cwd(), "src/assets/Inter-Bold.ttf");
 const fontRegularPath = resolve(process.cwd(), "src/assets/Inter-Regular.ttf");
 
-function escapeDrawtext(s: string): string {
-  return s.replace(/\\/g, "\\\\").replace(/'/g, "'\\''").replace(/:/g, "\\:").replace(/;/g, "\\;").replace(/%/g, "%%");
+function escapeXml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
+}
+
+function setupFonts() {
+  const fontDir = "/tmp/fonts";
+  if (!existsSync(fontDir)) mkdirSync(fontDir, { recursive: true });
+
+  const boldDest = join(fontDir, "Inter-Bold.ttf");
+  const regularDest = join(fontDir, "Inter-Regular.ttf");
+  if (!existsSync(boldDest)) copyFileSync(fontBoldPath, boldDest);
+  if (!existsSync(regularDest)) copyFileSync(fontRegularPath, regularDest);
+
+  const fontsConf = `<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
+<fontconfig>
+  <dir>/tmp/fonts</dir>
+  <match target="pattern">
+    <test name="family"><string>Inter</string></test>
+    <edit name="family" mode="assign" binding="strong"><string>Inter</string></edit>
+  </match>
+  <match target="pattern">
+    <test name="family"><string>sans-serif</string></test>
+    <edit name="family" mode="prepend" binding="strong"><string>Inter</string></edit>
+  </match>
+</fontconfig>`;
+
+  const confPath = join(fontDir, "fonts.conf");
+  writeFileSync(confPath, fontsConf);
+  process.env.FONTCONFIG_FILE = confPath;
+  process.env.FONTCONFIG_PATH = fontDir;
 }
 
 export async function POST(req: NextRequest) {
@@ -41,6 +70,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Song nicht gefunden" }, { status: 404 });
   }
 
+  // Setup fonts for SVG rendering
+  setupFonts();
+
   const tmpDir = join("/tmp", `video-${shareSlug}`);
   if (!existsSync(tmpDir)) mkdirSync(tmpDir, { recursive: true });
 
@@ -51,27 +83,19 @@ export async function POST(req: NextRequest) {
     const audioPath = join(tmpDir, "audio.mp3");
     writeFileSync(audioPath, audioBuffer);
 
-    // 2. Prepare background image (photo resized to 720x1280)
-    const bgPath = join(tmpDir, "bg.png");
-    await prepareBackground(bgPath, song.photo_url);
+    // 2. Create overlay PNG via SVG (fontconfig provides fonts)
+    const overlayPath = join(tmpDir, "overlay.png");
+    await createOverlayImage(overlayPath, song);
 
     // 3. Get ffmpeg path
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const ffmpegPath: string = require("ffmpeg-static");
     try { execSync(`chmod +x "${ffmpegPath}"`, { timeout: 5000 }); } catch {}
 
-    // 4. Copy font files to tmp (ffmpeg needs accessible paths)
-    const tmpFontBold = join(tmpDir, "bold.ttf");
-    const tmpFontRegular = join(tmpDir, "regular.ttf");
-    writeFileSync(tmpFontBold, readFileSync(fontBoldPath));
-    writeFileSync(tmpFontRegular, readFileSync(fontRegularPath));
-
-    // 5. Build drawtext filters
-    const drawtextFilters = buildDrawtextFilters(song, tmpFontBold, tmpFontRegular);
-
     const outputPath = join(tmpDir, "output.mp4");
 
     if (song.bg_video_url) {
+      // 4a. Background video + overlay + audio
       const bgVideoRes = await fetch(song.bg_video_url);
       const bgVideoBuffer = Buffer.from(await bgVideoRes.arrayBuffer());
       const bgVideoPath = join(tmpDir, "bg_video.mp4");
@@ -79,9 +103,8 @@ export async function POST(req: NextRequest) {
 
       try {
         execSync(
-          `${ffmpegPath} -y -stream_loop -1 -i "${bgVideoPath}" -i "${audioPath}" ` +
-          `-filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280,` +
-          `colorchannelmixer=aa=0.55:ra=0.04:ga=0.02:ba=0.0${drawtextFilters}[v]" ` +
+          `${ffmpegPath} -y -stream_loop -1 -i "${bgVideoPath}" -i "${audioPath}" -i "${overlayPath}" ` +
+          `-filter_complex "[0:v]scale=720:1280:force_original_aspect_ratio=increase,crop=720:1280[bg];[2:v]scale=720:1280[ov];[bg][ov]overlay=0:0[v]" ` +
           `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 28 -pix_fmt yuv420p ` +
           `-c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`,
           { timeout: 55000, stdio: "pipe" }
@@ -92,11 +115,13 @@ export async function POST(req: NextRequest) {
         throw new Error(`FFmpeg failed: ${stderr.slice(-500)}`);
       }
     } else {
+      // 4b. Photo (or plain bg) + overlay composited by sharp, then encode with audio
+      const compositePath = join(tmpDir, "composite.png");
+      await createCompositeImage(compositePath, overlayPath, song);
+
       try {
         execSync(
-          `${ffmpegPath} -y -loop 1 -i "${bgPath}" -i "${audioPath}" ` +
-          `-filter_complex "[0:v]${drawtextFilters.slice(1)}[v]" ` +
-          `-map "[v]" -map 1:a ` +
+          `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
           `-c:v libx264 -preset ultrafast -tune stillimage -crf 28 -c:a aac -b:a 128k -pix_fmt yuv420p ` +
           `-t 60 -shortest -movflags +faststart "${outputPath}"`,
           { timeout: 55000, stdio: "pipe" }
@@ -108,7 +133,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 6. Upload to Supabase Storage
+    // 5. Upload to Supabase Storage
     const videoData = readFileSync(outputPath);
     const fileName = `videos/${shareSlug}.mp4`;
 
@@ -128,13 +153,13 @@ export async function POST(req: NextRequest) {
       .from("songs")
       .getPublicUrl(fileName);
 
-    // 7. Save video URL to database
+    // 6. Save video URL to database
     await supabaseAdmin
       .from("songs")
       .update({ video_url: publicUrl.publicUrl })
       .eq("share_slug", shareSlug);
 
-    // 8. Cleanup
+    // 7. Cleanup
     try {
       const files = require("fs").readdirSync(tmpDir);
       for (const f of files) { try { unlinkSync(join(tmpDir, f)); } catch {} }
@@ -148,53 +173,62 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function prepareBackground(outputPath: string, photoUrl?: string) {
+async function createOverlayImage(
+  outputPath: string,
+  song: { recipient_name: string; occasion: string; lyrics: string }
+) {
   const W = 720;
   const H = 1280;
-
-  if (photoUrl) {
-    const photoRes = await fetch(photoUrl);
-    const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
-    await sharp(photoBuffer).resize(W, H, { fit: "cover" }).png().toFile(outputPath);
-  } else {
-    await sharp({
-      create: { width: W, height: H, channels: 4, background: { r: 20, g: 10, b: 5, alpha: 1 } },
-    }).png().toFile(outputPath);
-  }
-}
-
-function buildDrawtextFilters(
-  song: { recipient_name: string; occasion: string; lyrics: string },
-  fontBold: string,
-  fontRegular: string,
-): string {
-  const name = escapeDrawtext(song.recipient_name);
-  const occasion = escapeDrawtext(
-    song.occasion !== "Einfach so" ? song.occasion : "Ein persönlicher Song"
-  );
 
   const lyricsLines = song.lyrics
     .split("\n")
     .filter((l: string) => !l.startsWith("[") && !l.startsWith("**") && l.trim())
     .slice(0, 18)
-    .map((l: string) => escapeDrawtext(l.substring(0, 40)));
+    .map((l: string) => l.substring(0, 40));
 
-  // Dark overlay
-  let filters = `,drawbox=c=black@0.55:t=fill`;
+  const occasionLabel = song.occasion !== "Einfach so" ? song.occasion : "Ein persönlicher Song";
 
-  // Name (bold, large)
-  filters += `,drawtext=fontfile='${fontBold}':text='${name}':fontcolor=white:fontsize=48:x=(w-text_w)/2:y=170`;
+  const lyricsSvg = lyricsLines
+    .map((line: string, i: number) =>
+      `<text x="360" y="${380 + i * 32}" font-size="20" fill="rgba(255,255,255,0.85)" text-anchor="middle" font-family="Inter, sans-serif">${escapeXml(line)}</text>`
+    )
+    .join("\n");
 
-  // Occasion
-  filters += `,drawtext=fontfile='${fontRegular}':text='${occasion}':fontcolor=#FFD278@0.9:fontsize=24:x=(w-text_w)/2:y=230`;
+  const svg = `<svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
+  <rect width="${W}" height="${H}" fill="rgba(10,4,0,0.55)"/>
+  <text x="360" y="180" font-size="48" font-weight="bold" fill="white" text-anchor="middle" font-family="Inter, sans-serif">${escapeXml(song.recipient_name)}</text>
+  <text x="360" y="230" font-size="24" fill="rgba(255,210,120,0.9)" text-anchor="middle" font-family="Inter, sans-serif">${escapeXml(occasionLabel)}</text>
+  ${lyricsSvg}
+  <text x="360" y="1220" font-size="20" fill="rgba(255,255,255,0.5)" text-anchor="middle" font-family="Inter, sans-serif">madesong.com</text>
+</svg>`;
 
-  // Lyrics lines
-  lyricsLines.forEach((line, i) => {
-    filters += `,drawtext=fontfile='${fontRegular}':text='${line}':fontcolor=white@0.85:fontsize=20:x=(w-text_w)/2:y=${380 + i * 32}`;
-  });
+  await sharp(Buffer.from(svg)).png().toFile(outputPath);
+}
 
-  // Branding
-  filters += `,drawtext=fontfile='${fontRegular}':text='madesong.com':fontcolor=white@0.5:fontsize=20:x=(w-text_w)/2:y=1220`;
+async function createCompositeImage(
+  outputPath: string,
+  overlayPath: string,
+  song: { photo_url?: string }
+) {
+  const W = 720;
+  const H = 1280;
+  const overlayBuffer = readFileSync(overlayPath);
 
-  return filters;
+  if (song.photo_url) {
+    const photoRes = await fetch(song.photo_url);
+    const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
+
+    await sharp(photoBuffer)
+      .resize(W, H, { fit: "cover" })
+      .composite([{ input: overlayBuffer, top: 0, left: 0 }])
+      .png()
+      .toFile(outputPath);
+  } else {
+    await sharp({
+      create: { width: W, height: H, channels: 4, background: { r: 20, g: 10, b: 5, alpha: 1 } },
+    })
+      .composite([{ input: overlayBuffer, top: 0, left: 0 }])
+      .png()
+      .toFile(outputPath);
+  }
 }

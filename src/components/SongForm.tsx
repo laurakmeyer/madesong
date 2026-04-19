@@ -23,6 +23,7 @@ export default function SongForm() {
   const [songs, setSongs] = useState<Song[]>([]);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [selectedSongIndex, setSelectedSongIndex] = useState<number | null>(null);
   const [shareSlug, setShareSlug] = useState<string | null>(null);
   const [editingLyrics, setEditingLyrics] = useState(false);
   const [refineInput, setRefineInput] = useState("");
@@ -136,6 +137,7 @@ export default function SongForm() {
     setAudioLoading(true);
     setSongs([]);
     setShareSlug(null);
+    setSelectedSongIndex(null);
     setError(null);
     try {
       const audioRes = await fetch("/api/generate-audio", {
@@ -145,7 +147,7 @@ export default function SongForm() {
       });
       const audioData = await audioRes.json();
       if (audioData.error) throw new Error(audioData.error);
-      const generatedSongs = await pollAudio(audioData.taskId, lyrics, currentPhotoUrl, null);
+      const generatedSongs = await pollAudio(audioData.taskId);
       setSongs(generatedSongs);
     } catch (err) {
       console.error(err);
@@ -252,7 +254,7 @@ export default function SongForm() {
   };
 
   // Mureka polling
-  const pollAudio = async (taskId: string, lyricsText: string, photoUrl?: string | null, bgVideoUrl?: string | null) => {
+  const pollAudio = async (taskId: string) => {
     const maxAttempts = 40;
     for (let i = 0; i < maxAttempts; i++) {
       await new Promise((r) => setTimeout(r, 5000));
@@ -263,29 +265,63 @@ export default function SongForm() {
       });
       const data = await res.json().catch(() => ({ status: "preparing" }));
       if (data.status === "succeeded" && data.songs?.length > 0) {
-        // Song-Metadaten einmalig in Supabase speichern
-        const saveRes = await fetch("/api/save-song", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mp3Url: data.songs[0].mp3_url,
-            lyrics: lyricsText,
-            recipientName: form.recipientName,
-            age: form.age,
-            occasion: form.occasion,
-            language: form.language,
-            mood: form.mood,
-            photoUrl: photoUrl || null,
-            bgVideoUrl: bgVideoUrl || null,
-          }),
-        });
-        const saveData = await saveRes.json().catch(() => ({}));
-        if (saveData.shareSlug) setShareSlug(saveData.shareSlug);
         return data.songs as Song[];
       }
       if (data.status === "failed") throw new Error("Song-Generierung fehlgeschlagen.");
     }
     throw new Error("Timeout — bitte versuche es nochmal.");
+  };
+
+  const selectSong = async (index: number) => {
+    setSelectedSongIndex(index);
+    const song = songs[index];
+    if (!song) return;
+
+    // Upload photo if needed
+    let photoUrl = currentPhotoUrl;
+    if (photoFile && !currentPhotoUrl) {
+      try {
+        const fd = new FormData();
+        fd.append("file", photoFile);
+        const photoRes = await fetch("/api/upload-photo", { method: "POST", body: fd });
+        if (photoRes.ok) {
+          const d = await photoRes.json();
+          if (d.url) { photoUrl = d.url; setCurrentPhotoUrl(d.url); }
+        }
+      } catch {}
+    }
+
+    // Upload bg video if present
+    let bgVideoUrl = null;
+    if (bgVideoFile) {
+      try {
+        const fd = new FormData();
+        fd.append("file", bgVideoFile);
+        const videoRes = await fetch("/api/upload-video", { method: "POST", body: fd });
+        if (videoRes.ok) {
+          const d = await videoRes.json();
+          if (d.url) bgVideoUrl = d.url;
+        }
+      } catch {}
+    }
+
+    const saveRes = await fetch("/api/save-song", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mp3Url: song.mp3_url,
+        lyrics,
+        recipientName: form.recipientName,
+        age: form.age,
+        occasion: form.occasion,
+        language: form.language,
+        mood: form.mood,
+        photoUrl: photoUrl || null,
+        bgVideoUrl: bgVideoUrl || null,
+      }),
+    });
+    const saveData = await saveRes.json().catch(() => ({}));
+    if (saveData.shareSlug) setShareSlug(saveData.shareSlug);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -310,44 +346,7 @@ export default function SongForm() {
       setLyrics(lyricsData.lyrics);
       setLoading(false);
 
-      // 2. Foto hochladen (falls vorhanden)
-      let photoUrl = null;
-      if (photoFile) {
-        try {
-          const formData = new FormData();
-          formData.append("file", photoFile);
-          const photoRes = await fetch("/api/upload-photo", { method: "POST", body: formData });
-          if (photoRes.ok) {
-            const photoText = await photoRes.text();
-            const photoData = JSON.parse(photoText);
-            if (photoData.url) { photoUrl = photoData.url; setCurrentPhotoUrl(photoData.url); }
-          } else {
-            console.warn("Foto-Upload fehlgeschlagen, weiter ohne Foto");
-          }
-        } catch (uploadErr) {
-          console.warn("Foto-Upload Fehler:", uploadErr);
-        }
-      }
-
-      // 2b. Video hochladen (falls vorhanden)
-      let bgVideoUrl = null;
-      if (bgVideoFile) {
-        try {
-          const formData = new FormData();
-          formData.append("file", bgVideoFile);
-          const videoRes = await fetch("/api/upload-video", { method: "POST", body: formData });
-          if (videoRes.ok) {
-            const videoData = await videoRes.json();
-            if (videoData.url) bgVideoUrl = videoData.url;
-          } else {
-            console.warn("Video-Upload fehlgeschlagen, weiter ohne Video");
-          }
-        } catch (uploadErr) {
-          console.warn("Video-Upload Fehler:", uploadErr);
-        }
-      }
-
-      // 3. Audio generieren
+      // 2. Audio generieren
       setAudioLoading(true);
       const audioRes = await fetch("/api/generate-audio", {
         method: "POST",
@@ -369,7 +368,7 @@ export default function SongForm() {
       if (audioData.error) throw new Error(audioData.error);
 
       // 4. Auf Fertigstellung warten (mit Foto URL)
-      const generatedSongs = await pollAudio(audioData.taskId!, lyricsData.lyrics, photoUrl, bgVideoUrl);
+      const generatedSongs = await pollAudio(audioData.taskId!);
       setSongs(generatedSongs);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Ups, da ist etwas schiefgelaufen. Bitte versuche es nochmal.";
@@ -652,7 +651,6 @@ export default function SongForm() {
                     <div className="flex items-center gap-2">
                       {paid ? (
                         <>
-                          {/* WhatsApp — freigeschaltet */}
                           <a href={`https://wa.me/?text=${encodeURIComponent(`🎵 Ich habe einen personalisierten Song für ${form.recipientName} erstellt!\n\n🎧 Hier anhören: https://madesong.com/song/${shareSlug}`)}`}
                             target="_blank" rel="noopener noreferrer"
                             className="flex items-center gap-1.5 text-xs font-medium text-green-600 hover:text-green-700">
@@ -668,8 +666,13 @@ export default function SongForm() {
                             <Download className="h-3.5 w-3.5" /> MP3
                           </a>
                         </>
+                      ) : selectedSongIndex === i ? (
+                        <span className="text-xs text-[#d97706] font-semibold">✓ Ausgewählt</span>
                       ) : (
-                        <span className="text-xs text-gray-400 italic">🔒 Freischalten zum Teilen & Download</span>
+                        <button type="button" onClick={() => selectSong(i)}
+                          className="text-xs font-semibold text-white bg-[#d97706] hover:bg-[#b45309] px-3 py-1.5 rounded-lg transition-colors">
+                          Diesen Song wählen
+                        </button>
                       )}
                     </div>
                   </div>
@@ -681,7 +684,7 @@ export default function SongForm() {
         </Card>
 
         {/* Payment Wall — außerhalb der Card, damit overflow-hidden nicht greift */}
-        {!paid && shareSlug && songs.length > 0 && (
+        {!paid && shareSlug && selectedSongIndex !== null && (
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
             <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
             <div className="grid grid-cols-2 gap-3">
