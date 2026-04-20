@@ -216,7 +216,7 @@ export default function SongForm() {
       const audioRes = await fetch("/api/generate-audio", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ lyrics, mood: form.mood, age: form.age, occasion: form.occasion }),
+        body: JSON.stringify({ lyrics, mood: form.mood, age: form.age, occasion: form.occasion, language: form.language }),
       });
       const audioData = await audioRes.json();
       if (audioData.error) throw new Error(audioData.error);
@@ -441,6 +441,7 @@ export default function SongForm() {
           mood: form.mood,
           age: form.age,
           occasion: form.occasion,
+          language: form.language,
         }),
       });
       const audioText = await audioRes.text();

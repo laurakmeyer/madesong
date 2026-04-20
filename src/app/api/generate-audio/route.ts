@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-function buildMurekaPrompt(mood: string, age: string, occasion: string): string {
+function buildMurekaPrompt(mood: string, age: string, occasion: string, language: string): string {
   const ageNum = age ? parseInt(age) : null;
   const isChild = ageNum !== null && ageNum <= 12;
 
@@ -22,7 +22,12 @@ function buildMurekaPrompt(mood: string, age: string, occasion: string): string 
     "Einfach so":   "feel-good, personal",
   };
 
+  const languageHint = language === "English"
+    ? "sung in English"
+    : "sung in German, native German pronunciation";
+
   const parts = [
+    languageHint,
     moodMap[mood] || "pop, upbeat",
     occasionMap[occasion] || "",
     isChild ? "children's song, simple, fun" : "emotional, personal",
@@ -33,13 +38,13 @@ function buildMurekaPrompt(mood: string, age: string, occasion: string): string 
 }
 
 export async function POST(req: NextRequest) {
-  const { lyrics, mood, age, occasion } = await req.json();
+  const { lyrics, mood, age, occasion, language } = await req.json();
 
   if (!lyrics) {
     return NextResponse.json({ error: "Keine Lyrics angegeben." }, { status: 400 });
   }
 
-  const prompt = buildMurekaPrompt(mood, age, occasion);
+  const prompt = buildMurekaPrompt(mood, age, occasion, language);
 
   try {
     const res = await fetch("https://api.mureka.ai/v1/song/generate", {
