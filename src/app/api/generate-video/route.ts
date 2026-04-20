@@ -5,7 +5,7 @@ import { writeFileSync, readFileSync, mkdirSync, existsSync, unlinkSync, copyFil
 import { join, resolve } from "path";
 import sharp from "sharp";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const fontBoldPath = resolve(process.cwd(), "src/assets/Inter-Bold.ttf");
 const fontRegularPath = resolve(process.cwd(), "src/assets/Inter-Regular.ttf");
@@ -108,7 +108,7 @@ export async function POST(req: NextRequest) {
           `${ffmpegPath} -y -i "${bgVideoPath}" -an ` +
           `-vf "scale=540:960:force_original_aspect_ratio=increase,crop=540:960" ` +
           `-c:v libx264 -preset ultrafast -crf 30 -pix_fmt yuv420p -r 20 "${smallBgPath}"`,
-          { timeout: 25000, stdio: "pipe" }
+          { timeout: 60000, stdio: "pipe" }
         );
 
         // Step 2: Loop small bg + overlay + audio → final video
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
           `-filter_complex "[2:v]scale=540:960[ov];[0:v][ov]overlay=0:0[v]" ` +
           `-map "[v]" -map 1:a -c:v libx264 -preset ultrafast -crf 30 -pix_fmt yuv420p ` +
           `-c:a aac -b:a 128k -shortest -movflags +faststart "${outputPath}"`,
-          { timeout: 30000, stdio: "pipe" }
+          { timeout: 220000, stdio: "pipe" }
         );
       } catch (ffErr: unknown) {
         const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
@@ -133,8 +133,8 @@ export async function POST(req: NextRequest) {
         execSync(
           `${ffmpegPath} -y -loop 1 -i "${compositePath}" -i "${audioPath}" ` +
           `-c:v libx264 -preset ultrafast -tune stillimage -crf 28 -c:a aac -b:a 128k -pix_fmt yuv420p ` +
-          `-t 60 -shortest -movflags +faststart "${outputPath}"`,
-          { timeout: 55000, stdio: "pipe" }
+          `-shortest -movflags +faststart "${outputPath}"`,
+          { timeout: 280000, stdio: "pipe" }
         );
       } catch (ffErr: unknown) {
         const stderr = ffErr instanceof Error && "stderr" in ffErr ? String((ffErr as { stderr: unknown }).stderr) : "";
