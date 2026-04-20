@@ -37,7 +37,6 @@ export async function POST(req: NextRequest) {
       metadata: { shareSlug, tier },
       success_url: `${origin}/?payment_success=1&session_id={CHECKOUT_SESSION_ID}&slug=${shareSlug}&tier=${tier}`,
       cancel_url: `${origin}/`,
-      payment_method_types: ["card"],
     });
 
     return NextResponse.json({ url: session.url });
