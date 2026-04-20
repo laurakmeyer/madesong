@@ -35,6 +35,7 @@ export default function SongForm() {
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [bgVideoFile, setBgVideoFile] = useState<File | null>(null);
   const [bgVideoPreview, setBgVideoPreview] = useState<string | null>(null);
+  const [bgVideoThumbnail, setBgVideoThumbnail] = useState<string | null>(null);
   const [videoPreviewFailed, setVideoPreviewFailed] = useState(false);
   const [currentPhotoUrl, setCurrentPhotoUrl] = useState<string | null>(null);
   const [currentVideoUrl, setCurrentVideoUrl] = useState<string | null>(null);
@@ -97,28 +98,68 @@ export default function SongForm() {
     const previewUrl = URL.createObjectURL(file);
     const checkUrl = URL.createObjectURL(file);
     const video = document.createElement("video");
-    video.preload = "metadata";
-    video.onloadedmetadata = () => {
-      URL.revokeObjectURL(checkUrl);
-      if (video.duration > 30) {
-        setError("Video ist zu lang (max. 30 Sekunden).");
-        URL.revokeObjectURL(previewUrl);
-        e.target.value = "";
-        return;
-      }
+    video.preload = "auto";
+    video.muted = true;
+    video.playsInline = true;
+
+    const accept = () => {
       setBgVideoFile(file);
       setBgVideoPreview(previewUrl);
       setVideoPreviewFailed(false);
       setCurrentVideoUrl(null);
       setVideoUploadStatus("idle");
     };
-    video.onerror = () => {
+
+    const cleanup = () => {
       URL.revokeObjectURL(checkUrl);
-      setBgVideoFile(file);
-      setBgVideoPreview(previewUrl);
-      setVideoPreviewFailed(false);
-      setCurrentVideoUrl(null);
-      setVideoUploadStatus("idle");
+      video.removeAttribute("src");
+      video.load();
+    };
+
+    video.onloadedmetadata = () => {
+      if (video.duration > 30) {
+        setError("Video ist zu lang (max. 30 Sekunden).");
+        URL.revokeObjectURL(previewUrl);
+        cleanup();
+        e.target.value = "";
+        return;
+      }
+      accept();
+      try {
+        video.currentTime = Math.min(0.1, video.duration / 2);
+      } catch {
+        setVideoPreviewFailed(true);
+        cleanup();
+      }
+    };
+    video.onseeked = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = video.videoWidth || 320;
+        canvas.height = video.videoHeight || 240;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) throw new Error("no ctx");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            setBgVideoThumbnail((prev) => {
+              if (prev) URL.revokeObjectURL(prev);
+              return URL.createObjectURL(blob);
+            });
+          } else {
+            setVideoPreviewFailed(true);
+          }
+          cleanup();
+        }, "image/jpeg", 0.7);
+      } catch {
+        setVideoPreviewFailed(true);
+        cleanup();
+      }
+    };
+    video.onerror = () => {
+      accept();
+      setVideoPreviewFailed(true);
+      cleanup();
     };
     video.src = checkUrl;
   };
@@ -508,11 +549,20 @@ export default function SongForm() {
               <input ref={videoInputRef} type="file" accept="video/*" onChange={handleVideoChange} className="hidden" />
               {bgVideoFile ? (
                 <div className="relative inline-block">
-                  <div className="h-20 w-28 rounded-xl border border-[#d97706]/30 bg-amber-50 flex flex-col items-center justify-center gap-1">
-                    <Video className="h-6 w-6 text-[#d97706]" />
-                    <span className="text-[10px] text-[#d97706] font-medium truncate max-w-[100px]">{bgVideoFile.name}</span>
-                  </div>
-                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); setCurrentVideoUrl(null); setVideoUploadStatus("idle"); setVideoPreviewFailed(false); }}
+                  {bgVideoThumbnail ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={bgVideoThumbnail}
+                      alt="Video-Vorschau"
+                      className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30"
+                    />
+                  ) : (
+                    <div className="h-20 w-28 rounded-xl border border-[#d97706]/30 bg-amber-50 flex flex-col items-center justify-center gap-1">
+                      <Video className="h-6 w-6 text-[#d97706]" />
+                      <span className="text-[10px] text-[#d97706] font-medium truncate max-w-[100px]">{bgVideoFile.name}</span>
+                    </div>
+                  )}
+                  <button type="button" onClick={() => { setBgVideoFile(null); setBgVideoPreview(null); setBgVideoThumbnail((prev) => { if (prev) URL.revokeObjectURL(prev); return null; }); setCurrentVideoUrl(null); setVideoUploadStatus("idle"); setVideoPreviewFailed(false); }}
                     className="absolute -top-2 -right-2 bg-white rounded-full p-0.5 shadow border border-gray-200 text-gray-500 hover:text-red-500">
                     <X className="h-3.5 w-3.5" />
                   </button>
