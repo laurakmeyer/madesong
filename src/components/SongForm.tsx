@@ -519,8 +519,7 @@ export default function SongForm() {
                       className="h-20 w-28 rounded-xl object-cover border border-[#d97706]/30"
                       muted
                       playsInline
-                      autoPlay
-                      loop
+                      preload="metadata"
                       onError={() => setVideoPreviewFailed(true)}
                     />
                   )}
