@@ -4,7 +4,12 @@ import Stripe from "stripe";
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    console.error("STRIPE_SECRET_KEY is not set");
+    return NextResponse.json({ error: "Stripe ist nicht konfiguriert (Env-Var fehlt)" }, { status: 500 });
+  }
+  const stripe = new Stripe(secretKey);
   const { tier, shareSlug, recipientName } = await req.json();
 
   const isSongVideo = tier === "song_video";
