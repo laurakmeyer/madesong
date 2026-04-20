@@ -1,6 +1,7 @@
 import SongForm from "@/components/SongForm";
 import HeroCarousel from "@/components/HeroCarousel";
 import DragTicker from "@/components/DragTicker";
+import Header from "@/components/Header";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -30,18 +31,7 @@ export default function Home() {
   return (
     <main className="bg-white text-[#1c1917]">
 
-      {/* Header — hell, wie Hims */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 bg-white/90 backdrop-blur-md border-b border-black/6">
-        <span className="text-2xl font-bold tracking-tight text-[#18120e]">MadeSong</span>
-        <nav className="hidden md:flex items-center gap-8 text-sm text-[#78716c]">
-          <a href="#so-funktionierts" className="hover:text-[#18120e] transition-colors">So funktioniert&apos;s</a>
-          <a href="#preise" className="hover:text-[#18120e] transition-colors">Preise</a>
-          <a href="#faq" className="hover:text-[#18120e] transition-colors">FAQ</a>
-        </nav>
-        <a href="#erstellen" className="text-sm font-semibold bg-[#d97706] text-white px-5 py-2.5 rounded-full hover:bg-[#b45309] transition-colors">
-          Song erstellen →
-        </a>
-      </header>
+      <Header />
 
       {/* Hero — Foto rechts von ganz oben */}
       <section className="pt-24 pb-16 px-6 md:px-12 overflow-hidden">
