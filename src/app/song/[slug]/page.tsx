@@ -1,8 +1,43 @@
+import type { Metadata } from "next";
 import { supabaseAdmin } from "@/lib/supabase";
 import { notFound } from "next/navigation";
 import { Music } from "lucide-react";
 import SongPlayer from "@/components/SongPlayer";
 import SongActions from "@/components/SongActions";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const { data: song } = await supabaseAdmin
+    .from("songs")
+    .select("recipient_name, occasion, mood, photo_url")
+    .eq("share_slug", slug)
+    .single();
+
+  if (!song) {
+    return { title: "Song nicht gefunden — MadeSong" };
+  }
+
+  const title = `Ein Song für ${song.recipient_name} 🎵`;
+  const occasionPart = song.occasion && song.occasion !== "Einfach so" ? song.occasion : null;
+  const description = [occasionPart, song.mood].filter(Boolean).join(" · ") || "Ein persönlicher Song von MadeSong";
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      images: song.photo_url ? [{ url: song.photo_url }] : undefined,
+    },
+    twitter: {
+      card: song.photo_url ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: song.photo_url ? [song.photo_url] : undefined,
+    },
+  };
+}
 
 export default async function SongPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
