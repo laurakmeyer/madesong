@@ -43,6 +43,8 @@ export default function SongForm() {
   const [paid, setPaid] = useState(false);
   const [paidTier, setPaidTier] = useState<"song" | "song_video">("song");
   const [checkingPayment, setCheckingPayment] = useState(false);
+  const [credits, setCredits] = useState(0);
+  const [usingCredit, setUsingCredit] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
@@ -62,6 +64,38 @@ export default function SongForm() {
   });
 
   const isChild = form.age !== "" && parseInt(form.age) <= 12;
+
+  // Check credits on mount
+  useEffect(() => {
+    fetch("/api/check-credits")
+      .then((r) => r.json())
+      .then((data) => { if (data.credits > 0) setCredits(data.credits); })
+      .catch(() => {});
+  }, []);
+
+  const handleUseCredit = async (tier: "song" | "song_video") => {
+    if (!shareSlug) return;
+    setUsingCredit(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/use-credit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareSlug, tier }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setPaid(true);
+        setPaidTier(data.tier);
+        setCredits((c) => c - 1);
+      } else {
+        setError(data.error || "Credit konnte nicht eingelöst werden.");
+      }
+    } catch {
+      setError("Verbindung fehlgeschlagen.");
+    }
+    setUsingCredit(false);
+  };
 
   const compressImage = (file: File): Promise<File> =>
     new Promise((resolve) => {
@@ -831,23 +865,41 @@ export default function SongForm() {
         {/* Payment Wall — außerhalb der Card, damit overflow-hidden nicht greift */}
         {!paid && shareSlug && selectedSongIndex !== null && (
           <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border border-[#d97706]/20 space-y-3">
-            <p className="text-sm font-semibold text-[#18120e]">🎁 Song gefällt dir? Jetzt freischalten:</p>
-            <div className="grid grid-cols-2 gap-3">
-              <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song")}
-                className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all cursor-pointer disabled:opacity-50">
-                <span className="text-lg font-black text-[#18120e]">{checkoutLoading ? "..." : "€3,99"}</span>
-                <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
-              </button>
-              <div className="relative">
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">Empfohlen</span>
-                <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song_video")}
-                  className="w-full flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all cursor-pointer disabled:opacity-50">
-                  <span className="text-lg font-black text-white">{checkoutLoading ? "..." : "€4,99"}</span>
-                  <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
+            {credits > 0 ? (
+              <>
+                <p className="text-sm font-semibold text-[#18120e]">Du hast noch {credits} {credits === 1 ? "Credit" : "Credits"} — Song jetzt freischalten:</p>
+                <button
+                  type="button"
+                  disabled={usingCredit}
+                  onClick={() => handleUseCredit("song_video")}
+                  className="w-full flex items-center justify-center gap-2 bg-[#d97706] text-white font-semibold py-4 rounded-xl hover:bg-[#b45309] transition-colors disabled:opacity-50"
+                >
+                  {usingCredit ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                  {usingCredit ? "Wird freigeschaltet..." : "Credit einlösen — Song + Video freischalten"}
                 </button>
-              </div>
-            </div>
-            <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
+                <p className="text-[10px] text-[#a8a29e] text-center">Noch {credits - 1} {credits - 1 === 1 ? "Credit" : "Credits"} übrig nach Einlösung</p>
+              </>
+            ) : (
+              <>
+                <p className="text-sm font-semibold text-[#18120e]">Song gefällt dir? Jetzt freischalten:</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song")}
+                    className="flex flex-col items-center gap-1 bg-white border border-[#d97706]/30 rounded-xl p-4 hover:border-[#d97706] hover:shadow-md transition-all cursor-pointer disabled:opacity-50">
+                    <span className="text-lg font-black text-[#18120e]">{checkoutLoading ? "..." : "€3,99"}</span>
+                    <span className="text-xs text-[#78716c] text-center">Song · MP3 · Teilen-Link</span>
+                  </button>
+                  <div className="relative">
+                    <span className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10">Empfohlen</span>
+                    <button type="button" disabled={checkoutLoading} onClick={() => handleCheckout("song_video")}
+                      className="w-full flex flex-col items-center gap-1 bg-[#d97706] rounded-xl p-4 hover:bg-[#b45309] transition-all cursor-pointer disabled:opacity-50">
+                      <span className="text-lg font-black text-white">{checkoutLoading ? "..." : "€4,99"}</span>
+                      <span className="text-xs text-white/80 text-center">Song + Story-Video</span>
+                    </button>
+                  </div>
+                </div>
+                <p className="text-[10px] text-[#a8a29e] text-center">Kreditkarte · PayPal · Apple Pay · Einmalig · Sicher</p>
+              </>
+            )}
           </div>
         )}
         </>

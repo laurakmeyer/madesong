@@ -2,6 +2,7 @@ import SongForm from "@/components/SongForm";
 import HeroCarousel from "@/components/HeroCarousel";
 import DragTicker from "@/components/DragTicker";
 import Header from "@/components/Header";
+import PricingButton from "@/components/PricingButton";
 import { Suspense } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -293,11 +294,11 @@ export default function Home() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
-              { name: "Song", price: "€3,99", sub: "einmalig", desc: "1 Song", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link"], highlight: false, note: "" },
-              { name: "Song + Video", price: "€4,99", sub: "einmalig · nur €1 mehr", desc: "1 Song + Story-Video", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link", "Story-Video als MP4 (9:16)", "Direkt auf Instagram & WhatsApp"], highlight: true, note: "★ Empfohlen" },
-              { name: "Paket", price: "€19,99", sub: "einmalig · spart €5", desc: "5× Song oder Song + Video", features: ["5 personalisierte Songs", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Ideal für Familien & Kreative" },
-              { name: "Flat", price: "€34,99", sub: "pro Monat", desc: "bis zu 20 Songs oder Song + Video", features: ["20 Songs/Monat", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Für Familien & Vielschenker" },
-            ].map(({ name, price, sub, desc, features, highlight, note }) => (
+              { name: "Song", price: "€3,99", sub: "einmalig", desc: "1 Song", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link"], highlight: false, note: "", tier: "song" as const },
+              { name: "Song + Video", price: "€4,99", sub: "einmalig · nur €1 mehr", desc: "1 Song + Story-Video", features: ["1 personalisierter Song", "Text + echter Gesang", "MP3-Download", "Dauerhafter Teilen-Link", "Story-Video als MP4 (9:16)", "Direkt auf Instagram & WhatsApp"], highlight: true, note: "★ Empfohlen", tier: "song_video" as const },
+              { name: "Paket", price: "€19,99", sub: "einmalig · spart €5", desc: "5× Song oder Song + Video", features: ["5 personalisierte Songs", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Ideal für Familien & Kreative", tier: "paket" as const },
+              { name: "Flat", price: "€34,99", sub: "pro Monat", desc: "bis zu 20 Songs oder Song + Video", features: ["20 Songs/Monat", "Text + echter Gesang", "MP3-Download", "Teilen-Link", "Foto als Hintergrund", "Story-Video als MP4"], highlight: false, note: "Für Familien & Vielschenker", tier: "flat" as const },
+            ].map(({ name, price, sub, desc, features, highlight, note, tier }) => (
               <div key={name} className={`rounded-3xl p-8 border flex flex-col ${highlight ? "bg-[#d97706] border-[#d97706]" : "bg-white/70 border-black/8"}`}>
                 {note && <span className={`text-xs font-semibold tracking-widest uppercase mb-3 ${highlight ? "text-amber-200" : "text-[#78716c]"}`}>{note}</span>}
                 <h3 className={`text-xl font-bold ${highlight ? "text-white" : "text-[#18120e]"}`}>{name}</h3>
@@ -312,9 +313,9 @@ export default function Home() {
                     </li>
                   ))}
                 </ul>
-                <a href="#erstellen" className={`mt-8 text-center text-sm font-bold py-3.5 rounded-full transition-all hover:scale-105 ${highlight ? "bg-white text-[#d97706] hover:bg-zinc-100" : "bg-[#d97706] text-white hover:bg-[#b45309]"}`}>
+                <PricingButton tier={tier} className={`mt-8 text-center text-sm font-bold py-3.5 rounded-full transition-all hover:scale-105 w-full ${highlight ? "bg-white text-[#d97706] hover:bg-zinc-100" : "bg-[#d97706] text-white hover:bg-[#b45309]"}`}>
                   Jetzt starten
-                </a>
+                </PricingButton>
               </div>
             ))}
           </div>
