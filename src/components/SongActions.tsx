@@ -27,6 +27,14 @@ export default function SongActions({ mp3Url, recipientName, shareSlug, paidTier
     };
   }, []);
 
+  // Auto-generate video if paid for song_video but no video yet
+  useEffect(() => {
+    if (paidTier === "song_video" && !initialVideoUrl && !videoLoading && !videoUrl) {
+      generateVideo();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(shareUrl);
     setCopied(true);
