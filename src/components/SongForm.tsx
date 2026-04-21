@@ -46,6 +46,8 @@ export default function SongForm() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
+  const photoUploadPromiseRef = useRef<Promise<string | null> | null>(null);
+  const videoUploadPromiseRef = useRef<Promise<string | null> | null>(null);
 
   const initialOccasion = searchParams.get("anlass") ?? "Geburtstag";
   const [form, setForm] = useState({
@@ -349,7 +351,30 @@ export default function SongForm() {
     setSelectedSongIndex(index);
     setSelectingSound(true);
     const song = songs[index];
-    if (!song) return;
+    if (!song) { setSelectingSound(false); return; }
+
+    // Auf laufende Uploads warten, damit photo_url / bg_video_url nicht null landen
+    const [photoUrl, bgVideoUrl] = await Promise.all([
+      currentPhotoUrl
+        ? Promise.resolve(currentPhotoUrl)
+        : photoUploadPromiseRef.current ?? Promise.resolve(null),
+      currentVideoUrl
+        ? Promise.resolve(currentVideoUrl)
+        : videoUploadPromiseRef.current ?? Promise.resolve(null),
+    ]);
+
+    if (photoFile && !photoUrl) {
+      setError("Foto-Upload ist fehlgeschlagen. Bitte das Foto erneut auswählen oder ohne Foto fortfahren.");
+      setSelectingSound(false);
+      setSelectedSongIndex(null);
+      return;
+    }
+    if (bgVideoFile && !bgVideoUrl) {
+      setError("Video-Upload ist fehlgeschlagen. Bitte das Video erneut auswählen oder ohne Video fortfahren.");
+      setSelectingSound(false);
+      setSelectedSongIndex(null);
+      return;
+    }
 
     const saveRes = await fetch("/api/save-song", {
       method: "POST",
@@ -362,8 +387,8 @@ export default function SongForm() {
         occasion: form.occasion,
         language: form.language,
         mood: form.mood,
-        photoUrl: currentPhotoUrl || null,
-        bgVideoUrl: currentVideoUrl || null,
+        photoUrl: photoUrl || null,
+        bgVideoUrl: bgVideoUrl || null,
       }),
     });
     const saveData = await saveRes.json().catch(() => ({}));
@@ -395,14 +420,27 @@ export default function SongForm() {
 
       // 2. Foto + Video im Hintergrund hochladen (parallel zum Audio)
       if (photoFile && !currentPhotoUrl) {
-        fetch("/api/upload-photo", { method: "POST", body: (() => { const fd = new FormData(); fd.append("file", photoFile); return fd; })() })
-          .then(r => r.ok ? r.json() : null)
-          .then(d => { if (d?.url) setCurrentPhotoUrl(d.url); })
-          .catch(() => {});
+        photoUploadPromiseRef.current = (async () => {
+          try {
+            const fd = new FormData();
+            fd.append("file", photoFile);
+            const r = await fetch("/api/upload-photo", { method: "POST", body: fd });
+            if (!r.ok) { console.error("Photo upload HTTP", r.status); return null; }
+            const d = await r.json();
+            if (d?.url) {
+              setCurrentPhotoUrl(d.url);
+              return d.url as string;
+            }
+            return null;
+          } catch (e) {
+            console.error("Photo upload error:", e);
+            return null;
+          }
+        })();
       }
       if (bgVideoFile && !currentVideoUrl) {
         setVideoUploadStatus("uploading");
-        (async () => {
+        videoUploadPromiseRef.current = (async () => {
           try {
             const res = await fetch("/api/upload-video", {
               method: "POST",
@@ -410,7 +448,7 @@ export default function SongForm() {
               body: JSON.stringify({ fileName: bgVideoFile.name, contentType: bgVideoFile.type }),
             });
             const { token, path, publicUrl } = await res.json();
-            if (!token || !path) { console.error("No upload token received"); setVideoUploadStatus("error"); return; }
+            if (!token || !path) { console.error("No upload token received"); setVideoUploadStatus("error"); return null; }
 
             const { error: uploadError } = await supabase.storage
               .from("songs")
@@ -420,13 +458,15 @@ export default function SongForm() {
             if (uploadError) {
               console.error("Video upload failed:", uploadError.message);
               setVideoUploadStatus("error");
-            } else {
-              setCurrentVideoUrl(publicUrl);
-              setVideoUploadStatus("done");
+              return null;
             }
+            setCurrentVideoUrl(publicUrl);
+            setVideoUploadStatus("done");
+            return publicUrl as string;
           } catch (e) {
             console.error("Video upload error:", e);
             setVideoUploadStatus("error");
+            return null;
           }
         })();
       }
