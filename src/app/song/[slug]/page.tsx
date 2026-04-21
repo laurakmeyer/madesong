@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Music } from "lucide-react";
 import SongPlayer from "@/components/SongPlayer";
 import SongActions from "@/components/SongActions";
+import ClaimSongBanner from "@/components/ClaimSongBanner";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -111,6 +112,11 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
             paidTier={song.paid_tier}
             videoUrl={song.video_url || null}
           />
+        )}
+
+        {/* Song speichern Banner */}
+        {song.paid_tier && (
+          <ClaimSongBanner shareSlug={song.share_slug} hasUserId={!!song.user_id} />
         )}
 
         {/* Lyrics */}
