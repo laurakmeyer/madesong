@@ -230,7 +230,7 @@ export default function Home() {
               Erstellt in 2 Minuten.<br />Viral in Sekunden.
             </h2>
             <p className="text-[#78716c] leading-relaxed">
-              MadeSong generiert automatisch ein 60-Sekunden Story-Video — mit deinem Foto als Hintergrund, scrollenden Lyrics und deiner Musik. Fertig zum Posten auf Instagram oder WhatsApp Status.
+              MadeSong generiert automatisch ein Story-Video in voller Songlänge — mit deinem Foto als Hintergrund, scrollenden Lyrics und deiner Musik. Fertig zum Posten auf Instagram oder WhatsApp Status.
             </p>
             <ul className="space-y-2 text-sm text-[#78716c]">
               <li className="flex gap-3"><span className="text-[#d97706] font-bold">✓</span>9:16 Format — perfekt für Stories</li>
@@ -242,43 +242,19 @@ export default function Home() {
               Song + Video erstellen →
             </a>
           </div>
-          {/* Phone mockup placeholder */}
+          {/* Phone mockup — echtes Story-Video */}
           <div className="flex justify-center">
             <div className="relative w-64 h-[520px] bg-[#18120e] rounded-[40px] shadow-2xl border-4 border-[#2d2520] overflow-hidden">
-              {/* Status bar */}
-              <div className="flex justify-between px-6 pt-3 pb-1 text-white/50 text-xs">
-                <span>9:41</span><span>●●●</span>
-              </div>
-              {/* Instagram Story mockup */}
-              <div className="relative h-full bg-gradient-to-b from-[#3a2c18] to-[#1e180e] flex flex-col items-center justify-between pb-12 pt-4">
-                <div className="w-full px-4">
-                  <div className="h-1 bg-white/30 rounded-full mb-3">
-                    <div className="h-full w-1/3 bg-white rounded-full" />
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded-full bg-[#d97706] flex items-center justify-center text-xs font-bold text-white">M</div>
-                    <span className="text-white text-xs font-semibold">MadeSong</span>
-                  </div>
-                </div>
-                <div className="text-center px-4 space-y-2">
-                  <div className="text-4xl">🎵</div>
-                  <p className="text-white font-bold text-lg font-display">Emma</p>
-                  <p className="text-white/60 text-xs">Geburtstag</p>
-                  <div className="space-y-1 mt-3">
-                    {["Happy Birthday Emma,", "dein Lachen macht uns froh,", "du bist so wunderbar..."].map((line, i) => (
-                      <p key={i} className="text-white/80 text-xs">{line}</p>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-2">
-                  <div className="flex items-end gap-0.5 h-6">
-                    {[3,5,8,5,3,6,4,7,5,3].map((h, i) => (
-                      <div key={i} className="wave-bar w-1 rounded-full bg-white/60" style={{ height: `${h * 3}px`, animationDelay: `${i * 0.1}s` }} />
-                    ))}
-                  </div>
-                  <p className="text-white/40 text-[10px]">madesong.com</p>
-                </div>
-              </div>
+              <video
+                src="https://skcpslacqppmnqxqnifj.supabase.co/storage/v1/object/public/songs/videos/a9qh19V2wN.mp4"
+                poster="https://skcpslacqppmnqxqnifj.supabase.co/storage/v1/object/public/song-images/GCpz1Lj2nGhaJOpOpyzwW.png"
+                autoPlay
+                loop
+                muted
+                playsInline
+                preload="metadata"
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
         </div>
