@@ -47,13 +47,20 @@ export async function GET(req: NextRequest) {
         .limit(1);
 
       if (!existing || existing.length === 0) {
-        await supabaseAdmin.from("user_packages").insert({
+        const { error: insertErr } = await supabaseAdmin.from("user_packages").insert({
           user_id: userId,
           type: "paket",
           credits_total: 5,
           credits_used: 0,
           active: true,
         });
+        if (insertErr) {
+          console.error("verify-payment: paket insert failed", { sessionId, userId, error: insertErr });
+          return NextResponse.json(
+            { paid: false, fulfillmentError: true, sessionId, message: "Zahlung empfangen, Credits konnten aber nicht aktiviert werden. Bitte Support kontaktieren." },
+            { status: 500 }
+          );
+        }
       }
 
       return NextResponse.json({ paid: true, tier: "paket", redirect: "/dashboard" });
@@ -73,7 +80,7 @@ export async function GET(req: NextRequest) {
         .limit(1);
 
       if (!existing || existing.length === 0) {
-        await supabaseAdmin.from("user_packages").insert({
+        const { error: insertErr } = await supabaseAdmin.from("user_packages").insert({
           user_id: userId,
           type: "flat",
           credits_total: 20,
@@ -82,6 +89,13 @@ export async function GET(req: NextRequest) {
           stripe_subscription_id: subscriptionId,
           current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
         });
+        if (insertErr) {
+          console.error("verify-payment: flat insert failed", { sessionId, userId, subscriptionId, error: insertErr });
+          return NextResponse.json(
+            { paid: false, fulfillmentError: true, sessionId, message: "Zahlung empfangen, Abo konnte aber nicht aktiviert werden. Bitte Support kontaktieren." },
+            { status: 500 }
+          );
+        }
       }
 
       return NextResponse.json({ paid: true, tier: "flat", redirect: "/dashboard" });
@@ -89,14 +103,22 @@ export async function GET(req: NextRequest) {
 
     // Single song payment
     if (paid && shareSlug) {
-      await supabaseAdmin
+      const { error: updateErr } = await supabaseAdmin
         .from("songs")
         .update({ paid_tier: tier })
         .eq("share_slug", shareSlug);
+      if (updateErr) {
+        console.error("verify-payment: song update failed", { sessionId, shareSlug, error: updateErr });
+        return NextResponse.json(
+          { paid: false, fulfillmentError: true, sessionId, message: "Zahlung empfangen, Song konnte aber nicht freigeschaltet werden. Bitte Support kontaktieren." },
+          { status: 500 }
+        );
+      }
     }
 
     return NextResponse.json({ paid, tier, shareSlug });
-  } catch {
+  } catch (err) {
+    console.error("verify-payment: unexpected error", err);
     return NextResponse.json({ paid: false });
   }
 }

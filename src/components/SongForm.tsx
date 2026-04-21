@@ -313,6 +313,9 @@ export default function SongForm() {
           window.location.href = `/song/${slug}`;
           return;
         }
+        if (data.fulfillmentError) {
+          setError(`${data.message || "Zahlung empfangen, Freischaltung fehlgeschlagen."} Referenz: ${data.sessionId || sessionId}`);
+        }
         setCheckingPayment(false);
       })
       .catch(() => setCheckingPayment(false));

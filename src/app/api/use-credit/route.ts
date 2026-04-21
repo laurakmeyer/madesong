@@ -86,8 +86,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Keine Credits verfügbar." }, { status: 403 });
   }
 
-  // Mark song as paid
-  const paidTier = tier === "song_video" ? "song_video" : "song_video"; // Paket/Flat users always get video
+  // Paket/Flat users always receive the full song + video tier regardless of the
+  // `tier` value the client sent, since a credit covers both variants.
+  void tier;
+  const paidTier = "song_video";
   await supabaseAdmin
     .from("songs")
     .update({ paid_tier: paidTier, user_id: userId })
