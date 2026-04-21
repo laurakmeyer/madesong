@@ -85,9 +85,9 @@ export default function SongForm() {
       });
       const data = await res.json();
       if (data.success) {
-        setPaid(true);
-        setPaidTier(data.tier);
-        setCredits((c) => c - 1);
+        // Redirect to song page (same as after Stripe payment)
+        window.location.href = `/song/${shareSlug}`;
+        return;
       } else {
         setError(data.error || "Credit konnte nicht eingelöst werden.");
       }
