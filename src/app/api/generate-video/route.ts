@@ -19,6 +19,7 @@ const STRIP_PAD = 24;
 const BASELINE_OFFSET = 24;
 const MAX_LINE_CHARS = 36;
 const FALLBACK_DURATION = 180;
+const INTRO_DELAY_SECONDS = 5;
 
 function escapeXml(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&apos;");
@@ -162,7 +163,7 @@ function buildScrollYExpr(
   const yStart = targetScreenY - firstBaseline;
   const distance = (lineCount - 1) * LINE_HEIGHT;
   const speed = distance / duration;
-  return `${(yStart * scale).toFixed(2)}-t*${(speed * scale).toFixed(4)}`;
+  return `${(yStart * scale).toFixed(2)}-max(0\\,t-${INTRO_DELAY_SECONDS})*${(speed * scale).toFixed(4)}`;
 }
 
 export async function POST(req: NextRequest) {
