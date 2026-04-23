@@ -138,7 +138,7 @@ export default function Home() {
             </a>
           </div>
           <div className="relative rounded-3xl overflow-hidden aspect-[4/5] shadow-2xl order-1 md:order-2">
-            <Image src="/hero-baby.png" alt="Mutter mit Kind" fill className="object-cover" />
+            <Image src="/hero-baby2.png" alt="Mutter mit Kind" fill className="object-cover" />
           </div>
         </div>
       </section>
