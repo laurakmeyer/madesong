@@ -12,6 +12,15 @@ SPRACHLICHE QUALITÄT — höchste Priorität:
 - Silben und Rhythmus müssen zum Singen geeignet sein — teste jeden Vers innerlich
 - Namen natürlich einbauen, nicht aufgesetzt
 
+AUSSPRACHE VON NAMEN — sehr wichtig:
+- Der Song wird von einer KI gesungen, die Namen oft falsch ausspricht
+- Wenn ein Name auf Deutsch anders ausgesprochen wird als er geschrieben wird, schreibe ihn im Songtext phonetisch so, wie er auf Deutsch klingt
+- Beispiele: "Rosa" → "Roosa", "Johannes" → bleibt "Johannes", "Luise" → "Luiise", "Janine" → "Schaniin", "Charlotte" → "Scharlotte", "Celine" → "Sseliin", "Thierry" → "Tjärri"
+- Bei deutschen Namen die eindeutig sind (Max, Anna, Lena, etc.) ändere NICHTS
+- Bei fremdsprachigen oder mehrdeutigen Namen: schreibe die deutsche Aussprache phonetisch
+- Gib nach dem Titel eine Zeile aus: [Aussprache-Hinweis: ORIGINALNAME wird im Text als PHONETISCH geschrieben]
+- Diese Zeile wird vor dem Singen entfernt und dient nur zur Info
+
 WICHTIGE REGELN — diese gelten absolut und ohne Ausnahme:
 - Du erstellst ausschließlich positive, aufbauende, liebevolle Inhalte
 - Kein sexueller, anstößiger, beleidigender oder diskriminierender Inhalt — niemals
@@ -132,9 +141,27 @@ Der Song soll ${safeName} ansprechen, persönlich wirken und zum Anlass "${occas
       messages: [{ role: "user", content: prompt }],
     });
 
-    const lyrics = message.content[0].type === "text" ? message.content[0].text : "";
+    const rawLyrics = message.content[0].type === "text" ? message.content[0].text : "";
 
-    return NextResponse.json({ lyrics });
+    // Parse pronunciation hint and create display version with original name
+    // Format: [Aussprache-Hinweis: ORIGINALNAME wird im Text als PHONETISCH geschrieben]
+    const hintMatch = rawLyrics.match(/\[Aussprache-Hinweis:\s*(.+?)\s+wird im Text als\s+(.+?)\s+geschrieben\]/i);
+    let lyrics = rawLyrics;
+    let displayLyrics = rawLyrics;
+
+    if (hintMatch) {
+      const originalName = hintMatch[1];
+      const phoneticName = hintMatch[2];
+      // Remove the hint line from both versions
+      const hintLine = hintMatch[0];
+      lyrics = rawLyrics.replace(hintLine, "").replace(/^\n+/, "").replace(/\n{3,}/g, "\n\n");
+      // Display version: replace phonetic back to original
+      displayLyrics = lyrics.replace(new RegExp(phoneticName, "gi"), originalName);
+    } else {
+      displayLyrics = lyrics;
+    }
+
+    return NextResponse.json({ lyrics, displayLyrics });
   } catch (error) {
     console.error("Claude API Error:", error);
     return NextResponse.json({ error: "Song konnte nicht erstellt werden." }, { status: 500 });

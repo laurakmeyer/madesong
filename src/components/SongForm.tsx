@@ -21,6 +21,7 @@ export default function SongForm() {
   const [loading, setLoading] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
+  const [murekaLyrics, setMurekaLyrics] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -212,7 +213,8 @@ export default function SongForm() {
       });
       const data = await res.json();
       if (data.lyrics) {
-        setLyrics(data.lyrics);
+        setLyrics(data.displayLyrics || data.lyrics);
+        setMurekaLyrics(data.lyrics);
         setRefineInput("");
         setSongs([]);
         setShareSlug(null);
@@ -437,6 +439,7 @@ export default function SongForm() {
     e.preventDefault();
     setLoading(true);
     setLyrics(null);
+    setMurekaLyrics(null);
     setSongs([]);
     setError(null);
     setPlayingIndex(null);
@@ -452,7 +455,8 @@ export default function SongForm() {
       });
       const lyricsData = await lyricsRes.json();
       if (lyricsData.error) throw new Error(lyricsData.error);
-      setLyrics(lyricsData.lyrics);
+      setLyrics(lyricsData.displayLyrics || lyricsData.lyrics);
+      setMurekaLyrics(lyricsData.lyrics);
       setLoading(false);
 
       // 2. Foto + Video im Hintergrund hochladen (parallel zum Audio)
@@ -514,7 +518,7 @@ export default function SongForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          lyrics: lyricsData.lyrics,
+          lyrics: lyricsData.lyrics, // phonetic version for Mureka
           mood: form.mood,
           age: form.age,
           occasion: form.occasion,
@@ -814,6 +818,11 @@ export default function SongForm() {
                 )}
 
                 <p className="text-sm font-medium text-gray-700">🎵 {songs.length} Version{songs.length > 1 ? "en" : ""} für dich:</p>
+                {editingLyrics && (
+                  <p className="text-xs text-[#d97706] bg-amber-50 border border-[#d97706]/20 rounded-lg px-3 py-2">
+                    Lyrics werden gerade bearbeitet — bitte oben auf „Fertig“ klicken, damit der Song mit dem neuen Text neu erstellt wird.
+                  </p>
+                )}
                 {songs.map((song, i) => (
                   <div key={i} className={`flex items-center justify-between p-4 rounded-xl border transition-all ${playingIndex === i ? "bg-[#fef3c7] border-[#d97706]/40" : "bg-white/4 border-white/8"}`}>
                     <div className="flex items-center gap-3">
@@ -851,8 +860,9 @@ export default function SongForm() {
                           <span className="text-xs text-[#d97706] font-semibold">✓ Ausgewählt</span>
                         )
                       ) : (
-                        <button type="button" onClick={() => selectSong(i)} disabled={selectingSong}
-                          className="text-xs font-semibold text-white bg-[#d97706] hover:bg-[#b45309] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50">
+                        <button type="button" onClick={() => selectSong(i)} disabled={selectingSong || editingLyrics}
+                          title={editingLyrics ? "Erst Lyrics-Bearbeitung mit 'Fertig' abschließen" : undefined}
+                          className="text-xs font-semibold text-white bg-[#d97706] hover:bg-[#b45309] px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
                           Diesen Song wählen
                         </button>
                       )}
