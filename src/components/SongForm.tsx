@@ -268,7 +268,7 @@ export default function SongForm() {
     }
   };
 
-  // Audio abspielen / pausieren (30-Sek-Preview wenn nicht bezahlt)
+  // Audio abspielen / pausieren (45-Sek-Preview wenn nicht bezahlt)
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentUrlRef = useRef<string | null>(null);
   const togglePlay = (index: number, mp3_url: string) => {
@@ -286,7 +286,7 @@ export default function SongForm() {
       audioRef.current.play();
       audioRef.current.onended = () => setPlayingIndex(null);
       if (!paid) {
-        const remaining = Math.max(0, 30 - audioRef.current.currentTime) * 1000;
+        const remaining = Math.max(0, 45 - audioRef.current.currentTime) * 1000;
         previewTimerRef.current = setTimeout(() => {
           audioRef.current?.pause();
           setPlayingIndex(null);
@@ -725,7 +725,7 @@ export default function SongForm() {
             </Button>
 
             <p className="text-center text-xs text-gray-400">
-              Erste 30 Sekunden kostenlos hören — keine Kreditkarte
+              Erste 45 Sekunden kostenlos hören — keine Kreditkarte
             </p>
           </form>
         </CardContent>
@@ -832,7 +832,7 @@ export default function SongForm() {
                       </button>
                       <span className="text-sm font-medium text-[#78716c]">
                         Version {i + 1}
-                        {!paid && <span className="ml-1 text-[10px] text-[#a8a29e]">(30 Sek. Vorschau)</span>}
+                        {!paid && <span className="ml-1 text-[10px] text-[#a8a29e]">(45 Sek. Vorschau)</span>}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">
