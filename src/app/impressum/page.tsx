@@ -16,7 +16,7 @@ export default function Impressum() {
 
           <div className="space-y-4 text-[#44403c] leading-relaxed">
             <div>
-              <h2 className="font-bold text-[#18120e]">Angaben gemäß § 5 TMG</h2>
+              <h2 className="font-bold text-[#18120e]">Angaben gemäß § 5 DDG</h2>
               <p>Laura Meyer</p>
               <p>Mauerkircherstraße 191</p>
               <p>81925 München</p>
