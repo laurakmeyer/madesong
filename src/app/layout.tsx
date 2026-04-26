@@ -3,6 +3,7 @@ import { Inter, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import AuthProvider from "@/components/AuthProvider";
+import Clarity from "@/components/Clarity";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,7 +31,7 @@ export default function RootLayout({
       lang="de"
       className={`${inter.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col"><AuthProvider>{children}</AuthProvider><Analytics /></body>
+      <body className="min-h-full flex flex-col"><AuthProvider>{children}</AuthProvider><Analytics /><Clarity /></body>
     </html>
   );
 }
