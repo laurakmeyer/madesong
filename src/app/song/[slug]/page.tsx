@@ -111,6 +111,7 @@ export default async function SongPage({ params }: { params: Promise<{ slug: str
             shareSlug={song.share_slug}
             paidTier={song.paid_tier}
             videoUrl={song.video_url || null}
+            hasBgVideo={!!song.bg_video_url}
           />
         )}
 
