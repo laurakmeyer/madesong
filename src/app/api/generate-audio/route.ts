@@ -24,7 +24,7 @@ function buildMurekaPrompt(mood: string, age: string, occasion: string, language
 
   const languageHint = language === "English"
     ? "sung in English"
-    : "sung in German, native German pronunciation";
+    : "sung entirely in German language, authentic native German pronunciation, German vowels and consonants, pronounce all words as a native German speaker would";
 
   const parts = [
     languageHint,
