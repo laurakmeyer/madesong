@@ -21,7 +21,6 @@ export default function SongForm() {
   const [loading, setLoading] = useState(false);
   const [audioLoading, setAudioLoading] = useState(false);
   const [lyrics, setLyrics] = useState<string | null>(null);
-  const [murekaLyrics, setMurekaLyrics] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [playingIndex, setPlayingIndex] = useState<number | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -213,8 +212,8 @@ export default function SongForm() {
       });
       const data = await res.json();
       if (data.lyrics) {
-        setLyrics(data.displayLyrics || data.lyrics);
-        setMurekaLyrics(data.lyrics);
+        setLyrics(data.lyrics);
+
         setRefineInput("");
         setSongs([]);
         setShareSlug(null);
@@ -439,7 +438,7 @@ export default function SongForm() {
     e.preventDefault();
     setLoading(true);
     setLyrics(null);
-    setMurekaLyrics(null);
+
     setSongs([]);
     setError(null);
     setPlayingIndex(null);
@@ -455,8 +454,7 @@ export default function SongForm() {
       });
       const lyricsData = await lyricsRes.json();
       if (lyricsData.error) throw new Error(lyricsData.error);
-      setLyrics(lyricsData.displayLyrics || lyricsData.lyrics);
-      setMurekaLyrics(lyricsData.lyrics);
+      setLyrics(lyricsData.lyrics);
       setLoading(false);
 
       // 2. Foto + Video im Hintergrund hochladen (parallel zum Audio)
