@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
       const session = await stripe.checkout.sessions.create({
         mode: "payment",
         payment_method_types: ["card", "paypal", "klarna"],
+        allow_promotion_codes: true,
         line_items: [{
           quantity: 1,
           price_data: {
@@ -67,6 +68,7 @@ export async function POST(req: NextRequest) {
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
         payment_method_types: ["card"],
+        allow_promotion_codes: true,
         line_items: [{ price: priceId, quantity: 1 }],
         metadata: { tier: "flat", shareSlug: shareSlug || "" },
         success_url: `${origin}/dashboard?package_success=1&session_id={CHECKOUT_SESSION_ID}`,
@@ -85,6 +87,7 @@ export async function POST(req: NextRequest) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card", "paypal", "klarna"],
+      allow_promotion_codes: true,
       line_items: [{
         quantity: 1,
         price_data: {
